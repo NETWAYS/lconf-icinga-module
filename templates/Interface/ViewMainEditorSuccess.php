@@ -1,0 +1,95 @@
+
+<script type='text/javascript'>  
+
+eventDispatcher = new (Ext.extend(Ext.util.Observable, {
+	customEvents : {},
+	constructor : function(config) {
+		this.listeners = config;
+		this.superclass.constructor.call(this,config);
+	},
+	addCustomListener : function(eventName, handler, scope,options) {
+		this.addEvents(eventName);
+		this.customEvents[eventName] = true;
+		this.addListener(eventName,handler,scope,options);
+	},
+	fireCustomEvent : function() {
+		var eventName = (Ext.toArray(arguments))[0]
+		if(!this.customEvents[eventName])
+			return false;
+		this.fireEvent.apply(this,arguments);
+	}
+}))();
+
+
+
+
+Ext.onReady(function() {	
+	var container = new Ext.Panel({
+		layout:'border',
+		id: 'view-container',
+		defaults: {
+			cls: 'cronk-center-content',
+			split:true,
+			collapsible: true
+		},
+		border: false,
+		items: [{
+			title: 'DIT',
+			region: 'west',
+			id: 'west-frame',
+			layout: 'fit',
+			margins:'5 0 0 0',
+			cls: false,
+			width:400,
+			minSize:200,
+			maxSize:500
+
+		}, {
+			region:'center',
+			collapsible:false,
+			title: "Properties",
+			layout: 'fit',
+			id:'center-frame',
+			margins: '5 0 0 0'
+		}, {
+			region:'south',
+			height:200,
+			minSize:50,
+			maxSize:200,
+			collapsed:true,
+			title: 'Server',
+			id:'south-frame',
+			margins: '5 0 0 0'
+		},{
+			title: 'Actions',
+			region: 'east',
+			id: 'east-frame',
+			layout: 'accordion',
+			animate:true,
+			margins:'5 0 0 0',
+			cls: false,
+			width:200,
+			minSize:100,
+			maxSize:200,
+
+		}]
+	})	
+	container.on('afterrender', function() {
+		container.setHeight(Ext.lib.Dom.getViewHeight() - 68);
+	}, container, { single: true });
+		
+//	mainTree.on("click",function() {this.doLayout();},container);
+	container.render("contentArea");
+	container.doLayout();
+	
+	Ext.EventManager.onWindowResize(function(w,h) {
+		this.doLayout();
+	}, container);
+
+	<?php echo $t["js_actionBarInit"]?>
+	<?php echo $t["js_DITinit"]?>
+	<?php echo $t["js_PropertyEditorInit"]?>
+})
+
+</script>
+
