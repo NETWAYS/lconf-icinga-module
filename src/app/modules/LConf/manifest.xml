@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<IcingaPlugin>
+	
+	<!--  Meta information about the module-->
+	<Meta>
+		<Name>LConf</Name>
+		<Version>0.1</Version>
+		<Description><![CDATA[Plugin to manage LDAP based configurations.]]></Description>
+		<Author>Jannis Moßhammer (Jannis.Mosshammer@netways.de)</Author>
+		<Company>NETWAYS GmbH</Company>	
+	</Meta>
+	
+	<Dependencies>
+		<Icinga-Web>
+			<Version>0.9.1</Version>
+		</Icinga-Web>
+		<PHP>
+			<Version>5.2</Version>
+			<Extensions>
+				<!-- Check if the gd lib is installed-->
+				<Extension>ldap</Extension>
+			</Extensions>
+		</PHP>
+		
+	</Dependencies>
+	
+	<!-- Filesystem information -->
+	<Files>		
+
+		<Paths>
+			<Icinga>/usr/local/icinga-web/</Icinga>
+			<AppKit>/app/modules/AppKit/lib/</AppKit>
+			<Module>/app/modules/%MODULE_Name%/</Module>
+			<Doctrine>lib/doctrine/lib/</Doctrine>
+			<Api>lib/icinga-api/</Api>
+		</Paths>
+		
+		<Additional>
+		</Additional>
+		
+		
+		<Excludes>
+			<file>**/cache/**/*.xml</file>
+			<file>**/cache/*.xml</file>
+			<folder>**/.git/</folder>
+			<folder>**/output/room*/**</folder>
+
+		</Excludes>
+		
+		<!--  Check icnga.css for MODULE[name] Entries -->
+		<Extractor>
+		</Extractor>
+	</Files>
+	
+	<Config>
+		<!--  Routing -->
+		<Entry file="%PATH_Icinga%app/config/routing.xml">
+			<Nodes fromConfig="true" base="//ae:configurations/ae:configuration[@context='web']/routes/route[@name='lconf']"/>
+		</Entry>
+	</Config>
+	
+	<!--  Database information -->
+	<Database>
+		<Doctrine>
+			<Models>
+				<Prefix>LConf</Prefix>
+			</Models>
+		</Doctrine>
+		<!-- Register Models -->
+		
+		<!-- Custom .sql files containing specific routings (to create default data, etc.)-->
+	
+	</Database>
+	
+	
+</IcingaPlugin>
