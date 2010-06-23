@@ -6,14 +6,28 @@
 >
 	<ae:configuration>
 		
-		<validators>
-			<validator class="number" name="connectionId" required="true">
-				<argument>connectionId</argument>
+		<validators >
+			<validator class="number" name="connection_id" required="true">
+				<argument>connection_id</argument>
 				<errors>
 					<error>Validation of "connectionId" failed</error>
 				</errors>
 			</validator>
 		</validators>
 		
+		<validators method="write">
+			<validator class="string" name="connection" required="false">
+				<argument>connection</argument>
+				<errors>
+					<error>No connection provided</error>
+				</errors>
+			</validator>
+			<validator class="isset" name="testOnly" required="false">
+				<argument>testOnly</argument>
+				<errors>
+					<error>Validation of testOnly failed</error>
+				</errors>
+			</validator>
+		</validators>
 	</ae:configuration>
 </ae:configurations>

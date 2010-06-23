@@ -104,41 +104,46 @@ class LConf_LDAPConnectionModel extends IcingaLConfBaseModel
 	public function __construct(array $parameter = null) {
 		// Parse parameter if exist
 		//print_r($parameter);
-	
+		
 		if(!empty($parameter)) {
-			if(isset($parameter["id"]))
-				$this->setConnectionId($parameter["id"]);
-			if(isset($parameter["connectionName"]))
-				$this->setConnectionName($parameter["connectionName"]);
-			if(isset($parameter["connectionDescription"]))
-				$this->setConnectionDescription($parameter["connectionDescription"]);
-			if(isset($parameter["bindDN"]))
-				$this->setBindDN($parameter["bindDN"]);
-			if(isset($parameter["bindPass"]))
-				$this->setBindPass($parameter["bindPass"]);
-			if(isset($parameter["host"]))
-				$this->setHost($parameter["host"]);
-			if(isset($parameter["port"]))
-				$this->setPort($parameter["port"]);
-			if(isset($parameter["baseDN"]))
-				$this->setBaseDN($parameter["baseDN"]);
-			if(isset($parameter["TLS"]))
-				$this->setTLS($parameter["TLS"]);	
+			if(isset($parameter["connection_id"]))
+				$this->setConnectionId($parameter["connection_id"]);
+			if(isset($parameter["connection_name"]))
+				$this->setConnectionName($parameter["connection_name"]);
+			if(isset($parameter["connection_description"]))
+				$this->setConnectionDescription($parameter["connection_description"]);
+			if(isset($parameter["connection_binddn"]))
+				$this->setBindDN($parameter["connection_binddn"]);
+			if(isset($parameter["connection_bindpass"]))
+				$this->setBindPass($parameter["connection_bindpass"]);
+			if(isset($parameter["connection_host"]))
+				$this->setHost($parameter["connection_host"]);
+			if(isset($parameter["connection_port"]))
+				$this->setPort($parameter["connection_port"]);
+			if(isset($parameter["connection_basedn"]))
+				$this->setBaseDN($parameter["connection_basedn"]);
+			if(isset($parameter["connection_tls"]))
+				$this->setTLS($parameter["connection_tls"]);	
 		}
 		
 	}
-	public function __toArray() {
+	
+	public function __toString() {
+		return "LDAP_Connection_".$this->getConnectionId();
+	}
+	
+	public function __toArray($wPass = false) {
 		$arr = array(
-			"id" => $this->getConnectionId(),
-			"connectionName" => $this->getConnectionName(),
-			"connectionDescription" => $this->getConnectionDescription(), 
-			"bindDN" => $this->getBindDN(),
-			"bindPass" => $this->getBindPass(),
-			"baseDN" => $this->getBaseDN(),
-			"host" => $this->getHost(),
-			"port" => $this->getPort(),
-			"authType" =>$this->getAuthType(),
-			"TLS" => $this->usesTLS()
+			"connection_id" => $this->getConnectionId(),
+			"connection_name" => $this->getConnectionName(),
+			"connection_description" => $this->getConnectionDescription(), 
+			"connection_binddn" => $this->getBindDN(),
+			"connection_bindpass" => $wPass ? $this->getBindPass() : '',
+			"connection_basedn" => $this->getBaseDN(),
+			"connection_host" => $this->getHost(),
+			"connection_port" => $this->getPort(),
+	//		"authType" =>$this->getAuthType(),
+			"connection_tls" => $this->usesTLS()
 		);
 		return $arr;
 	}

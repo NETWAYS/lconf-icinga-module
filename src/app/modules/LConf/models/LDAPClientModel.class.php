@@ -1,8 +1,8 @@
 <?php
 /**
- * Client Model class for LDAP 
+ * Client Model class for ldap 
  * Builds a connection, handles filtering and provides an interface
- * for communication with the LDAP Server.
+ * for communication with the ldap Server.
  * Automatically saves itself to the store on destruction.
  * 
  * TODO: Validation, Filtering and node creation and deletion functions
@@ -18,45 +18,51 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 	private $id = 0;
 	/**
 	 * Filtergroup class for search queries
-	 * @var LDAPFilterGroupModel
+	 * @var ldapFilterGroupModel
 	 */
-	private $filter = null;
+	private $filter = false;
 	/**
 	 * Schema Validator - not implemented yet
 	 * @var unknown_type
 	 */
-	private $schemaValidator = null;
+	private $schemaValidator = false;
 	/**
 	 * ConnectionModel class which holds information about the connection
 	 * like Host, BaseDN, credentials, etc.
-	 * @var LDAPConnectionModel
+	 * @var ldapConnectionModel
 	 */
-	private $connectionModel = null;
+	private $connectionModel = false;
+
+	/**
+	 * Instance of LDAPHelperModel for misc. result formatting operations 
+	 * @var LConf_LDAPHelperModel
+	 */
+	private $helper = null;
 	/**
 	 * The connection resource over which communication is handled
 	 * @var resource
 	 */
-	private $connection		= null;
+	private $connection		= false;
 	/**
-	 * LConf_options, see @link http://de2.php.net/manual/en/ref.ldap.php 
+	 * ldap_options, see @link http://de2.php.net/manual/en/ref.ldap.php 
 	 * @var array
 	 */
-	private $LConf_options	= array (
-		LConf_OPT_REFERRALS			=> 0,
-		LConf_OPT_DEREF				=> LConf_DEREF_ALWAYS,
-		LConf_OPT_PROTOCOL_VERSION	=> 3
+	private $ldap_options	= array (
+		LDAP_OPT_REFERRALS			=> 0,
+		LDAP_OPT_DEREF				=> LDAP_DEREF_NEVER,
+		LDAP_OPT_PROTOCOL_VERSION	=> 3
 	); 
 	/**
 	 * The current working dir
 	 * @var string
 	 */
-	private $cwd = null;
+	private $cwd = false;
 	/**
 	 * BaseDN 
 	 * TODO: Check if needed
 	 * @var string
 	 */
-	private $baseDN = null;
+	private $baseDN = false;
 	/**
 	 * Flag that indicates whether the class should store itself when destructed
 	 * @var boolean
@@ -66,10 +72,10 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 	public function setId($id) {
 		$this->id = $id; 
 	}
-	public function setFilter(LConf_LDAPFilterGroupModel  $filter) {
+	public function setFilter(lConf_LDAPFilterGroupModel  $filter) {
 		$this->filter = $filter;
 	}
-	public function setSchemaValidator(LConf_LDAPSchemaValidatorModel $schemaValidator) {
+	public function setSchemaValidator(LConf_LDAPConnectionModel $schemaValidator) {
 		$this->validator = $validator;
 	}
 	public function setConnectionModel(LConf_LDAPConnectionModel $connection) {
@@ -110,6 +116,8 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 	public function __construct(LConf_LDAPConnectionModel $connection = null) {
 		if($connection)	
 			$this->setConnectionModel($connection);
+		
+		
 	}
 	/**
 	 * Destroys the class and stores it if the dontStoreFlag is not set
@@ -120,24 +128,25 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 			$this->toStore();
 			 
 		if(is_resource($this->getConnection()))
-			LConf_close($this->getConnection());
+			ldap_close($this->getConnection());
 	}
 	
 	/**
-	 * Connects (or reconnects if from store) to the LDAP server 
+	 * Connects (or reconnects if from store) to the ldap server 
 	 * @return void
 	 */
 	public function connect() {
 		$connConf = $this->getConnectionModel();
-
-		$connection = LConf_connect($connConf->getHost(),$connConf->getPort());
+		$this->helper = AgaviContext::getInstance()->getModel("LDAPHelper","LConf");
+		$connection = ldap_connect($connConf->getHost(),$connConf->getPort());
 		if(!is_resource($connection))
 			throw new AgaviException("Could not connect to ".$connConf->getConnectionName());
 		
 		$this->setConnection($connection);
-		$this->applyLdapOptions();
+		$this->applyldapOptions();
 		if($connConf->usesTLS()) { //enable TLS if marked
-			LConf_start_tls($connection);
+			if(!@ldap_start_tls($connection))
+				throw new Exception("Connection via TLS could not be established!");
 		}
 		$this->doDefaultBind();
 		
@@ -154,17 +163,18 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 	 * @return string
 	 */
 	private function generateId() {
-		$this->setId(AgaviToolkit::uniqid("LConf_conn_"));
+		$this->setId(AgaviToolkit::uniqid("ldap_conn_"));
 	}
 	
-	private function applyLdapOptions() {
-		foreach ($this->LConf_options as $opt_id=>$opt_val) {
-			LConf_set_option($this->getConnection(), $opt_id, $opt_val);
+	private function applyldapOptions() {
+		foreach ($this->ldap_options as $opt_id=>$opt_val) {
+			ldap_set_option($this->getConnection(), $opt_id, $opt_val);
 		}
 	}
 	
 	private function doDefaultBind()	{
 		$connConf = $this->getConnectionModel();
+	
 		$this->bindTo($connConf->getBindDN(),$connConf->getBindPass());
 	}
 	
@@ -173,26 +183,11 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 		if(!is_resource($connection))
 			throw new AgaviException("Connection is not a resource");			
 
-		if(@LConf_bind($connection,$dn,$pass) == false) {
+		if(@ldap_bind($connection,$dn,$pass) == false) {
 			throw new AgaviException("Bind to ".$dn." failed: ".$this->getError());
 		}
 	}
 	
-	/**
-	 * Method that tries to guess the baseDN if none is set in the options
-	 * @param string $dn
-	 * @return string
-	 */
-	private function suggestBaseDNFromName($dn) {
-		$explodedDN = LConf_explode_dn($dn,0);
-		$dn = "";
-		foreach($explodedDN as $key=>$val) {
-			if($key == "dc") {
-				$dn .= $key."=".$val;
-			}
-		}
-		return $dn;
-	}
 	
 	/**
 	 * Sets the default CWD from the connectionModel
@@ -202,22 +197,11 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 		$connConf = $this->getConnectionModel();
 		$dn = $connConf->getBaseDN();  
 		if(!$dn) // no BaseDN given, guess the Base dir
-			$dn = $this->suggestBaseDNFromName($connConf->getBindDN());
+			$dn = $this->helper->suggestBaseDNFromName($connConf->getBindDN());
 		$this->setBaseDN($dn);
 		$this->setCwd($dn);
 	}
-	
-	/**
-	 * returns the LConf_entries for cwd
-	 * @return array
-	 */
-	public function listCurrentDir() {
-		$connConf = $this->getConnectionModel();
-		$basedn = $this->getCwd();
-		$result = LConf_list($this->getConnection(),$basedn,"objectClass=*");
-		return LConf_get_entries($this->getConnection(),$result);
-	}	
-	
+		
 	/**
 	 * Adds a new Property $newParams to $dn. 
 	 * $newParams must be an associative array with the fields 
@@ -226,6 +210,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 	 * returns an array with the new properties on success, else throws an
 	 * Instance of AgaviException with the Errormessage.
 	 * 
+	 * @TODO: Yep. ldap_mod_add would make life easier. Reading the complete api, too.
 	 * @param string $dn
 	 * @param array $newParams
 	 * @return array $properties
@@ -233,18 +218,17 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 	public function addNodeProperty($dn,$newParams) {
 		// if we only have a single entry, encapsulate it in an array
 		// so we don't need to differ between them and multiple entries
-		if($newParams["id"]) 
+		if(@$newParams["property"]) 
 			$newParams = array($newParams);
 	
 		$connId = $this->getConnection();
 		$properties = $this->getNodeProperties($dn);
-		$properties = $this->formatToPropertyArray($properties);
-		
+		$this->helper->cleanResult($properties);
 		foreach($newParams as $parameter) {
 			$newProperty = $parameter["property"];
 			$newValue = $parameter["value"];
 			
-			if(!$properties[$newProperty]) { // property doesn't exist
+			if(!isset($properties[$newProperty])) { // property doesn't exist
 				$properties[$newProperty] = array();
 			} else if(!is_array($properties[$newProperty])) { 
 				// property already exists
@@ -254,12 +238,27 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 			$properties[$newProperty][] = $newValue;
 		}
 
-		if(!@LConf_modify($connId,$dn,$properties)) {
+		if(!@ldap_modify($connId,$dn,$properties)) {
 			throw new AgaviException("Could not modify ".$dn. ":".$this->getError());
 		}
 		return $properties;
 	}
 	
+	
+	
+	/**
+	 * returns the ldap_entries for cwd
+	 * @return array
+	 */
+	public function listCurrentDir() {
+		$connConf = $this->getConnectionModel();
+		$basedn = str_replace("ALIAS=Alias of:","",$this->getCwd());
+
+		$result = ldap_list($this->getConnection(),$basedn,"objectClass=*");
+		$entries = ldap_get_entries($this->getConnection(),$result);
+		return $this->helper->resolveAliases($entries);
+	}	
+
 	/**
 	 * Returns the properties of a node $dn
 	 * 
@@ -268,8 +267,10 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 	 */
 	public function getNodeProperties($dn) {
 		$connection = $this->getConnection();
-		$result = LConf_read($connection,$dn,"objectclass=*");
-		$entries = LConf_get_entries($connection,$result);
+		$result = @ldap_read($connection,$dn,"objectclass=*");
+		if(!$result)
+			return array();
+		$entries = ldap_get_entries($connection,$result);
 		return $entries[0];
 	}
 	
@@ -280,6 +281,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 	 * 'property' 	the new property name
 	 * 'value' 		the new value name
 	 * 
+	 * @TODO: Yep. like in the add function ldap_mod_replace would make life easier.
 	 * @param string $dn
 	 * @param string $newParams
 	 * @return array 
@@ -290,7 +292,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 			
 		$connId = $this->getConnection();
 		$properties = $this->getNodeProperties($dn);
-		$properties = $this->formatToPropertyArray($properties);
+		$properties = $this->helper->formatToPropertyArray($properties);
 		$idRegexp = "/^(.*)_(\d*)$/";
 
 		foreach($newParams as $parameter) {
@@ -307,19 +309,25 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 				$properties[$curProperty] = $parameter["value"];
 		}	
 		
-		if(!@LConf_modify($connId,$dn,$properties)) {
+		if(!@ldap_modify($connId,$dn,$properties)) {
 			throw new AgaviException("Could not modify ".$dn. ":".$this->getError());
 		}
 		return $properties;
 	}
 	
+	/**
+     * @TODO: Yep. like in the add function ldap_mod_replace would make life easier. 
+	 * @param unknown_type $dn
+	 * @param unknown_type $remParams
+	 */
 	public function removeNodeProperty($dn,$remParams) {
 		if(!is_array($remParams))
 			$remParams = array($remParams);
 			
 		$connId = $this->getConnection();
 		$properties = $this->getNodeProperties($dn);
-		$properties = $this->formatToPropertyArray($properties);
+		
+		$this->helper->cleanResult($properties);
 		$idRegexp = "/^(.*)_(\d*)$/";
 		foreach($remParams as $parameter) {
 			$idElems = array();
@@ -328,46 +336,31 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 				throw new AppKitException("Invalid ID given to removeProperty ".$parameter);
 			}
 			$curProperty = $idElems[1];
-			if(is_array($properties[$curProperty]))
+			$curIndex = $idElems[2];
+			if(is_array($properties[$curProperty])) {
 				$properties[$curProperty][$curIndex] = array();
-			else 
+				if(count($properties[$curProperty]) == 1)
+					$properties[$curProperty] = array();
+			} else 
 				$properties[$curProperty] = array();
 		}
 
-		if(!@LConf_modify($connId,$dn,$properties)) {
+		if(!@ldap_modify($connId,$dn,$properties)) {
 			throw new AgaviException("Could not modify ".$dn. ":".$this->getError());
 		}
 		return null;
 	}
 	
-	protected function formatToPropertyArray(array $arr) {
-		$returnArray = array();
-		foreach($arr as $attribute=>$value) {
-			if(!is_array($value)) 
-				continue;
-			
-			$valueCount = $value["count"];
-			if($valueCount == 1) {
-				$returnArray[$attribute] = $value[0];
-			} else {
-				$returnArray[$attribute] = array();
-				for($i=0;$i<$valueCount;$i++) {
-					$returnArray[$attribute][] = $value[$i];
-				}
-			}			
- 		}
- 		return $returnArray;
-	}
 	
 	public function toStore() {
 		$clSerialized = serialize($this);
 		$storage = $this->getContext()->getStorage();
-		$storage->write("Icinga.LDAP.client.".$this->getId(),$clSerialized);
+		$storage->write("Icinga.ldap.client.".$this->getId(),$clSerialized);
 	
 	}
 	
 	static public function __fromStore($id,AgaviStorage $storage) {
-		$clSerialized = $storage->read("Icinga.LDAP.client.".$id);
+		$clSerialized = $storage->read("Icinga.ldap.client.".$id);
 		return unserialize($clSerialized);
 	}
 	
@@ -379,15 +372,14 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 	}
 	
 	public function __sleep() {
-		if($this->getFilter())
-			$this->_filter = $this->filter->__toArray();
-			
+		$this->_connectionModel = false;
 		if($this->getConnectionModel())
-			$this->_connectionModel = $this->connectionModel->__toArray();
+			$this->_connectionModel = $this->connectionModel->__toArray(true);
+			
 		/* AgaviModel __sleep()*/
 		$this->_contextName = $this->context->getName();
 		
-		return array('id','_filter','baseDN','schemaValidator','_connectionModel','_contextName','connection','LConf_options','cwd');
+		return array('id','baseDN','_connectionModel','_contextName','connection','ldap_options','cwd');
 		
 	}
 		
@@ -395,15 +387,12 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 		$this->context = AgaviContext::getInstance($this->_contextName);
 		unset($this->_contextName);	
 		// rebuild filters
-		if($this->_filter) {
-			$this->filter = LConf_LDAPFilterGroupModel::__fromArray($this->_filter);
-			$this->_filter = null;
-		}
+	
 		// rebuild connection-class
 	
 		if($this->_connectionModel) {
 			$this->connectionModel = $this->getContext()
-				->getModel("LDAPConnection","LDAP",array($this->_connectionModel));
+				->getModel("LDAPConnection","LConf",array($this->_connectionModel));
 			$this->_connectionModel = null;
 		}
 		// and finally (and hopefuly)- reconnect!
@@ -412,8 +401,10 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 	
 	public function getError() {
 		if(is_resource($this->getConnection()))
-			return LConf_error($this->getConnection());
+			return "<br/>LDAP Error:<br/><pre style='margin:10px;width:400px;font-size:10px;padding:5px;border:1px solid #dedede;-moz-border-radius:5px;-webkit-border-radius:5px;background:white;cursor:text;color:red'><code>".ldap_error($this->getConnection())."</code></div>";
 	}
+	
+	
 }
 
 

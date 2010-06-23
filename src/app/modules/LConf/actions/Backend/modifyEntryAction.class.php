@@ -14,14 +14,17 @@ class LConf_Backend_modifyEntryAction extends IcingaLConfBaseAction
 	 *                     executed.</li>
 	 *                   </ul>
 	 */
-	public function executeRead() {
+
+	public function executeWrite(AgaviRequestDataHolder $rd) {
+		return $this->getDefaultViewName();
+	}
+
+
+	public function executeRead(AgaviRequestDataHolder $rd) {
 		return $this->getDefaultViewName();
 	}
 	
-	public function executeWrite() {
-		return $this->getDefaultViewName();
-	}
-	
+
 	public function getDefaultViewName()
 	{
 		return 'Success';

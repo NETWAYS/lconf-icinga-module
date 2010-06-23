@@ -17,10 +17,53 @@ class LConf_Backend_connectionManager_connectionListingAction extends IcingaLCon
 	public function executeRead() {
 		return $this->getDefaultViewName();
 	}
+	
+	public function executeRemove(AgaviRequestDataHolder $rd) {
+		try {
+			$id = $rd->getParameter("connection_id");
+			$connectionManager = $this->getContext()->getModel("LDAPConnectionManager","LConf");
+			$connectionManager->dropConnection($id);
+		} catch(Exception $e) {
+			$rd->setParameter("_error",$e->getMessage());
+		}
+		return "Success";
+	}
+	
+	public function executeWrite(AgaviRequestDataHolder $rd) {
+		try {
+			$alteredConnection = $rd->getParameter("connections");
+			$alteredConnection = json_decode($alteredConnection,true);
+			if(!$alteredConnection)
+				throw new AppKitException("Invalid JSON send");
+			// always wrap as array to make it iteratable
+			if(isset($alteredConnection["connection_name"]))
+				$alteredConnection = array($alteredConnection);
+			
+			$connectionManager = $this->getContext()->getModel("LDAPConnectionManager","LConf");
+			foreach($alteredConnection as $connection)  
+				$connectionManager->addConnection($connection);
+		} catch(Exception $e) {
+			$rd->setParameter("_error",$e->getMessage());
+		}
+		return "Success";
+	}
+	
+	public function handleError(AgaviRequestDataHolder $rd) {
+		$ctx = $this->getContext();
+		$errors = $this->getContainer()->getValidationManager()->getErrorMessages();
+		foreach($errors as $error) 	 {
+			$ctx->getLoggerManager()->log($error["message"]);
+		}
+		$rd->setParameter("_error","Incompatible request submitted");
+		
+		return 'Success';
+	}
+	
 	public function getDefaultViewName()
 	{
 		return 'Success';
 	}
+	
 	public function isSecure() {
 		return true;
 	}

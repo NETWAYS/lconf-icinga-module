@@ -6,7 +6,7 @@ class LConf_Backend_listDirectorySuccessView extends IcingaLConfBaseView
 		$connectionId = $rd->getParameter("connectionId");
 		$context = $this->getContext();
 		// Register Class
-		$context->getModel("LDAPClient","LDAP");
+		$context->getModel("LDAPClient","LConf");
 		$client = LConf_LDAPClientModel::__fromStore($connectionId,$context->getStorage());
 		$client->setCwd($rd->getParameter("node"));
 		$list = $client->listCurrentDir();
@@ -27,8 +27,10 @@ class LConf_Backend_listDirectorySuccessView extends IcingaLConfBaseView
 				continue;
 			// check for leafs
 			$client->setCwd($node["dn"]);
-			if(!is_array($client->listCurrentDir()))
+			$subs = $client->listCurrentDir();
+			if(!is_array($subs) || !@$subs["count"])
 				$node["isLeaf"] = true;
+
 			$node["parent"] = $startCWD;	
 			$nodeList[] = $node;	
 		}

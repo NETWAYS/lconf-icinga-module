@@ -15,6 +15,19 @@
 				<setting name="description">An example module</setting>
 -->				
 				<setting name="connectionSource">DB</setting>
+				
+				<setting name="icons">
+					<ae:parameter name="nagiosStructuralObject">silk-chart-organisation</ae:parameter>
+					<ae:parameter name="nagiosTimeperiod">silk-clock-red</ae:parameter>
+					<ae:parameter name="nagiosCommand">silk-script</ae:parameter>
+					<ae:parameter name="nagiosContact">silk-user</ae:parameter>
+					<ae:parameter name="nagiosContactgroup">silk-group</ae:parameter>
+					<ae:parameter name="nagiosHost">silk-brick</ae:parameter>
+					<ae:parameter name="nagiosHostgroup">silk-bricks</ae:parameter>
+					<ae:parameter name="nagiosService">silk-cog</ae:parameter>
+					<ae:parameter name="alias">silk-attach</ae:parameter>
+				</setting>
+				<setting name="ldap_definition_ini">%core.module_dir%/LConf/lib/ldapConfig/staticObjects.ini</setting>
 			</settings>	
 		</module>
 		

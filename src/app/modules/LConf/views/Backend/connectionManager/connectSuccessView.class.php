@@ -6,18 +6,29 @@ class LConf_Backend_connectionManager_connectSuccessView extends IcingaLConfBase
 		try {
 			$context = $this->getContext();
 			$scope = $rd->getParameter("scope",array("global"));
-			$connectionId = $rd->getParameter("connectionId",false);
-			if(!$connectionId)
-				throw new AgaviException("No connectionId provided!");
-				
-			$connectionMgr = $context->getModel("LDAPConnectionManager","LDAP");
-			$connectionMgr->setScope($scope);
+
+			$connectionId = $rd->getParameter("connection_id",false);
+			$connectionJson = $rd->getParameter("connection",false);
 			
-			$connection = $connectionMgr->getConnectionById($connectionId);
+			if(!$connectionId && !$connectionJson)
+				throw new AgaviException("No connectionId provided!");
+			$connection = json_decode($connectionJson,true);
+			if(!$connection) {
+			
+				$connectionMgr = $context->getModel("LDAPConnectionManager","LConf");
+				if(!$connectionMgr->userIsGranted($connectionId))
+					throw new AgaviException("You are not allowed to access this connection.");
+					
+				$connectionMgr->getConnectionsForUser();			
+				$connection = $connectionMgr->getConnectionById($connectionId);
+			} else {
+				$connection = $context->getModel("LDAPConnection","LConf",array($connection));
+			}
+
 			if(!$connection)
-				throw new AgaviException("Invalid connectionId provided!");
-				
-			$connManager = $context->getModel("LDAPClient","LDAP",array($connection));
+				throw new AgaviException("Connection failed. Please check your credentials ");
+			
+			$connManager = $context->getModel("LDAPClient","LConf",array($connection));
 			$connManager->connect();
 			return json_encode(array(
 							"ConnectionID"=>$connManager->getId(),

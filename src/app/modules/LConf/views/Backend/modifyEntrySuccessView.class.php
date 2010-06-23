@@ -11,7 +11,7 @@ class LConf_Backend_modifyEntrySuccessView extends IcingaLConfBaseView
 			$connectionId = $parameters["connectionId"];
 			$properties = json_decode($parameters["properties"],true);
 			$context = $this->getContext();
-			$context->getModel("LDAPClient","LDAP");
+			$context->getModel("LDAPClient","LConf");
 			$client = LConf_LDAPClientModel::__fromStore($connectionId,$context->getStorage());
 			if(!$client) {
 				throw new AgaviException("Connetion error. Please reconnect.");
@@ -19,21 +19,16 @@ class LConf_Backend_modifyEntrySuccessView extends IcingaLConfBaseView
 			}
 			$client->setCwd($node);
 			
-			switch($parameters["action"]) {
-				case 'nodeCreate':
-					return "?";
-					break;
-				case 'propertyCreate':
+			switch($parameters["xaction"]) {
+				case 'create':
 					$client->addNodeProperty($node, $properties);
 					return "Success";
 					break;
-				case 'alter':
+				case 'update':
 					$client->modifyNode($node, $properties);
 					return "Success";
 					break;
-				case 'nodeDelete':
-					break;
-				case 'propertyDelete':
+				case 'destroy':
 					$client->removeNodeProperty($node, $properties);
 					return "Success";
 					break;

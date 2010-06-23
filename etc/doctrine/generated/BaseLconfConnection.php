@@ -1,7 +1,7 @@
 <?php
 
 
-abstract class BaseLConfConnection extends Doctrine_Record
+abstract class BaseLconfConnection extends Doctrine_Record
 {
     public function setTableDefinition()
     {

@@ -1,9 +1,7 @@
 //<script>
 	/*****			 Action Menu             ****/
 	var panelId = "<?php echo $t["parentid"] ?>";
-	var filterPanelId = "<?php echo $t['_panelIds']['filter'];?>";
-	var connectionPanelId = "<?php echo $t['_panelIds']['connections'];?>";
-	var schemaId = "<?php echo $t['_panelIds']['schema'];?>";
+
 
 	// Initial setup-functions for the action panel
 	initActionPanelProc = function(cmpRoute) {
@@ -34,7 +32,7 @@
 										this.panelManager = cmpManager;
 										this.doLayout();
 									},cmpPanel);
-		
+
 		return true;
 		
 	};
@@ -43,19 +41,21 @@
 	// Create Accordeon panel entries
 	var panelComponent;
 	if(panelComponent = Ext.getCmp(panelId)) {
-	<?php foreach($t["_menuPoints"] as $navPoint) :?>
-		panelComponent.add(<?php echo json_encode($navPoint["jsExtParams"]); ?>);
-	<?php endforeach;?>
+		// Connection list
+		panelComponent.add(
+			new Ext.Panel({
+				title: _('Connections'),
+				id: 'lconf.pl_connections',
+				listeners: {
+					render: function(r) {initActionPanelProc.call(r,'<?php echo $ro->gen('lconf.actionbar.connmanager'); ?>')}
+				}
+			})
+		);
+	
 		panelComponent.doLayout();
 	}
 	var cmpPanel = null;
+
 	
-	// Init the panels
-	<?php foreach($t["_menuPoints"] as $navPoint) :?>
-	cmpPanel = panelComponent.getComponent('<?php echo $navPoint['jsExtParams']["id"]; ?>');
-	if(cmpPanel)  {
-		cmpPanel.addListener("expand",function() {
-					initActionPanelProc.call(this,'<?php echo $navPoint['init']["route"]; ?>');
-					},cmpPanel);
-	}
-	<?php endforeach;?>
+	
+

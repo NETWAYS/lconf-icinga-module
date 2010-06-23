@@ -15,7 +15,7 @@
 			this.id = Ext.id(null,'connManager');
 			this.addEvents([config.eventId]);
 			if(!Ext.getCmp(config.parentid)) 
-				throw("Error in connectionManager: parentid unknown");
+				throw(_("Error in connectionManager: parentid unknown"));
 			
 			this.parent = Ext.getCmp(config.parentid);
 			this.superclass.constructor.call(config);	
@@ -26,15 +26,31 @@
 		getStore : function() {
 			if(!this.dStore) {
 				this.dStore = new Ext.data.JsonStore({
-					url: this.storeURL,
-					root:'connections',
-					storeId : 'storeConnManager',
-					fields: ['id','connectionName','connectionDescription','host','bindDN','authType','TLS','scope'],				
-					baseParams: {
-						"scope[]": this.filter
-					}
-				});
-			}
+					autoLoad:true,
+					listeners: {
+						// Check for errors
+						exception : function(prox,type,action,options,response,arg) {
+							if(response.status == 200)
+								return true;
+							response = Ext.decode(response.responseText);
+							if(response.error.length > 100)
+								response.error = _("A critical error occured, please check your logs");
+							Ext.Msg.alert(_("Error"), response.error);
+						},
+						save: function(store) {
+							store.load();
+						}
+					},
+					autoDestroy:true,
+					fields: [
+						'connection_id','connection_name','connection_description','connection_binddn',
+						'connection_bindpass','connection_host','connection_port','connection_basedn','connection_tls'
+					],
+					idProperty:'connection_id',
+					root: 'connections',
+					url: "<?php echo $ro->gen('lconf.data.connectionlisting'); ?>"
+				})
+			}			
 			return this.dStore;
 		},
 		
@@ -42,11 +58,12 @@
 			if(!this.tpl) {
 				this.tpl = new Ext.XTemplate(
 					'<tpl for=".">',
-						'<div class="cronk-preview" id="{id}">',
-							'<div class="thumb" ><img ext:qtip="{connectionDescription}" src="images/cronks/world.png" /></div>',
-							'<span class="X-editable">{connectionName}</span>',
+						'<div class="ldap-connection" ext:qtip="{connection_description}" id="conn_{connection_id}">',
+							'<div class="thumb"></div>',
+							'<span class="X-editable">{connection_name}</span>',
 						'</div>',
-					'</tpl>');
+					'</tpl>'
+				);
 			}
 			return this.tpl;
 		},
@@ -61,9 +78,9 @@
 					autoHeight:true,
 					overClass:'x-view-over',
 					multiSelect: false,
-					itemSelector:'div.cronk-preview',
+					itemSelector:'div.ldap-connection',
 					emptyText: 'unnamed',
-					cls: 'cronk-data-view'
+					cls: 'ldap-data-view'
 				}); 
 			}
 			return this.dView;
@@ -74,15 +91,16 @@
 		},
 		
 		init : function() {
+
 			var view = this.getView();
 			var store = this.getStore();
-			view.on("contextmenu",this.handleContext,this);
-			view.on("dblclick",function (dView,index,node,_e) {this.startConnect(index,node)},this);
+			view.addListener("contextmenu",this.handleContext,this);
+			view.addListener("dblclick",function (dView,index,node,_e) {this.startConnect(index,node)},this);
 			
 			// Notify parent that the component is ready to be drawn
 			store.on("load",function() {
-					eventDispatcher.fireCustomEvent(this.eventId,view,this);
-				},this);
+				eventDispatcher.fireCustomEvent(this.eventId,view,this);
+			},this);
 			store.load();
 			
 			eventDispatcher.addCustomListener("ConnectionClosed",
@@ -141,20 +159,20 @@
 			if(!this.detailTpl) {
 				this.detailTpl = new Ext.XTemplate(
 					'<table style="margin:10px" cellpadding="0" cellspacing="0">',
-						'<tr><td>ID</td><td>{id}</td></tr>',
-						'<tr><td>Name</td><td>{connectionName}</td></tr>',
+						'<tr><td>ID</td><td>{connection_id}</td></tr>',
+						'<tr><td>Name</td><td>{connection_name}</td></tr>',
 						'<tr><td colspan="2">Description</td></tr>',
 						'<tr><td colspan="2">',
 							'<div style="background-color:white;border:1px solid black;height:75px;width:100%;overflow:auto">',
-								'{connectionDescription}',
+								'{connection_description}',
 							'</div>',
 						'</td></tr>',
-						'<tr><td>BindDN</td><td> {bindDN}</td></tr>',
-						'<tr><td>BaseDN</td><td> {baseDN}</td></tr>',
-						'<tr><td>Host</td><td> {host}</td></tr>',
-						'<tr><td>Port</td><td> {port}</td><tr>',
-						'<tr><td>Authentification type </td><td>  {host}</td><tr>',
-						'<tr><td>Uses TLS </td></td> {TLS}</td></tr>',
+						'<tr><td>BindDN</td><td> {connection_binddn}</td></tr>',
+						'<tr><td>BaseDN</td><td> {connection_basedn}</td></tr>',
+						'<tr><td>Host</td><td> {connection_host}</td></tr>',
+						'<tr><td>Port</td><td> {connection_port}</td><tr>',
+						'<tr><td>Authentification type </td><td>  --</td><tr>',
+						'<tr><td>Uses TLS </td></td> {connection_tls}</td></tr>',
 					'</table>'
 					);
 			}
@@ -169,17 +187,17 @@
 		
 		startConnect: function(index, node) {
 			var record = this.dStore.getAt(index);
-			var connName = record.get('connectionName');
+			var connName = record.get('connection_name');
 			if(this.isConnected(connName)) {
-				AppKit.growlPopupBox(connName, 'Connection is already open!');
+				AppKit.notifyMessage(connName, _('Connection is already open!'));
 				return false;
 			}
-		    AppKit.growlPopupBox(connName, 'Connecting...');
+		    AppKit.notifyMessage(connName, 'Connecting...');
 			Ext.Ajax.request({
 				url: '<? echo $ro->gen("lconf.data.connect")?>',
 				success: this.onConnectionSuccess,
 				failure: this.onConnectionFailure,
-				params: {connectionId : record.get('id')},
+				params: {connection_id : record.get('connection_id')},
 				scope: this,
 				// custom parameter
 				record: record,
@@ -191,10 +209,10 @@
 		onConnectionSuccess: function(response,params) {		
 			var responseJSON = Ext.decode(response.responseText);
 			if(!responseJSON["ConnectionID"]) {
-				AppKit.growlPopupBox(params.connName, 'No connectionID returned!');
+				AppKit.notifyMessage(params.connName, 'No connectionID returned!');
 				return false;
 			}
-			AppKit.growlPopupBox(params.connName, 'Connected!');
+			AppKit.notifyMessage(params.connName, 'Connected!');
 
 			// Tell the dispatcher to spread that the connection is open
 			eventDispatcher.fireCustomEvent("ConnectionStarted",{
@@ -207,7 +225,7 @@
 		},
 
 		onConnectionFailure: function(response, params) {
-			AppKit.growlPopupBox(params.connName, 
+			AppKit.notifyMessage(params.connName, 
 					'Couldn\'t connect!<br/>'+
 					response.responseText
 			);
@@ -223,7 +241,7 @@
 			if(isId) 
 				connName = this.getConnectionNameById(connName);
 			
-			AppKit.Ext.notifyMessage('Closing connection',connName);
+			AppKit.notifyMessage('Closing connection',connName);
 			this.connections[connName] = null;
 		}
 	});

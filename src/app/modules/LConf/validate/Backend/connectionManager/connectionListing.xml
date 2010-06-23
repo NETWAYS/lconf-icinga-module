@@ -14,7 +14,25 @@
 					<error>Validation of parameter scope failed</error>
 				</errors>
 			</validator>
+			
+		</validators>
+
+		<validators method="write">
+			<validator class="string" name="connections" required="true">
+				<argument>connections</argument>
+				<errors>
+					<error>No connection to add provided</error>
+				</errors>
+			</validator>
 		</validators>
 		
+		<validators method="remove">
+			<validator class="string" name="connection_id" required="true">
+				<argument>connection_id</argument>
+				<errors>
+					<error>No connection to add provided</error>
+				</errors>
+			</validator>
+		</validators>
 	</ae:configuration>
 </ae:configurations>

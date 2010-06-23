@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<buildpath>
+	<buildpathentry kind="src" path="bin"/>
+	<buildpathentry kind="src" path="etc/doctrine"/>
+	<buildpathentry kind="src" path="src/app/modules/LConf/actions"/>
+	<buildpathentry kind="src" path="src/app/modules/LConf/lib/action"/>
+	<buildpathentry kind="src" path="src/app/modules/LConf/lib/model"/>
+	<buildpathentry kind="src" path="src/app/modules/LConf/lib/view"/>
+	<buildpathentry kind="src" path="src/app/modules/LConf/models"/>
+	<buildpathentry kind="src" path="src/app/modules/LConf/templates/Backend"/>
+	<buildpathentry kind="src" path="src/app/modules/LConf/templates/Interface"/>
+	<buildpathentry kind="src" path="src/app/modules/LConf/views/Backend"/>
+	<buildpathentry kind="src" path="src/app/modules/LConf/views/Interface"/>
+	<buildpathentry kind="con" path="org.eclipse.php.core.LANGUAGE"/>
+</buildpath>

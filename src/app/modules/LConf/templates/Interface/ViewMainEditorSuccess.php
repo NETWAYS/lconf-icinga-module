@@ -50,15 +50,6 @@ Ext.onReady(function() {
 			layout: 'fit',
 			id:'center-frame',
 			margins: '5 0 0 0'
-		}, {
-			region:'south',
-			height:200,
-			minSize:50,
-			maxSize:200,
-			collapsed:true,
-			title: 'Server',
-			id:'south-frame',
-			margins: '5 0 0 0'
 		},{
 			title: 'Actions',
 			region: 'east',

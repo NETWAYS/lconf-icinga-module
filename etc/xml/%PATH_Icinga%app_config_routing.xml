@@ -3,18 +3,28 @@
   <ae:configuration context="web">
     <routes xmlns="http://agavi.org/agavi/config/parts/routing/1.0">
       <route pattern="^/lconf" name="lconf" module="LConf">
-				<route name=".main" pattern="^$" action="Interface.ViewMainEditor"/>
-				<route name=".actionbar" pattern="^/actionbar" output_type="simple">
-					<route name=".connmanager" pattern="^/connmanager$" action="Interface.ActionBar.connectionList"/>
-				</route>
-				<route name=".data" pattern="^/data" output_type="simple">
-					<route name=".directoryprovider" pattern="^/directoryprovider" action="Backend.listDirectory"/>
-					<route name=".modifyentry" pattern="^/entrymodifier" action="Backend.modifyEntry"/>
-					<route name=".propertyprovider" pattern="^/properties" action="Backend.getProperties"/>					
-					<route name=".connectionlisting" pattern="^/connections" action="Backend.connectionManager.connectionListing"/>
-					<route name=".connect" pattern="^/connect" action="Backend.connectionManager.connect"/>
-				</route>
+			<route name=".main" pattern="^/$" action="Interface.ViewMainEditor"/>
+			<route name=".actionbar" pattern="^/actionbar" output_type="simple">
+				<route name=".connmanager" pattern="^/connmanager$" action="Interface.ActionBar.connectionList"/>
 			</route>
+			
+			<route name=".data" pattern="^/data" output_type="json">
+				<route name=".directoryprovider" pattern="^/directoryprovider$" action="Backend.listDirectory"/>
+				<route name=".modifyentry" pattern="^/entrymodifier(/{field:[\w_]+})?$" action="Backend.modifyEntry"/>
+				<route name=".propertyprovider" pattern="^/properties$" action="Backend.getProperties"/>					
+				<route name=".connectionlisting" pattern="^/connections(/{connection_id:\d+})?$" action="Backend.connectionManager.connectionListing"/>
+				<route name=".connect" pattern="^/connect$" action="Backend.connectionManager.connect"/>
+				<route name=".principals" pattern="^/principals$" action="Backend.Principals"/>
+				<route name=".ldapmetaprovider" pattern="^/ldapmeta/(field:\w+)$" action="Backend.LDAPObjects"/>
+			</route>
+			<route name=".admin" pattern="^/admin" action="Interface.Admin.Main">
+				<route name=".principals" pattern="^/principals" action="Interface.Admin.Principals" output_type="simple"/>
+			</route>
+			<route name=".ldapeditor" pattern="^/editor">
+				<route name=".editorfielddefinitions" pattern="^/getfields" action="Interface.jsLDAPEditors" output_type="simple"/>
+			
+			</route>
+		</route>
     </routes>
   </ae:configuration>
 </ae:configurations>

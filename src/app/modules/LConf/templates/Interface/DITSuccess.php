@@ -1,14 +1,13 @@
 <?php 
-	$icons = AgaviConfig::get("de.icinga.ldap",array());
-	if(!empty($icons))
-		$icons = $icons["icons"];	
+	$icons = AgaviConfig::get("modules.lconf.icons",array());
+
 ?>
 ditTreeManager = function(parentId,loaderId) {	
 	
 	var dataUrl = loaderId;
 	var ditPanelParent = Ext.getCmp(parentId);
 	if(!ditPanelParent)
-		throw("DIT Error: parentId "+parentId+" is unknown");
+		throw(_("DIT Error: parentId ")+parentId+_(" is unknown"));
 	
 	var ditTreeLoader = Ext.extend(Ext.tree.TreeLoader,{
 		
@@ -29,9 +28,9 @@ ditTreeManager = function(parentId,loaderId) {
 			} 
 		
 			nodeAttr.text = this.getText(attr);
-			nodeAttr.qtip ="<b>ObjectClass:</b> "+objClass+
-							"<br/><b>DN:</b> "+attr["dn"]+
-							"<br/>Click to modify";
+			nodeAttr.qtip = _("<b>ObjectClass:</b> ")+objClass+
+							_("<br/><b>DN:</b> ")+attr["dn"]+
+							_("<br/>Click to modify");
 			nodeAttr.id = attr["dn"];
 			nodeAttr.leaf = attr["isLeaf"] ? true :false;
 
@@ -44,24 +43,96 @@ ditTreeManager = function(parentId,loaderId) {
 		
 		getText: function(attr,withDN) {
 			var comma = 1;
-			var txtLength = (attr["dn"].length-attr["parent"].length)-comma; 
 			var txtRegExp = /^.*?\=/;
-			var shortened = attr["dn"].substr(0,txtLength);
+			var shortened = attr["dn"].split(",")[0];
 			return (withDN) ? shortened : shortened.replace(txtRegExp,"");
 		}
 	});
 	
 	var ditTree = Ext.extend(Ext.tree.TreePanel,{
-		constructor: function(config) {
-			Ext.apply(this,config);
-			Ext.tree.TreePanel.superclass.constructor.call(this,config);
-			this.initEvents();
-			this.initLoader();
-		},
-		
+	
 		initEvents: function() {
+			ditTree.superclass.initEvents.call(this);
 			this.on("beforeclose",this.onClose);
 			this.on("click",function(node) {eventDispatcher.fireCustomEvent("nodeSelected",node,this.id);});
+			this.on("beforeNodeDrop",function(e) {e.dropStatus = true;this.nodeDropped(e);return false},this)
+			this.on("contextmenu",function(node,e) {this.context(node,e)},this);
+		},
+		
+		context: function(node,e) {
+			var ctx = new Ext.menu.Menu({
+				items: [{
+					text: _('Create node on same level'),
+					iconCls: 'silk-add',
+					handler: this.callNodeCreationWizard.createDelegate(this,{node:node}),
+					scope: this,
+					hidden: !(node.parentNode)
+				},{
+					text: _('Create node as child'),
+					iconCls: 'silk-sitemap',
+					handler: this.callNodeCreationWizard.createDelegate(this,{node:node,isChild:true}),
+					scope: this
+				},{
+					text: _('Jump to alias target'),
+					iconCls: 'silk-arrow-redo',
+					hidden: node.id.substr(0,5) != 'ALIAS',
+					handler: this.jumpToRealNode.createDelegate(this,[node])	
+				}]
+			});
+			ctx.showAt(e.getXY())
+			
+			
+		},
+		
+		jumpToRealNode : function(alias) {
+			var id = alias.id.substr(("ALIAS=Alias of:").length);
+			AppKit.log(id);
+			var node = this.getNodeById(id);
+			if(!node)  {
+			 	node = this.searchNodeByDN(id);
+				return true;
+			} 
+			AppKit.log(node.getPath());
+			this.selectPath(node.getPath());
+			this.expandPath(node.getPath());
+		},
+			
+		searchNodeByDN : function(id) {
+			
+		},
+		
+		callNodeCreationWizard : function(cfg) {
+			if(!this.wizardWindow) {
+				this.wizardWindow = new Ext.Window({
+					width:800,
+					renderTo:Ext.getBody(),
+					modal:true,
+					title: _('Create new entry'),
+					layout:'card'
+				});
+			}
+			this.wizardWindow.update();
+		},
+		
+		nodeDropped: function(e) {
+			var ctx = new Ext.menu.Menu({
+				items: [{
+					text: _('Clone node here'),
+					iconCls: 'silk-arrow-divide'
+				},{
+					text: _('Move node here'),
+					iconCls: 'silk-arrow-turn-left'
+				},{
+					text: _('Create alias here'),
+					iconCls: 'silk-attach'
+					
+				},{
+					text: _('Cancel'),
+					iconCls: 'silk-cancel'
+				}]
+			});
+			ctx.showAt(e.rawEvent.getXY())
+			
 		},
 		
 		initLoader: function() {
@@ -72,39 +143,66 @@ ditTreeManager = function(parentId,loaderId) {
 		},
 		
 		onClose: function() {
-			Ext.Msg.confirm(this.title,"Are you sure you want to close this connection?",
+			Ext.Msg.confirm(this.title,_("Are you sure you want to close this connection?"),
 				function(btn) {
 					if(btn == 'yes') {
 						eventDispatcher.fireCustomEvent("ConnectionClosed",this.id);
 						this.destroy()
+						if(!ditTreeTabPanel.items.length)
+							toolbar.setDisabled(true);
 					}
 				},
 				this /*scope*/);
 			return false;
 		},
-		useArrows:true,
+		
+		initComponent: function() {
+			ditTree.superclass.initComponent.call(this);
+			this.initLoader();
+			
+		},
+		
+		selModel:new Ext.tree.MultiSelectionModel(),
 		autoScroll:true,
 		animate:false,
-		enableDD: false,
 		containerScroll:true,
 		minSize:500,
 		border:false,
-		cls: 'none',
-
+		
+		enableDD: true,
 		root: {
 			nodeType: 'async',
-			disabled:true,
+			disabled:false,
+			enableDD:false,
+			draggable:false,
 			editable:false,
 			text: 'Root DSE',
 			leaf:true
 
 		},
 	});
+	var toolbar = new Ext.Toolbar(
+	{
+		disabled:true,
+		items:[{
+			text:_('Add'),
+			iconCls:'silk-add',
+			xtype:'button'
 
+		}, {
+			text:_('Remove'),
+			iconCls:'silk-delete',
+			xtype:'button'		
+		}]
+	});
+	
 	var ditTreeTabPanel = new Ext.TabPanel({
+		bbar: toolbar,
 		autoDestroy: true,
 		resizeTabs:true,
+		
 		defaults : {
+			
 			closable: true
 		}
 	});
@@ -114,7 +212,9 @@ ditTreeManager = function(parentId,loaderId) {
 	
 	// init listener
 	eventDispatcher.addCustomListener("ConnectionStarted",function(connObj) {
+		toolbar.setDisabled(false);
 		var tree = new ditTree({
+						enableDD:true,
 						id:connObj.id,
 						title:connObj.connectionName
 					});

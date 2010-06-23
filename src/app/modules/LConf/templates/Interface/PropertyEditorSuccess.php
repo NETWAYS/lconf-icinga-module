@@ -1,5 +1,6 @@
-//<script>
-propertyManager = new function() {
+Ext.ns("lconf");
+
+lconf.propertyManager = new function() {
 	var grid = null;
 	var activeDN =  null;
 
@@ -22,205 +23,110 @@ propertyManager = new function() {
 		records.remove(record);
 										
 	}
-	
-	this.editProperty = function(grid,rowIndex,event) {
-		var store = grid.getStore();
-		var dn = this.getActiveDN();
-		var connection = grid.connId;
-		
-		var formPanel = new Ext.Window({
-			layout:'fit',
-			width:500,
-			title: 'Edit entry',
-		});
-		viewPropertyForm.call(this,formPanel,{
-			records: store,
-			connection : connection,
-			dn: dn
-		});
-		formPanel.render(Ext.getBody());
-		formPanel.show();
-		
-	}
-	var getPropertyEditorRow = function(record,gen_id) {
-		return new Ext.Panel({
-			layout:'column',
-			border:false,
-			frame:false,
-			bodyStyle:'background:none',
-			items: [
-				new Ext.form.TextField({
-					columnWidth:0.3,
-					xtype:'textfield',
-					
-					value: record.get('property'),
-					id: 'EntryProperty_'+record.get('id')+'_'+gen_id
-				}),
-				new Ext.form.TextField({
-					columnWidth:0.5,
-					xtype:'textfield',
-					value: record.get('value'),
-					id: 'EntryValue_'+record.get('id')+'_'+gen_id
-				}),
-				new Ext.form.Checkbox({
-					columnWidth:0.1,
-					id: 'Delete_'+record.get('id')+'_'+gen_id,
-					width:25
-				}),
-				new Ext.Container({
-					layout:'fit',
-					cls: 'x-form-item',
-					bodyStyle:'padding: 5px 0px 0;',
-					html: 'Remove',
-					columnWidth:0.1
-				})
-				
-			]
+
+	var gridStore = new Ext.data.JsonStore({
+		proxy: new Ext.data.HttpProxy({
+			url : '<?php echo $ro->gen("lconf.data.modifyentry");?>',
+			api: {
+				read :'<?php echo $ro->gen("lconf.data.propertyprovider");?>',			
+			},
+		}),
+		autoSave: false,
+		storeId: 'propertiesStore',
+		root: 'properties',
+		baseParams: {
+			'test' : true,
+			'connectionId' : this.connId				
+		},
+		idProperty: 'id',
+		fields: ['id','property','value'],
+		writer: new Ext.data.JsonWriter({
+			encode:true,
+			writeAllFields:true,
+			autoSave:true
 		})
-	}
-
-	var updateRowsfromForm = function(record,gen_id) {
-		var inpField_pr = Ext.getCmp('EntryProperty_'+record.get('id')+'_'+gen_id);
-		var inpField_val = Ext.getCmp('EntryValue_'+record.get('id')+'_'+gen_id);
-		var inpField_del = Ext.getCmp('Delete_'+record.get('id')+'_'+gen_id);
-		
-		if(!(inpField_pr && inpField_val && inpField_del)) 
-			return true;
-		if(inpField_del.getValue()) {
-			deletes.push(record);
-		}
-		record.set('property',inpField_pr.getValue());				
-		record.set('value',inpField_val.getValue());
-	}
-	
-	var viewPropertyForm = function(parent,options) {
-		var gen_id = Ext.id();
-		var records = options.records;
-		var added = [];
-		var deletes = [];
-		var editEntryform =  new Ext.form.FormPanel({
-			url: '',
-			bodyStyle:'padding: 5px 5px 0;background:none',
-			frame: false,
-			border:false,
-			height:300,
-			autoscroll:true
-		});
-
-		
-		records.each(function(record) {
-			if(record.get('property') == 'dn') 
-				return true;
-			
-			var columnLayout = getPropertyEditorRow(record,gen_id);
-			editEntryform.add(columnLayout);
-		},this); 
-		
-
-		Ext.apply(editEntryform, options);
-		editEntryform.mgr = this;
-		editEntryform.parent = parent;
-		editEntryform.addButton('Add Field', function() {
-			var newId =Ext.id();
-			var emptyRecord = new (Ext.data.Record.create([{name: 'id'},{name:'property'},{name:'value'},{name:'isNew'}]))();
-				emptyRecord.set('id',newId);
-				emptyRecord.set('isNew',true);
-			
-			var row = getPropertyEditorRow(emptyRecord,gen_id);
-			editEntryform.add(row);
-			editEntryform.doLayout();
-			added.push(emptyRecord);
-
-		},this);		
-
-		editEntryform.addButton('Save', function(btn,e) {
-			// copy new values to the store
-
-			records.each(function(record) {	
-				updateRowsfromForm(record,gen_id);
-			});
-			Ext.each(added,function(record) {
-				updateRowsfromForm(record,gen_id);
-			})
-			records.add(added);
-			if(deletes.length) {
-				Ext.Msg.confirm("Save changes", 
-					"Are you sure you want to delete these properties?<br/>"+
-					"This action is not reversable!",
-					function(btn) {
-						if(btn == 'yes') {
-							records.remove(deletes);
-							records.save();
-						}
-					}, this);
-			} else {
-				records.save();
-			}
-			
-			//alert(records.save());
-			editEntryform.parent.close();
-		},editEntryform);
-		
-		parent.add(editEntryform);
-	}
-
+	});
 
 	
-	var gridPanel = Ext.extend(Ext.grid.GridPanel,{
-
+	var gridPanel = Ext.extend(Ext.grid.EditorGridPanel,{
+		
 		minHeight: 200,
-		
+		forceFit:true,
 		construct: function(config) {
 			Ext.apply(this,config);
-			Ext.grid.PropertyGrid.prototype.call(this,config);
-			this.initEvents();
-		},
 
+			Ext.grid.EditorGridPanel.prototype.constructor.call(this,config);
+			
+		},
+		fbar: new Ext.Toolbar({
+			disabled:true,
+			items:[{
+				xtype: 'button',
+				text: _('Add property'),
+				iconCls: 'silk-add',
+				handler: function() {
+					gridStore.add(new gridStore.recordType());					
+				},
+				scope: this
+			},{
+				xtype: 'button',
+				text: _('Remove properties'),
+				iconCls: 'silk-delete',
+				handler: function(btn) {
+					eventDispatcher.fireCustomEvent("removeSelectedPropertyNodes");
+				},
+				scope: this
+			},{
+				xtype:'tbseparator',
+			},{
+				xtype:'button',	
+				text: _('Save Changes'),
+				iconCls: 'silk-disk',
+				handler: function() {
+					gridStore.save();
+				},
+				scope:this
+			}]
+		}),
 		connId: null,
 		
-		ds :  new Ext.data.JsonStore({
-			proxy: new Ext.data.HttpProxy({
-				api: {
-					read :'<?php echo $ro->gen("lconf.data.propertyprovider");?>',
-					create: String.format('<?php echo $ro->gen("lconf.data.modifyEntry");?>{0}',"propertyCreate"),
-					update: String.format('<?php echo $ro->gen("lconf.data.modifyEntry");?>{0}',"alter"),
-					destroy: String.format('<?php echo $ro->gen("lconf.data.modifyEntry");?>{0}',"propertyDelete"),
-				},
-			}),
-			autoSave: false,
-			storeId: 'propertiesStore',
-			root: 'properties',
-			idProperty: 'id',
-			fields: ['id','property','value'],
-			writer: new Ext.data.JsonWriter({
-				encode:true,
-				writeAllFields:true,
-				autoSave:true
-			})
-		}),
-		
-		columns: [
-			{id:'property',header:'Property',width:200,sortable:true,dataIndex:'property'},
-			{id:'value',header:'Value',width:200,sortable:false,dataIndex:'value'}
-		],
+		ds :  gridStore,
 		
 		initEvents: function(){
+			Ext.grid.EditorGridPanel.prototype.initEvents.call(this)
 			eventDispatcher.addCustomListener("nodeSelected",this.viewProperties,this,{buffer:true});
-			this.on("rowdblclick",this.mgr.editProperty,this.mgr);
+			eventDispatcher.addCustomListener("ConnectionClosed",this.disable,this);
+			eventDispatcher.addCustomListener("removeSelectedPropertyNodes",this.clearSelected,this);
+			eventDispatcher.addCustomListener("invalidNode",this.disable,this);
+			
+			this.getStore().on("add",function(store,rec,index) {this.getSelectionModel().selectLastRow();},this)
 			this.getStore().on("load", this.getDNFromRecord,this.mgr);
 			this.getStore().on("exception",function(proxy,type,action,opt,resp,arg) {
 				if(resp.status != '200')
 					Ext.Msg.alert('Process failed!',resp.responseText);
 			});
 			this.getStore().on("save",function() {this.reload()},this.getStore());
+			this.on("beforeedit",this.setupEditor,this);
+			
 		},
-		
+		clearSelected: function() {
+			this.getStore().remove(this.getSelectionModel().getSelections());
+		},
+				
+		disable: function() {
+			this.fbar.setDisabled(true);
+			this.getStore().removeAll(false);
+		},
 		getDNFromRecord : function(store,records,options) {
 			var activeRecord;
 			
 			for(var index in records) {
 				activeRecord = records[index];
-
+				// Check if we're on an alias node
+				if(!activeRecord.get) {
+					eventDispatcher.fireCustomEvent("invalidNode");
+					break;
+				}
 				if(!activeRecord.get("property"))
 					continue;
 				
@@ -233,15 +139,63 @@ propertyManager = new function() {
 			
 		viewProperties: function(selectedDN,connection) {		
 			this.connId = connection;	
-			this.getStore().setBaseParam('node',selectedDN.id);
+			var id = selectedDN.attributes["aliasdn"] || selectedDN.id;
+			this.getStore().setBaseParam('node', id);
 			this.getStore().setBaseParam('connectionId',connection);
 			this.getStore().load();
-			
+			this.fbar.setDisabled(false);
+			if(!lconf.editors)
+				this.lazyLoadEditors();
 		},
+		
+		sm: new Ext.grid.RowSelectionModel(),
+		
+		colModel : new Ext.grid.ColumnModel({
+			isCellEditable : function(col,row) {
+				if(gridStore.getAt(row).id == 'dn')
+					return false;
+				return  Ext.grid.ColumnModel.prototype.isCellEditable.call(this,col,row);	
+			}, 
+			columns: [	
+				{id:'property',header:'Property',width:300,sortable:true,dataIndex:'property',editor:Ext.form.TextField},
+				{id:'value',header:'Value',width:400,sortable:false,dataIndex:'value',editor:Ext.form.TextField}
+			]
+		}),
+		
+		/**
+		 * Here's the magic: this function is triggered on beforeEdit and dynamically changes the Editor
+		 */
+		setupEditor: function(e) {
+			var column = e.grid.getColumnModel().columns[e.column];			
+			var editor = null;
+			if(e.field == "property") {
+				var editor = lconf.editors.editorFieldMgr.getEditorFieldForProperty("property");
+			} else {
+				var type = e.record.id.split("_")[0];
+				var editor = lconf.editors.editorFieldMgr.getEditorFieldForProperty(type);
+			}
+			column.setEditor(editor);
+		},
+		
+		lazyLoadEditors: function() {
+			var route = '<?php echo $ro->gen("lconf.ldapeditor.editorfielddefinitions");?>';
+			var layer = new Ext.LoadMask(Ext.getBody(),{msg:_('Loading editors...')});
+			layer.show();
+			Ext.Ajax.request({
+				url: route,
+				success: function(resp) {
+					layer.hide();
+					eval(resp.responseText);	
+				},
+				failure: function(resp) {
+					err = (resp.responseText.length<50) ? resp.responseText : 'Internal Exception, please check your logs';
+					Ext.MessageBox.alert(_("Error"),_("Couldn't load editor:<br\>"+err))
+					layer.hide();
+				}
+			});
+			
+		}
 	});
-
-
-	
 }
 
 var propertyCmpId = '<?php echo $t["parentId"];?>';
@@ -250,6 +204,6 @@ var propertyParent = Ext.getCmp(propertyCmpId);
 if(!propertyParent) 
 	throw ("Error in PropertyEditor: Component "+propertyCmpId+" is unknown");
 
-propertyParent.add(propertyManager.getEditor());
+propertyParent.add(lconf.propertyManager.getEditor());
 propertyParent.doLayout();
 

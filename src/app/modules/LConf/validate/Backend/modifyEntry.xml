@@ -6,7 +6,7 @@
 >
 	<ae:configuration>
 		
-		<validators>
+		<validators method="write">
 			<validator class="string" name="connectionId" required="true">
 				<argument>connectionId</argument>
 				<errors>
@@ -27,14 +27,22 @@
 					<error>Validation of "properties" failed!</error>
 				</errors>
 			</validator>
-			<validator class="string" name="action" required="true">
-				<argument>action</argument>
-				<errors>
-					<error>Validation of "properties" failed!</error>
-				</errors>
-			</validator>
-								
-		</validators>
 		
+				
+			<validator class="inarray" name="xaction" required="true">
+				<argument>xaction</argument>
+				<ae:parameters>
+					<ae:parameter name="type">string</ae:parameter>
+					<ae:parameter name="case">true</ae:parameter>
+					<ae:parameter name="values">
+						<ae:parameter>create</ae:parameter>
+						<ae:parameter>destroy</ae:parameter>
+						<ae:parameter>read</ae:parameter>
+						<ae:parameter>update</ae:parameter>
+					</ae:parameter>
+				</ae:parameters>
+			</validator>
+		</validators>
+
 	</ae:configuration>
 </ae:configurations>

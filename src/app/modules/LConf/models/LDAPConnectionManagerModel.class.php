@@ -5,11 +5,12 @@ class LConf_LDAPConnectionManagerModel extends IcingaLConfBaseModel
 	protected $connectionArray = array();
 	protected $scope = array();
 	
-	static private $allModels = null;
+	private $allModels = null;
 	
 	public function addToConnectionArray(LConf_LDAPConnectionModel $conn) {
-		$this->availableConnections[$conn->getConnectionId()] = $conn;
+		$this->connectionArray[$conn->getConnectionId()] = $conn;
 	}	
+	
 	public function removeFromConnectionArray($conn) {
 		$connectionArray = &$this->getConnectionArray();
 		$idToRemove = null;
@@ -31,13 +32,7 @@ class LConf_LDAPConnectionManagerModel extends IcingaLConfBaseModel
 	}
 	
 	public function getConnectionArray() {
-		if(empty($this->connectionArray)) {
-			$connectionSource = AgaviConfig::get("module.lconf.connectionSource","DB");
-			if($connectionSource == "Config")
-				$this->loadConnectionsFromConfig();
-			else if($connectionSource == "DB") 
-				$this->loadConnectionsFromDB();
-		}
+	
 		return $this->connectionArray;
 	}
 	
@@ -56,7 +51,40 @@ class LConf_LDAPConnectionManagerModel extends IcingaLConfBaseModel
 	public function setConnectionArray(array $connectionArray) {
 		$this->connectionArray = $connectionArray;
 	}
-
+	
+	/**
+	 * Updates or adds an connection
+	 * @param array $details
+	 */
+	public function addConnection(array $details) {
+		$id = $details["connection_id"];	
+		$entry = new LconfConnection();
+		if($id > -1) 
+			$entry = Doctrine::getTable("LconfConnection")->findBy("connection_id",$id)->getFirst();
+		else 
+			$details["connection_id"] = null;
+		if(!$entry)
+			throw new AppKitException("Connection not found!");
+		foreach($details as $field=>$value) {
+			if(!$value) 
+				continue;
+			$entry->set($field,$value);
+		}
+		$entry->save();	
+	}
+	
+	/**
+	 * Deletes an connection
+	 * @param integer $id
+	 */
+	public function dropConnection($id) {
+		$entry = new LconfConnection();
+		$entry = Doctrine::getTable("LconfConnection")->findBy("connection_id",$id)->getFirst();
+		if(!$entry)
+			throw new AppKitException("Connection does not exist!");
+		$entry->delete();
+	}
+	
 	public function addScope($scope)	{
 		$this->setConnectionArray(array());
 		$this->scope[] = $scope;
@@ -66,53 +94,127 @@ class LConf_LDAPConnectionManagerModel extends IcingaLConfBaseModel
 		$this->scope = $scope;
 	}
 	
-	protected function loadConnectionsFromDB() {
-		
-		
-	}
-	
-	protected function loadConnectionsFromConfig() {
-		$connections = self::$allModels;
-		$context = $this->getContext();
-		$models = array();
-		$model = null;
-		// If the connections aren't already saved globally, fetch them and save it
-		if(!$connections) {
-			$connections = AgaviConfig::get("modules.lconf.connections",null);
-			if(!is_null($connections))
-				$connections = $connections["connections"];
-				
-			self::$allModels = $models;
-		}
+	public function getConnectionsFromDB() {
+		$connections = Doctrine_Query::create()->
+							select("*")->
+							from("LconfConnection lc")->fetchArray();
+		$ctx = $this->getContext();
 		foreach($connections as $connection) {
-			if(!$this->checkScope($connection))
-				continue;
-			$model = $context->getModel("LDAPConnection","LDAP",array($connection));
-			$models[$model->getConnectionId()] = $model;
+			$this->addToConnectionArray($ctx->getModel("LDAPConnection","LConf",array($connection)));	
 		}
-		$this->setConnectionArray($models);	
+		
+		return $connections;
+	}
+
+	public function userIsGranted($connectionId) {
+		$this->connectionArray = array();
+		$connections = $this->getConnectionsForUser();
+
+		if(!array_key_exists($connectionId,$this->connectionArray))
+			return false;
+		$this->connectionArray = array();
+		return true;
 	}
 	
-	protected function checkScope($connection) {
-		$scope = ($connection["scope"]);
-		if(!is_array($scope))
-			$scope = array($connection["scope"]);
-		$scopeFilter = $this->getScope();
-		if(array_intersect($scope,$scopeFilter)) 
-			return true;
-		else
-			return false;
-	}
 	
 	public function __toJSON() {
 		$arr = array();
+
 		foreach($this->getConnectionArray() as $connection) {	
-			$arr[] = $connection->__toArray();
+			if($connection instanceof LConf_LDAPConnectionModel)
+				$arr[] = $connection->__toArray();
+				
 		}
 		return json_encode(array("connections" => $arr));
 	}
 
 
+	public function getConnectionsForUser(NsmUser $user = null,$respectGroups = true) {
+		if(is_null($user))
+			$user = $this->getContext()->getUser()->getNsmUser();
+		
+		$ctx = $this->getContext();
+		$query = Doctrine_Query::create()
+				->select("conn.*")
+				->from("LconfConnection conn")
+				->innerJoin("conn.principals lp")
+				->where("lp.principal_user_id = ?",$user->get("user_id"));
+		
+		$connections = $query->execute()->toArray();
+		//print_r($connections);
+		$result = array();
+		foreach($connections as $connection) {
+			$this->addToConnectionArray($ctx->getModel("LDAPConnection","LConf",array($connection)));
+		}
+		
+		if($respectGroups) {
+			foreach($user->get("NsmUserRole") as $role) {
+				$groupConnections = $this->getConnectionsForGroup($role->get("NsmRole"));
+			}
+		}
+
+		return $this->getConnectionArray();
+	}
+	
+	
+	public function getConnectionsForGroup(NsmRole $role) {
+		$ctx = $this->getContext();
+		$query = Doctrine_Query::create()
+				->select("conn.*")
+				->from("LconfConnection conn")
+				->innerJoin("conn.principals lp")
+				->where("lp.principal_role_id = ?",$role->get("role_id"));
+		return $this->processQuery($query);
+	}
+	
+
+	public function getUsersForConnection($connection) {
+		if($connection instanceof LConf_LDAPConnectionModel)
+			$connection = $connection->getConnectionId();
+		$ctx = $this->getContext();
+		$query = Doctrine_Query::create()
+				->select("user.user_id, user.user_name, pr.*")
+				->from("LconfPrincipal pr")
+				->innerJoin("pr.NsmUser user")
+				->where("pr.connection_id = ?",$connection);
+		
+		$result = $query->execute()->toArray();
+		foreach($result as &$entry) {
+			$entry["NsmUser"]["principal_id"] = $entry["principal_id"];
+			$entry = $entry["NsmUser"];
+		}
+		return $result;
+	}
+
+	public function getGroupsForConnection($connection) {
+		if($connection instanceof LConf_LDAPConnectionModel)
+			$connection = $connection->getConnectionId();
+		$ctx = $this->getContext();
+		$query = Doctrine_Query::create()
+				->select("role.role_name, role.role_id, pr.connection_id")
+				->from("LconfPrincipal pr")
+				->innerJoin("pr.NsmRole role")
+				->where("pr.connection_id = ?",$connection);
+		$result = $query->execute()->toArray();
+		foreach($result as &$entry) {
+			$entry["NsmRole"]["principal_id"] = $entry["principal_id"];
+			$entry = $entry["NsmRole"];
+		}
+		return $result;
+	}
+
+	protected function processQuery($query) {
+		$ctx = $this->getContext();
+		$connections = $query->execute()->toArray();
+		$result = array();
+		foreach($connections as $connection) {
+			$result[] = $ctx->getModel("LDAPConnection","LConf",array($connection));
+		}
+		foreach($result as $curResult)
+			$this->addToConnectionArray($curResult);
+		return $result;			
+	}
+	
 }
 
 ?>

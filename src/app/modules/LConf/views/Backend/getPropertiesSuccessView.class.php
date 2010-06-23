@@ -25,7 +25,7 @@ class LConf_Backend_getPropertiesSuccessView extends IcingaLConfBaseView
 			
 			// restore connection from store
 			$client = LConf_LDAPClientModel::__fromStore($connectionId,$context->getStorage());
-			$client->setCwd($base);
+			//$client->setCwd();
 			// Get the raw property list
 			$list = $client->getNodeProperties($node);
 			if(!is_array($list)) // no properties fund, return null

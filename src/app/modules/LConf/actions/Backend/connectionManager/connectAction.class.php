@@ -19,6 +19,7 @@ class LConf_Backend_connectionManager_connectAction extends IcingaLConfBaseActio
 	}
 	
 	public function executeWrite() {
+		
 		return $this->getDefaultViewName();
 	}
 	

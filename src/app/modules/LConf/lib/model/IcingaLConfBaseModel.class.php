@@ -3,7 +3,7 @@
 /**
  * The base model from which all LDAP module models inherit.
  */
-class IcingaLConBaseModel extends IcingaBaseModel
+class IcingaLConfBaseModel extends IcingaBaseModel
 {
 
 }
