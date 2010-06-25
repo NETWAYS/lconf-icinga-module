@@ -48,7 +48,7 @@ class LConf_LDAPFilterGroupModel extends IcingaLConfBaseModel
 	
 	public function addFilter($filter) {
 		// Typecheck of the filters
-		if(!($filter instanceof LConf_LDAPFilterGroupModel || $filter instanceof LConf_LDAPFilterModel))
+		if(!$filter instanceof LConf_LDAPFilterGroupModel && !$filter instanceof LConf_LDAPFilterModel)
 			throw new InvalidArgumentException("Internal Error: addFilter expects a filterclass, ".get_class($filter)." given!");
 		
 		$this->filters[] = $filter;

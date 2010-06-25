@@ -7,10 +7,16 @@
 	<ae:configuration>
 		
 		<validators>
-			<validator class="string" name="view" required="true">
-				<argument>view</argument>
+			<validator class="string" name="eventId" required="true">
+				<argument>eventId</argument>
 				<errors>
-					<error>View not defined</error>
+					<error>Validation of parameter "eventId" failed</error>
+				</errors>
+			</validator>
+			<validator class="string" name="parentid" required="true">
+				<argument>parentid</argument>
+				<errors>
+					<error>Validation of parameter "parentid" failed</error>
 				</errors>
 			</validator>
 		</validators>

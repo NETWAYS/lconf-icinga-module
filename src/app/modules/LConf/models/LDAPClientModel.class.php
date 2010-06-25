@@ -52,6 +52,16 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 		LDAP_OPT_DEREF				=> LDAP_DEREF_NEVER,
 		LDAP_OPT_PROTOCOL_VERSION	=> 3
 	); 
+	
+	/**
+	 * Attributes that describe the dn according to RFC4514/RFC4519
+	 *
+	 * RFC 4514, Section 3
+	 * http://www.ietf.org/rfc/rfc4514.txt?number=2253
+	 */
+	public static $dnDescriptors = array('cn','l','st','o','ou','c','street','dc','uid');
+	
+	
 	/**
 	 * The current working dir
 	 * @var string
@@ -116,8 +126,6 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 	public function __construct(LConf_LDAPConnectionModel $connection = null) {
 		if($connection)	
 			$this->setConnectionModel($connection);
-		
-		
 	}
 	/**
 	 * Destroys the class and stores it if the dontStoreFlag is not set
@@ -244,7 +252,79 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 		return $properties;
 	}
 	
+	public function addNode($parentDN,$parameters) {
+		if(!$parameters)
+			throw new AgaviException("No parameters given!");
+		$dn = $parentDN;
+		//always wrap to array
+		if(isset($parameters["property"])) 
+			$parameters = array($newParams);
+		$params = array();
+		foreach($parameters as $parameter) {
+			$params[$parameter["property"]] = $parameter["value"];
+			if(in_array($parameter["property"],self::$dnDescriptors))
+				$dn = $parameter["property"]."=".$parameter["value"].",".$dn;
+		}
+		$connId = $this->getConnection();
+		if(!@ldap_add($connId,$dn,$params)) {
+			throw new AgaviException("Could not add ".$dn. ":".$this->getError());
+		}
+		return $params;
+	}
 	
+	public function removeNodes($dnList) {
+		$dns = $dnList;
+		$connId = $this->getConnection();
+		if(!is_array($dns))
+			$dns = array($dns);
+		$errors = "";
+		foreach($dns as $dn) {
+			if(!$dn)
+				continue;
+			if(!$this->recursiveRemoveNode($dn)) {
+				$errors .= "<br/>".$dn.": ".$this->getError();
+			}
+		}
+		if($errors != "")
+			throw new AgaviException("Errors occured: ".$errors);
+	}
+	
+	public function recursiveRemoveNode($dn) {
+		$list = $this->listDN($dn,false);
+		$this->helper->cleanResult($list);
+		if($list) {
+			$result = true;
+			foreach($list as $subEntries) {
+				$result = $result && $this->recursiveRemoveNode($subEntries["dn"]);
+			}	
+		}
+		return @ldap_delete($this->getConnection(),$dn);
+	}
+	
+	public function searchEntries($filter,$base = null,array $addAttributes = array()) {
+		if(!$filter instanceof LConf_LDAPFilterGroup && !$filter instanceof LConf_LDAPFilter) {
+			throw new Exception("Invalid filter provided for search");
+		}
+		if(!$base)
+			$base = $this->getCwd();
+		$searchAttrs = array_merge(array("dn"),$addAttributes);
+		$result = ldap_search($this->getConnection(),$base,$filterString,$searchAttrs);
+		return ldap_entries($this->getConnection(),$result);
+	} 
+	
+	public function checkIfNodeIsReferenced($dn) {
+		$ctx = $this->getContext();
+		
+		$filterGroup = $ctx->getModel("LDAPFilterGroup","LConf");
+		$objectClassFilter =  $ctx->getModel("LDAPFilter","LConf",array("objectclass","alias",false,"contains"));
+		$aliasTargetFilter = $ctx->getModel("LDAPFilter","LConf",array("aliasedobjectname","ou=Templates,ou=LConf,dc=icinga,dc=org",false,"exact"));
+		$filterGroup->addFilter($objectClassFilter);
+		$filterGroup->addFilter($aliasTargetFilter);
+		$result = $this->searchEntries($filterGroup->buildFilterString());
+		if($result["count"])
+			return $result;
+		return false;
+	}
 	
 	/**
 	 * returns the ldap_entries for cwd
@@ -253,12 +333,17 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 	public function listCurrentDir() {
 		$connConf = $this->getConnectionModel();
 		$basedn = str_replace("ALIAS=Alias of:","",$this->getCwd());
-
-		$result = ldap_list($this->getConnection(),$basedn,"objectClass=*");
-		$entries = ldap_get_entries($this->getConnection(),$result);
-		return $this->helper->resolveAliases($entries);
+		
+		return $this->listDN($basedn);
 	}	
 
+	public function listDN($dn,$resolveAlias = true) {
+		$result = ldap_list($this->getConnection(),$dn,"objectClass=*");
+		$entries = ldap_get_entries($this->getConnection(),$result);
+		if($resolveAlias)
+			return $this->helper->resolveAliases($entries);
+		return $entries;
+	}
 	/**
 	 * Returns the properties of a node $dn
 	 * 

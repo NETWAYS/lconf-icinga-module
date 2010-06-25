@@ -1,5 +1,4 @@
-a:1:{i:0;a:3:{s:4:"mark";s:5:"LConf";s:4:"file";s:35:"%PATH_Icinga%/pub/styles/Icinga.css";s:7:"content";s:623:"/*MODULE[LConf]*/
-.ldap-connection {
+a:1:{i:0;a:3:{s:4:"mark";s:5:"LConf";s:4:"file";s:35:"%PATH_Icinga%/pub/styles/Icinga.css";s:7:"content";s:1349:".ldap-connection {
     width:100px;
     margin:5px;
     padding:5px;
@@ -28,7 +27,48 @@ a:1:{i:0;a:3:{s:4:"mark";s:5:"LConf";s:4:"file";s:35:"%PATH_Icinga%/pub/styles/I
     margin:auto;
 }
 
+.ldap-filter {
+    margin:2px;
+    width:98%;
+    padding:5px;
+    height:1.5em;
+    float:left;
+    border: 1px solid #cacaca;
+    -moz-border-radius:2px;
+    -webkit-border-radius:2px;
+    text-align:left;
+    background-color:#efefef;
+    cursor:pointer;
+}
+
+.ldap-filter .thumb {
+  	height:20px;
+    width:35px;
+    float:left;
+    background-image:url(../images/fam/stop.png);
+    background-repeat:no-repeat;
+    margin:auto;
+}
+
+.ldap-filter.x-view-over {
+    background-color:#dedede;
+}
+.ldap-filter.x-view-select{
+    background-color:#dddddd;
+}
+
+.ldap-filter.isActive  .thumb {
+    background-image:url(../images/fam/accept.png);
+}
+
+.lconf-panel-disabled * .ldap-filter .thumb  {
+    background-image:url(../images/fam/stop.png);
+}
+
+
 .middleAlign {
     vertical-align:middle;
 
-}";}}
+}
+
+";}}

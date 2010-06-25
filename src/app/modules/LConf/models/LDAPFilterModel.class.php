@@ -1,11 +1,15 @@
 <?php
 
+
+
 class LConf_LDAPFilterModel extends IcingaLConfBaseModel 
 {
 	protected $key = null;
 	protected $value = null;
 	protected $filterString = "";
 	protected $negated = false;
+	protected $type = "exact";
+
 	
 	public function setKey($key) {
 		$this->key = $key;
@@ -35,10 +39,18 @@ class LConf_LDAPFilterModel extends IcingaLConfBaseModel
 		return $this->negated;
 	}
 	
-	public function __construct($key, $value,$negated = false) {
+	public function setType($type) {
+		$this->type = $type;
+	} 
+	public function getType() {
+		return $this->type;
+	}
+	
+	public function __construct($key, $value,$negated = false,$type="exact") {
 		$this->setKey($key);
 		$this->setValue($value);		
 		$this->setNegated($negated);
+		$this->setType($type);
 	}
 	
 	public function __toArray() {
@@ -46,8 +58,21 @@ class LConf_LDAPFilterModel extends IcingaLConfBaseModel
 	}
 	
 	public function buildFilterString() {
+		$value = $this->getValue();
+		switch($this->getType()) {
+			case "startswith":
+				$value = "*".$value;
+				break;
+			case "endswith":
+				$value = $value."*";
+				break;
+			case "contains":
+				$value = "*".$value."*";		
+				break;			
+		}
+		
 		$filterString = ($this->isNegated() ? '(!(' : '(').
-							$this->getKey()."=".$this->getValue().
+							$this->getKey()."=".$value.
 						($this->isNegated() ? '))' : ')');
 		$this->setFilterString($filterString);
 		

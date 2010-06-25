@@ -27,6 +27,55 @@
 					<ae:parameter name="nagiosService">silk-cog</ae:parameter>
 					<ae:parameter name="alias">silk-attach</ae:parameter>
 				</setting>
+				
+				<setting name="customDialogs">
+					<ae:parameter>
+						<ae:parameter name="view">Alias</ae:parameter>
+						<ae:parameter name="description">Create an Alias Entry</ae:parameter>
+						<ae:parameter name="iconCls">silk-bricks</ae:parameter>
+					</ae:parameter>
+					<ae:parameter>
+						<ae:parameter name="view">Command</ae:parameter>
+						<ae:parameter name="description">Create a Command entry</ae:parameter>
+						<ae:parameter name="iconCls">silk-bricks</ae:parameter>
+					</ae:parameter>
+					<ae:parameter>
+						<ae:parameter name="view">Contactgroup</ae:parameter>
+						<ae:parameter name="description">Create a Contactgroup entry</ae:parameter>
+						<ae:parameter name="iconCls">silk-bricks</ae:parameter>
+					</ae:parameter>
+					<ae:parameter>
+						<ae:parameter name="view">Contact</ae:parameter>
+						<ae:parameter name="description">Create a Contact entry</ae:parameter>
+						<ae:parameter name="iconCls">silk-bricks</ae:parameter>
+					</ae:parameter>
+					<ae:parameter>
+						<ae:parameter name="view">Hostgroup</ae:parameter>
+						<ae:parameter name="description">Create a Hostgroup entry</ae:parameter>
+						<ae:parameter name="iconCls">silk-bricks</ae:parameter>
+					</ae:parameter>
+					<ae:parameter>
+						<ae:parameter name="view">Host</ae:parameter>
+						<ae:parameter name="description">Create a Host entry</ae:parameter>
+						<ae:parameter name="iconCls">silk-bricks</ae:parameter>
+					</ae:parameter>
+					<ae:parameter>
+						<ae:parameter name="view">Service</ae:parameter>
+						<ae:parameter name="description">Create a Service entry</ae:parameter>
+						<ae:parameter name="iconCls">silk-bricks</ae:parameter>
+					</ae:parameter>
+					<ae:parameter>
+						<ae:parameter name="view">Timeperiod</ae:parameter>
+						<ae:parameter name="description">Create a Timeperiods entry</ae:parameter>
+						<ae:parameter name="iconCls">silk-bricks</ae:parameter>
+					</ae:parameter>
+					<ae:parameter>
+						<ae:parameter name="view">Default</ae:parameter>
+						<ae:parameter name="description">Custom entry</ae:parameter>
+						<ae:parameter name="iconCls">silk-bricks</ae:parameter>
+					</ae:parameter>
+				</setting>
+				
 				<setting name="ldap_definition_ini">%core.module_dir%/LConf/lib/ldapConfig/staticObjects.ini</setting>
 			</settings>	
 		</module>

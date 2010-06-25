@@ -51,7 +51,15 @@
 				}
 			})
 		);
-	
+		panelComponent.add(
+			new Ext.Panel({
+				title: _('Filters'),
+				id: 'lconf.pl_filters',
+				listeners: {
+					render: function(r) {initActionPanelProc.call(r,'<?php echo $ro->gen('lconf.actionbar.filtermanager'); ?>')}
+				}
+			})
+		);
 		panelComponent.doLayout();
 	}
 	var cmpPanel = null;

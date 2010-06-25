@@ -68,7 +68,7 @@ class LConf_LDAPConnectionManagerModel extends IcingaLConfBaseModel
 		foreach($details as $field=>$value) {
 			if(!$value) 
 				continue;
-			$entry->set($field,$value);
+			$entry->set($field,htmlentities($value));
 		}
 		$entry->save();	
 	}

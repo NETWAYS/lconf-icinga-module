@@ -94,7 +94,7 @@
 
 			var view = this.getView();
 			var store = this.getStore();
-			view.addListener("contextmenu",this.handleContext,this);
+			view.addListener("click",this.handleContext,this);
 			view.addListener("dblclick",function (dView,index,node,_e) {this.startConnect(index,node)},this);
 			
 			// Notify parent that the component is ready to be drawn

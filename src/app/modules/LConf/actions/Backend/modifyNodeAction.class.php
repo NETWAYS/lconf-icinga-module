@@ -1,6 +1,6 @@
 <?php
 
-class LConf_PropertyEditor_PropertyWizardAction extends IcingaLConfBaseAction
+class LConf_Backend_modifyNodeAction extends IcingaLConfBaseAction
 {
 	/**
 	 * Returns the default view if the action does not serve the request
@@ -14,20 +14,15 @@ class LConf_PropertyEditor_PropertyWizardAction extends IcingaLConfBaseAction
 	 *                     executed.</li>
 	 *                   </ul>
 	 */
-	
-	public function executeWrite(AgaviRequestDataHolder $rd) {		
-		$target = $rd->getParameter("view","Default");
-		return $target;
+	public function executeWrite(AgaviRequestDataHolder $rd) {
+		return $this->getDefaultViewName();
 	}
-	
 	public function executeRead(AgaviRequestDataHolder $rd) {
-		$target = $rd->getParameter("view","Default");
-		return $target;		
+		return $this->getDefaultViewName();		
 	}
-	
 	public function getDefaultViewName()
 	{
-		return 'Default';
+		return 'Success';
 	}
 }
 

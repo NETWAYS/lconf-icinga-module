@@ -9,7 +9,7 @@ class LConf_Backend_LDAPObjectsSuccessView extends IcingaLConfBaseView
 		$ctx = $this->getContext();
 		$result;
 		if(in_array($field,self::$staticFields)) {
-			$definitions = $ctx->getStorage()->read("lconf.ldap.entites");
+			$definitions = null;//$ctx->getStorage()->read("lconf.ldap.entites");
 			if(!$definitions)
 				$definitions = $this->loadStaticLDAPDefinitions();			
 			$result = $definitions[$field];
