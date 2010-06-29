@@ -1,17 +1,17 @@
 <script type='text/javascript'>
 Ext.onReady(function() {
-	Ext.ns("LConf.Admin");
+	Ext.ns("lconf.Admin");
 		
-	LConf.Admin.connectionTbar = function() {
+	lconf.Admin.connectionTbar = function() {
 		var tbar = new Ext.Toolbar({
 			items: [{
 				text:_('New connection'),
 				iconCls: 'silk-add',
-				handler: LConf.Admin.addUserPanel
+				handler: lconf.Admin.addUserPanel
 			}, {
 				text:_('Remove connections'),
 				iconCls: 'silk-cancel',
-				handler: LConf.Admin.removeSelected
+				handler: lconf.Admin.removeSelected
 			}]
 		});
 		return tbar;		
@@ -22,7 +22,7 @@ Ext.onReady(function() {
 	 * 
 	 * @return Ext.DataView 
 	 * */
-	LConf.Admin.connectionList = new function() {
+	lconf.Admin.connectionList = new function() {
 		var recordSkeleton = Ext.data.Record.create([
 			'connection_id','connection_name','connection_description','connection_binddn',
 			'connection_bindpass','connection_host','connection_port','connection_basedn','connection_tls'
@@ -133,13 +133,13 @@ Ext.onReady(function() {
 						items: [{
 							text:'Edit',
 							iconCls:'silk-application-edit',
-							handler: LConf.Admin.addUserPanel.createCallback(record.data)
+							handler: lconf.Admin.addUserPanel.createCallback(record.data)
 						}, {
 							text:'Manage access',
 							iconCls:'silk-user',
 							handler: function() {
 								var conn_id = record.get("connection_id");
-								var wnd = LConf.Admin.PrincipalEditor(conn_id);
+								var wnd = lconf.Admin.PrincipalEditor(conn_id);
 
 								wnd.show();
 							}
@@ -151,8 +151,8 @@ Ext.onReady(function() {
 		});
 	}
 	
-	LConf.Admin.removeSelected = function() {
-		var records = LConf.Admin.connectionList.dView.getSelectedRecords();
+	lconf.Admin.removeSelected = function() {
+		var records = lconf.Admin.connectionList.dView.getSelectedRecords();
 		if(records.length == 0) {
 			Ext.MessageBox.alert(_("Error"),_("No connection selected"));
 			return false;
@@ -179,7 +179,7 @@ Ext.onReady(function() {
 	 * 
 	 * @return void
 	 */
-	LConf.Admin.addUserPanel = function(defaults) {
+	lconf.Admin.addUserPanel = function(defaults) {
 		if(!defaults)
 			defaults = {}
 		var _id = Ext.id(null,"userPanel");
@@ -288,7 +288,7 @@ Ext.onReady(function() {
 					if(!form.getForm().isValid()) 
 						return false;
 					var values = form.getForm().getValues();
-					LConf.Admin.connectionList.testConnection(values);
+					lconf.Admin.connectionList.testConnection(values);
 					
 				}
 			}, {
@@ -300,7 +300,7 @@ Ext.onReady(function() {
 					if(!form.getForm().isValid()) 
 						return false;
 					var values = form.getForm().getValues();
-					LConf.Admin.connectionList.addConnection(values);
+					lconf.Admin.connectionList.addConnection(values);
 					Ext.getCmp('wnd_'+btn.parentId).close();
 				}
 			}]
@@ -308,7 +308,7 @@ Ext.onReady(function() {
 		wnd.show();	
 	}
 	
-	LConf.Admin.container = new Ext.Panel({
+	lconf.Admin.container = new Ext.Panel({
 		layout:'border',
 		id: 'view-container',
 		items: [{
@@ -318,14 +318,14 @@ Ext.onReady(function() {
 			layout: 'fit',
 			margins:'5 5 5 5',
 			cls: false,
-			tbar: LConf.Admin.connectionTbar(),
-			items: LConf.Admin.connectionList.dView
+			tbar: lconf.Admin.connectionTbar(),
+			items: lconf.Admin.connectionList.dView
 		}]
 	});
 	
 	<?php echo $t["js_editWindow"]; ?>	
 	
-	AppKit.util.Layout.getCenter().add(LConf.Admin.container);
+	AppKit.util.Layout.getCenter().add(lconf.Admin.container);
 	AppKit.util.Layout.doLayout();
 
 })

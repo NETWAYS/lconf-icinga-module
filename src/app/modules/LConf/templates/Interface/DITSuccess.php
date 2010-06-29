@@ -57,9 +57,19 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 		initEvents: function() {
 			ditTree.superclass.initEvents.call(this);
 			this.on("beforeclose",this.onClose);
+			eventDispatcher.addCustomListener("filterChanged",function(filters) {
+				this.loader.baseParams["filters"] = Ext.encode(filters);
+				this.refreshNode(this.getRootNode(),true);
+			},this)
 			this.on("click",function(node) {eventDispatcher.fireCustomEvent("nodeSelected",node,this.id);});
 			this.on("beforeNodeDrop",function(e) {e.dropStatus = true;this.nodeDropped(e);return false},this)
 			this.on("contextmenu",function(node,e) {this.context(node,e)},this);
+		},
+		
+		processDNForServer: function(dn) {
+			dn = dn.replace("ALIAS=Alias of:","");
+			dn = dn.replace(/^\*\d{4}\*/,"");
+			return dn;
 		},
 		
 		context: function(node,e) {
@@ -68,7 +78,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 				items: [{
 					text: _('Refresh this part of the tree'),
 					iconCls: 'silk-arrow-refresh',
-					handler: this.refreshNode.createDelegate(this,[node]),
+					handler: this.refreshNode.createDelegate(this,[node,true]),
 					scope: this,
 					hidden: node.isLeaf()
 				},{
@@ -113,7 +123,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 				},{
 					text: _('Jump to alias target'),
 					iconCls: 'silk-arrow-redo',
-					hidden: !node.attributes.isAlias,
+					hidden: !node.attributes.isAlias && !node.id.match(/\*\d{4}\*/),
 					handler: this.jumpToRealNode.createDelegate(this,[node])	
 				}]
 			});
@@ -122,20 +132,65 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			
 		},
 		
-		refreshNode: function(node) {
+		getExpandedSubnodes: function(node) {
+			var expanded = {
+				here : [],
+				nextLevel: []
+			}
+			node.eachChild(function(subNode) {
+				if(subNode.isExpanded()) {
+					expanded.here.push(subNode.id);			
+					expanded.nextLevel.push(this.getExpandedSubnodes(subNode));
+				}
+			},this);
+			return expanded;
+		},
+		
+		expandViaTreeObject: function(treeObj) {
+			Ext.each(treeObj.here,function(nodeId) {
+				var node = this.getNodeById(nodeId);
+				if(!node) {
+					AppKit.log("Gnaaah!")
+					return true;
+				}
+				node.on("expand",function(node) {
+					Ext.each(treeObj.nextLevel,function(next){
+						this.expandViaTreeObject(next);						
+					},this,{single:true})
+				},this);
+				node.expand();
+				
+			},this);		
+		},
+		
+		refreshNode: function(node,preserveStructure) {
+			if(preserveStructure) {
+				var	expandTree = this.getExpandedSubnodes(node);
+			}
 			if(node.attributes.isAlias) {
 				var aliased = this.getAliasedNode(node);
-				if(aliased)
+				if(aliased) {
 					aliased.reload();
+					var aliasedExpandTree = this.getExpandedSubnodes(node);
+				}
 			}
 			node.reload();
+			if(preserveStructure) {
+				this.on("load", function(elem) {
+					this.expandViaTreeObject(expandTree);
+				},this,{single:true});
+			}
+			
 		},
 				
 		removeNodes: function(nodes) {
 			var dn = [];
 			if(!Ext.isArray(nodes))
 				nodes = [nodes];
-			Ext.each(nodes,function(node) {dn.push(node.attributes["aliasdn"] || node.id);});
+			Ext.each(nodes,function(node) {
+				var id = (node.attributes["aliasdn"] || node.id)
+				dn.push(this.processDNForServer(id));
+			},this);
 			var updateNodes = this.getHighestAncestors(nodes);
 			Ext.Ajax.request({
 				url: '<?php echo $ro->gen("lconf.data.modifynode");?>',
@@ -200,14 +255,11 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			return Ext.unique(returnSet);
 		},
 		
-		getAliasedNode: function(alias) {
-			var id = alias.id.substr(("ALIAS=Alias of:").length);
-			var node = this.getNodeById(id);
-			return node;
-		},
 		
 		jumpToRealNode : function(alias) {
-			var node = this.getAliasedNode(alias);
+			var id = this.processDNForServer(alias.id);
+			var node = this.getNodeById(id);
+		
 			if(!node)  {
 			 	node = this.searchNodeByDN(id);
 				return true;
@@ -353,14 +405,19 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			var ctx = new Ext.menu.Menu({
 				items: [{
 					text: _('Clone node here'),
+					handler: this.copyNode.createDelegate(this,[e.point,e.dropNode,e.target]),
+					scope:this,
 					iconCls: 'silk-arrow-divide'
 				},{
 					text: _('Move node here'),
+					handler: this.copyNode.createDelegate(this,[e.point,e.dropNode,e.target,true]),
+					scope:this,
 					iconCls: 'silk-arrow-turn-left'
 				},{
 					text: _('Create alias here'),
-					iconCls: 'silk-attach'
-					
+					iconCls: 'silk-attach',
+					hidden: e.dropNode.attributes.isAlias,
+					handler: this.buildAlias.createDelegate(this,[e.point,e.dropNode,e.target])
 				},{
 					text: _('Cancel'),
 					iconCls: 'silk-cancel'
@@ -370,10 +427,77 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			
 		},
 		
+		buildAlias: function(pos,from,to) {
+			if(pos != 'append')
+				toDN = to.parentNode.id;
+				
+			if(move && from.parentNode.id == toDN) {
+				Ext.Msg.alert(_("Error"),_("Target and source are the same"))
+				return false;
+			}
+			
+			var aliasParams = {
+				targetDN: this.processDNForServer(toDN),
+				sourceDN: this.processDNForServer(from.id)
+			}
+			Ext.Ajax.request({
+				url: '<?php echo $ro->gen("lconf.data.modifynode");?>'
+			});
+					
+		},
+		
+		copyNode: function(pos,from,to,move) {
+			
+			var toDN = to.id;
+			if(pos != 'append')
+				toDN = to.parentNode.id;
+				
+			if(move && from.parentNode.id == toDN) {
+				Ext.Msg.alert(_("Error"),_("Target and source are the same"))
+				return false;
+			}
+			
+			var copyParams = {
+				targetDN: this.processDNForServer(toDN),
+				sourceDN: this.processDNForServer(from.id)
+			}
+						
+			Ext.Ajax.request({
+				url: '<?php echo $ro->gen("lconf.data.modifynode");?>',
+				params: {
+					connectionId: this.connId,
+					xaction: move ? 'move' :'clone' ,
+					properties: Ext.encode(copyParams)
+				},
+				failure:function(resp) {
+					err = (resp.responseText.length<127) ? resp.responseText : 'Internal Exception, please check your logs';
+					Ext.Msg.alert(_("Error"),_("Couldn't copy node:<br\>"+err));
+				},
+				success: function() {
+					this.refreshNode(to.parentNode,true);
+					this.refreshNode(from.parentNode,true);
+				},
+				scope:this
+			});
+		},
+		
 		initLoader: function() {
 			this.loader = new ditTreeLoader({
 								id:this.id,
-								baseParams:{connectionId:this.id}
+								baseParams:{
+									connectionId:this.id,
+									filters: lconf.getActiveFilters()
+								},
+								listeners: {
+									beforeload: function(obj,node,cbk) {
+										if(node.id.match(/\*\d{4}\*/)) {
+											this.jumpToRealNode(node);
+											return false;
+										}
+									},
+									scope: this
+								}
+								
 							});
 		},
 		
@@ -383,8 +507,6 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 					if(btn == 'yes') {
 						eventDispatcher.fireCustomEvent("ConnectionClosed",this.id);
 						this.destroy()
-						if(!ditTreeTabPanel.items.length)
-							toolbar.setDisabled(true);
 					}
 				},
 				this /*scope*/);
@@ -416,23 +538,9 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 
 		},
 	});
-	var toolbar = new Ext.Toolbar(
-	{
-		disabled:true,
-		items:[{
-			text:_('Add'),
-			iconCls:'silk-add',
-			xtype:'button'
-
-		}, {
-			text:_('Remove'),
-			iconCls:'silk-delete',
-			xtype:'button'		
-		}]
-	});
+	
 	
 	var ditTreeTabPanel = new Ext.TabPanel({
-		bbar: toolbar,
 		autoDestroy: true,
 		resizeTabs:true,
 		
@@ -445,9 +553,10 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 	ditPanelParent.add(ditTreeTabPanel);
 	ditPanelParent.doLayout();
 	
+
+	
 	// init listener
 	eventDispatcher.addCustomListener("ConnectionStarted",function(connObj) {
-		toolbar.setDisabled(false);
 		
 		var tree = new ditTree({
 						enableDD:true,
@@ -465,6 +574,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 							iconCls:'silk-world',
 							text: connObj.rootNode
 						}));
+		
 	},this);
 
 }

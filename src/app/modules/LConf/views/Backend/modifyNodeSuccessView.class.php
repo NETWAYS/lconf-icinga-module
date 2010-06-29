@@ -19,19 +19,23 @@ class LConf_Backend_modifyNodeSuccessView extends IcingaLConfBaseView
 			}
 			$client->setCwd($parentDN);
 			
-		
 			switch($rd->getParameter("xaction")) {
 				case 'update':
 				case 'create':
 					$client->addNode($parentDN, $properties);
-					return "Success";
 					break;
 				case 'destroy':
 					$client->removeNodes($properties);
-					return "Success";
+					break;
+				case 'move':
+					$client->moveNode($properties["sourceDN"],$properties["targetDN"]);
+
+					break;
+				case 'clone':
+					$client->cloneNode($properties["sourceDN"],$properties["targetDN"]);
 					break;
 			}
-
+			return "Success";
 		} catch(Exception $e) {
 			$this->getResponse()->setHttpStatusCode('500');
 			return $e->getMessage();

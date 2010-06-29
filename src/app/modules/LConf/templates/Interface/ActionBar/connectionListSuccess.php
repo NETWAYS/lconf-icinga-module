@@ -4,8 +4,8 @@
  * 
  */
 (function() {
-	Ext.ns("LDAP.actionBar");
-	LDAP.actionBar.connectionManager = Ext.extend(Ext.util.Observable, { 
+	Ext.ns("lconf.actionBar");
+	lconf.actionBar.connectionManager = Ext.extend(Ext.util.Observable, { 
 		connections: {},
 		
 		constructor : function(config) {
@@ -246,7 +246,7 @@
 		}
 	});
 	
-	new LDAP.actionBar.connectionManager({
+	new lconf.actionBar.connectionManager({
 			storeURL: '<?php echo $ro->gen("lconf.data.connectionlisting");?>',
 			eventId: '<?php echo $t["eventId"]; ?>',
 			parentid: '<?php echo $t["parentid"]; ?>'				

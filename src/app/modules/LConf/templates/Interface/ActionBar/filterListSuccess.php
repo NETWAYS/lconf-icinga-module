@@ -4,15 +4,47 @@
  * 
  */
 (function() {
-	Ext.ns("LDAP.actionBar");
-	LDAP.actionBar.FILTERTYPES = {
+	Ext.ns("lconf.actionBar");
+	lconf.actionBar.FILTERTYPES = {
 		1 : _('matches'),
 		2 : _('starts with'),
 		3 : _('ends with'),
 		4 : _('contains'),					
 	};
+	Ext.ns("lconf.filters");
+	lconf.filters.activeFilters = [];
+	lconf.getActiveFilters = function() {
+		if(lconf.filters.activeFilters)
+			return lconf.filters.activeFilters;
+		return [];
+	}
 	
-	LDAP.actionBar.filterManager = Ext.extend(Ext.util.Observable, { 
+	lconf.filters.activateFilter= function(filter) {
+		if(!lconf.filters.activeFilters)
+			lconf.filters.activeFilters = [];
+		
+		if(Ext.isArray(filter))
+			lconf.filters.activeFilters = lconf.filters.activeFilters.concat(filter)
+		else		
+			lconf.filters.activeFilters.push(filter);
+			
+		eventDispatcher.fireCustomEvent("filterChanged",lconf.filters.activeFilters,this);
+	}
+
+	lconf.filters.deactivateFilter = function(filter) {
+		Ext.each(lconf.filters.activeFilters,function(curfilter,idx,all) {
+			if(curfilter == filter)
+				lconf.filters.activeFilters.splice(idx,1);
+			eventDispatcher.fireCustomEvent("filterChanged",lconf.filters.activeFilters,this);
+		},this);
+	}
+	
+	lconf.filters.deactivateAll = function() {
+		lconf.filters.activeFilters = [];
+		eventDispatcher.fireCustomEvent("filterChanged",lconf.filters.activeFilters,this);
+	}
+	
+	lconf.actionBar.filterManager = Ext.extend(Ext.util.Observable, { 
 		
 		getStore: function() {
 			if(!this.dStore) {
@@ -81,7 +113,6 @@
 					listeners: {
 						click: function(view,idx,node,event) {
 							event.preventDefault();
-							AppKit.log(view);
 							var el = new Ext.Element(node);
 							var record = view.getStore().getAt(idx);
 							var ctx = new Ext.menu.Menu({
@@ -90,19 +121,21 @@
 									iconCls: 'silk-accept',
 									handler: function() {
 										node.isActivated = true;
+										lconf.filters.activateFilter(record.get('filter_id'));
 										el.addClass("isActive");
 									},
 									scope:this,
-									hidden: node.isActivated
+									hidden: node.isActivated || lconf.filters.bypassed
 								},{
 									text: _('Deactivate'),
 									iconCls: 'silk-stop',
 									handler: function() {
 										node.isActivated = false;
+										lconf.filters.deactivateFilter(record.get('filter_id'));
 										el.removeClass("isActive");
 									},
 									scope:this,
-									hidden: !node.isActivated
+									hidden: !node.isActivated || lconf.filters.bypassed
 								},{
 									text: _('Edit filter'),
 									iconCls: 'silk-page-edit',
@@ -113,6 +146,7 @@
 								},{
 									text: _('Delete'),
 									iconCls: 'silk-delete',
+									hidden: lconf.filters.bypassed,
 									handler: function() {
 										Ext.Msg.confirm(
 											_("Delete filter"),
@@ -157,10 +191,16 @@
 							text:_('Bypass'),
 							scope: this,
 							toggleHandler: function(btn,active) {
-								if(active)
+								if(active) { 
+									this.bypassed = lconf.getActiveFilters();
+									lconf.filters.bypassed = true;
+									lconf.filters.deactivateAll();
 									this.view.addClass('lconf-panel-disabled');
-								else 
+								} else { 
+									lconf.filters.bypassed = false;
+									lconf.filters.activateFilter(this.bypassed);
 									this.view.removeClass('lconf-panel-disabled');
+								}
 							}
 						}]
 					}),
@@ -329,7 +369,7 @@
 		buildTextFromFilter: function(values) {
 			return (values["filter_negated"] ? 'NOT' : '')
 			+" <i>"+values["filter_attribute"]+"</i>"
-			+" <b>"+LDAP.actionBar.FILTERTYPES[values["filter_type"]]+"</b>"
+			+" <b>"+lconf.actionBar.FILTERTYPES[values["filter_type"]]+"</b>"
 			+" '"+values["filter_value"]+"'";
 		},
 		
@@ -364,8 +404,7 @@
 
 			if(this.searchReferenceInFilterObject(id1,json2))
 				return true;
-			if(this.searchReferenceInFilterObject(id2,json1))
-				return true;
+			
 							
 			return false;
 		},
@@ -525,7 +564,7 @@
 		        },
 		        
 		        addFilterTo: function(targetNode) {
-		        	var _f = LDAP.actionBar.FILTERTYPES; // filter shorthand
+		        	var _f = lconf.actionBar.FILTERTYPES; // filter shorthand
 		        	var form = new Ext.form.FormPanel({
 	        			padding:5,
 	        			layout:'form',
@@ -623,7 +662,7 @@
 		}
 	});
 	
-	new LDAP.actionBar.filterManager({
+	new lconf.actionBar.filterManager({
 			storeURL: '<?php echo $ro->gen("lconf.data.filterlisting");?>',
 			eventId: '<?php echo $t["eventId"]; ?>',
 			parentid: '<?php echo $t["parentid"]; ?>'				

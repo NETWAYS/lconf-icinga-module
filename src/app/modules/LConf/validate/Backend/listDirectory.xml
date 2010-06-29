@@ -19,6 +19,12 @@
 					<error>Validation of directory failed!</error>
 				</errors>
 			</validator>
+			<validator name="filters" class="string" required="false">
+				<argument>filters</argument>
+				<errors>
+					<error>Validation of filters failed!</error>
+				</errors>
+			</validator>
 		</validators>
 		
 	</ae:configuration>

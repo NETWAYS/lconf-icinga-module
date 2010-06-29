@@ -4,10 +4,10 @@ class filterGroupException extends AppKitException {};
 class LConf_LDAPFilterGroupModel extends IcingaLConfBaseModel 
 									implements Iterator
 {
-	static public $allowedTypes = array("&","|","AND","OR");
+	static public $allowedTypes = array("&","|","!","AND","OR","NOT");
 	protected $filters = array();
 	protected $filterType = "&";
-	
+	protected $negated = false;
 	private $currentIteratorPos = 0;
 	
 	public function setFilters(array $filter) {
@@ -26,12 +26,18 @@ class LConf_LDAPFilterGroupModel extends IcingaLConfBaseModel
 			case "OR":
 				$type = '|';
 				break;
+			case "NOT":
+				$type = '!';
+				break;
 		}
 		$this->filterType = $type;
 	}
 	
 	public function setFilterString($str) {
 		$this->filterString = $str;
+	}
+	public function setNegated($negated) {
+		$this->negated = $negated;	
 	}
 	
 	public function getFilters() {
@@ -45,12 +51,11 @@ class LConf_LDAPFilterGroupModel extends IcingaLConfBaseModel
 	public function getFilterType() {
 		return $this->filterType;
 	}
-	
+	public function isNegated() {
+		return $this->negated;
+	}
 	public function addFilter($filter) {
 		// Typecheck of the filters
-		if(!$filter instanceof LConf_LDAPFilterGroupModel && !$filter instanceof LConf_LDAPFilterModel)
-			throw new InvalidArgumentException("Internal Error: addFilter expects a filterclass, ".get_class($filter)." given!");
-		
 		$this->filters[] = $filter;
 		$this->rewind();
 	}
@@ -63,8 +68,9 @@ class LConf_LDAPFilterGroupModel extends IcingaLConfBaseModel
 	}
 	
 	
-	public function __construct($filterType = "&") {
-		$this->filterType = $filterType;
+	public function __construct($filterType = "&",$negated = false) {
+		$this->setFilterType($filterType);
+		$this->negated = $negated;
 	}
 	
 	/**
@@ -74,12 +80,15 @@ class LConf_LDAPFilterGroupModel extends IcingaLConfBaseModel
 	 * @return string 
 	 */
 	public function buildFilterString() {
+		
+			
 		$string = "(".$this->getFilterType();
 		foreach($this as $filter) {
 			$string .= $filter->buildFilterString();
 		}
-		$string .= ")";
-		
+		$string .= ")";	
+		if($this->isNegated())		
+			$string = "(!".$string.")";
 		$this->setFilterString($string);
 		return $string;
 	}

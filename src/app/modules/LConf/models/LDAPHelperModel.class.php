@@ -20,6 +20,31 @@ class LConf_LDAPHelperModel extends IcingaLConfBaseModel
  		}
  		return $returnArray;
 	}
+	/**
+	 * Escape string according to
+	 * http://tools.ietf.org/html/rfc4514#section-4
+	 * @param unknown_type $str
+	 */
+	static public function escapeString($str) {
+		if($str[0] == '#' || $str[0] == ' ')
+			$str = substr($str,1);
+		if($str[strlen($str)-1] == ' ')
+			$str = substr($str,0,-1);
+		$replacements = array(
+			"," => "\\2C",
+			"+" => "\\2B",
+			";" => "\\3B",
+			"<" => "\\3C",
+			"=" => "\\3D",
+			">" => "\\3E",
+			'"' => "\\22"
+		);
+			
+		foreach($replacements as $old=>$new) {
+			$str = str_replace($old,$new,$str);
+		}
+		return $str;
+	}
 	
 	/**
 	 * Method that tries to guess the baseDN if none is set in the options
@@ -88,6 +113,38 @@ class LConf_LDAPHelperModel extends IcingaLConfBaseModel
 		}
 		return $resultset;
 	}
+	
+	static public function filterTree(array $elems,array $searchresult) {
+
+		$toDelete = array();
+
+		foreach($elems as $key=>$currentElement) {
+			$foundChild = false;
+			foreach($searchresult as $result) {
+				$dnToCheck = $currentElement["dn"];
+				$resultDn = $result["dn"];
+				// respect da alias!
+				if(isset($currentElement["aliasedobjectname"])) {
+					$dnToCheck = $currentElement["aliasdn"];
+				}
+						
+				// its a simple check whether the returned dn is part of a searchdn result
+				if(strlen($dnToCheck)>strlen($resultDn))
+					continue;
+				if(substr($resultDn,-1*strlen($dnToCheck)) == $dnToCheck) {
+					$foundChild = true;
+					break;
+				}
+			}
+			if(!$foundChild) 
+				$toDelete[] = $key;
+		}
+		foreach($toDelete as $key) {
+			unset($elems[$key]);
+		}
+		return $elems;
+	}
+	
 }
 
 ?>

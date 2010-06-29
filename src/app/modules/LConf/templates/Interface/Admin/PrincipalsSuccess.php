@@ -1,6 +1,6 @@
-Ext.ns("LConf.Admin");
+Ext.ns("lconf.Admin");
 
-LConf.Admin.PrincipalEditor = function(connection_id) {
+lconf.Admin.PrincipalEditor = function(connection_id) {
 	
 	/**
 	 * Excludes records selected in store.sourceStore from this store
@@ -130,7 +130,7 @@ LConf.Admin.PrincipalEditor = function(connection_id) {
 	
 	
 	this.getPrincipalTabbar = function(connection_id) {
-		var usersTab = LConf.Admin.itemGranter({
+		var usersTab = lconf.Admin.itemGranter({
 			targetStore: this.selectedUsersStore,
 			store: this.userStore,	
 			title: _('Users'),
@@ -144,7 +144,7 @@ LConf.Admin.PrincipalEditor = function(connection_id) {
 				{header:'user_name',name:'user_name',dataIndex:'user_name'}
 			]
 		})
-		var groupTab = LConf.Admin.itemGranter({
+		var groupTab = lconf.Admin.itemGranter({
 			targetStore: this.selectedGroupsStore,
 			store: this.groupStore,	
 			title: _('Groups'),
@@ -188,12 +188,12 @@ LConf.Admin.PrincipalEditor = function(connection_id) {
 	
 }
 
-LConf.GridDropZone = function(grid, config) {
+lconf.GridDropZone = function(grid, config) {
 	this.grid = grid;
-	LConf.GridDropZone.superclass.constructor.call(this, grid.view.scroller.dom, config);
+	lconf.GridDropZone.superclass.constructor.call(this, grid.view.scroller.dom, config);
 };
 
-Ext.extend(LConf.GridDropZone, Ext.dd.DropZone, {
+Ext.extend(lconf.GridDropZone, Ext.dd.DropZone, {
 	onContainerOver:function(dd, e, data) {
 		return dd.grid !== this.grid ? this.dropAllowed : this.dropNotAllowed;
 	},
@@ -216,7 +216,7 @@ Ext.extend(LConf.GridDropZone, Ext.dd.DropZone, {
 	containerScroll:true
 });
 
-LConf.Admin.itemGranter = function(config) {
+lconf.Admin.itemGranter = function(config) {
 	this.interface = null;
 	Ext.apply(this,config);
 	
@@ -258,7 +258,7 @@ LConf.Admin.itemGranter = function(config) {
 		
 		listeners: {
 			render: function(grid) {
-				this.dz = new LConf.GridDropZone(grid,{ddGroup:grid.ddGroup || 'GridDD'});
+				this.dz = new lconf.GridDropZone(grid,{ddGroup:grid.ddGroup || 'GridDD'});
 			}
 			
 		}
@@ -286,7 +286,7 @@ LConf.Admin.itemGranter = function(config) {
 		
 		listeners: {
 			render: function(grid) {
-				this.dz = new LConf.GridDropZone(grid,{ddGroup:grid.ddGroup || 'GridDD'});
+				this.dz = new lconf.GridDropZone(grid,{ddGroup:grid.ddGroup || 'GridDD'});
 			}
 			
 		}

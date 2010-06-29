@@ -59,7 +59,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 	 * RFC 4514, Section 3
 	 * http://www.ietf.org/rfc/rfc4514.txt?number=2253
 	 */
-	public static $dnDescriptors = array('cn','l','st','o','ou','c','street','dc','uid');
+	public static $dnDescriptors = array('cn','l','st','o','ou','c','street','dc','uid','aliasedobjectname');
 	
 	
 	/**
@@ -262,8 +262,8 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 		$params = array();
 		foreach($parameters as $parameter) {
 			$params[$parameter["property"]] = $parameter["value"];
-			if(in_array($parameter["property"],self::$dnDescriptors))
-				$dn = $parameter["property"]."=".$parameter["value"].",".$dn;
+			if(in_array(strtolower($parameter["property"]),self::$dnDescriptors))
+				$dn = $parameter["property"]."=".$this->helper->escapeString($parameter["value"]).",".$dn;
 		}
 		$connId = $this->getConnection();
 		if(!@ldap_add($connId,$dn,$params)) {
@@ -272,7 +272,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 		return $params;
 	}
 	
-	public function removeNodes($dnList) {
+	public function removeNodes($dnList,$killAliases = true) {
 		$dns = $dnList;
 		$connId = $this->getConnection();
 		if(!is_array($dns))
@@ -285,11 +285,12 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 				$errors .= "<br/>".$dn.": ".$this->getError();
 			}
 		}
+		
 		if($errors != "")
 			throw new AgaviException("Errors occured: ".$errors);
 	}
 	
-	public function recursiveRemoveNode($dn) {
+	public function recursiveRemoveNode($dn,$killAliases = true) {
 		$list = $this->listDN($dn,false);
 		$this->helper->cleanResult($list);
 		if($list) {
@@ -298,18 +299,19 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 				$result = $result && $this->recursiveRemoveNode($subEntries["dn"]);
 			}	
 		}
+		if($killAliases)
+			print_r($this->checkIfNodeIsReferenced($dn));
+			
 		return @ldap_delete($this->getConnection(),$dn);
 	}
 	
 	public function searchEntries($filter,$base = null,array $addAttributes = array()) {
-		if(!$filter instanceof LConf_LDAPFilterGroup && !$filter instanceof LConf_LDAPFilter) {
-			throw new Exception("Invalid filter provided for search");
-		}
+		$filterString = $filter->buildFilterString();
 		if(!$base)
 			$base = $this->getCwd();
 		$searchAttrs = array_merge(array("dn"),$addAttributes);
 		$result = ldap_search($this->getConnection(),$base,$filterString,$searchAttrs);
-		return ldap_entries($this->getConnection(),$result);
+		return ldap_get_entries($this->getConnection(),$result);
 	} 
 	
 	public function checkIfNodeIsReferenced($dn) {
@@ -332,30 +334,55 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 	 */
 	public function listCurrentDir() {
 		$connConf = $this->getConnectionModel();
-		$basedn = str_replace("ALIAS=Alias of:","",$this->getCwd());
-		
-		return $this->listDN($basedn);
+		$markAsAlias = false;
+		$basedn = $this->getCwd();
+		if(preg_match('/ALIAS=Alias of:/',$this->getCwd())) {
+			$basedn = str_replace("ALIAS=Alias of:","",$this->getCwd());
+			/**
+			 * This is necessary to avoid id problems in the web interface.
+			 * Aliased elements start with a "*", an 4.digit id and again, a "*"
+			 * 
+			 */
+			$result = $this->listDN($basedn);
+			foreach($result as $key=>&$vals) {
+				if(!is_int($key))
+					continue;
+				$vals["dn"] = "*".rand(1000,9999)."*".$vals["dn"];
+			}
+			return $result;
+		} else return $this->listDN($basedn);
 	}	
 
-	public function listDN($dn,$resolveAlias = true) {
-		$result = ldap_list($this->getConnection(),$dn,"objectClass=*");
-		$entries = ldap_get_entries($this->getConnection(),$result);
+	public function listDN($dn,$resolveAlias = true,$ignoreFilter = false) {
+		$filter = "objectClass=*";
+		
+		$result = @ldap_list($this->getConnection(),$dn,$filter,array("dn","objectclass","aliasedobjectname"));
+		if(!$result)
+			return null;
+		$entries = @ldap_get_entries($this->getConnection(),$result);
 		if($resolveAlias)
-			return $this->helper->resolveAliases($entries);
+			$entries = $this->helper->resolveAliases($entries);
+		if($this->getFilter()) {
+			$searchResult = $this->searchEntries($this->getFilter(),null,array("dn","objectclass","aliasedobjectname"));			
+			$entries = $this->helper->filterTree($entries,$searchResult);
+		}
+		
 		return $entries;
 	}
+	
 	/**
 	 * Returns the properties of a node $dn
 	 * 
 	 * @param string $dn
 	 * @return array
 	 */
-	public function getNodeProperties($dn) {
+	public function getNodeProperties($dn,$fields=array()) {
 		$connection = $this->getConnection();
-		$result = @ldap_read($connection,$dn,"objectclass=*");
+		$result = @ldap_read($connection,$dn,"objectclass=*",$fields);
 		if(!$result)
 			return array();
 		$entries = ldap_get_entries($connection,$result);
+
 		return $entries[0];
 	}
 	
@@ -436,6 +463,50 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 		return null;
 	}
 	
+	public function cloneNode($sourceDN, $targetDN) {
+		$connId = $this->getConnection();
+		$sourceProperties = $this->getNodeProperties($sourceDN);
+		$targetProperties = $this->getNodeProperties($targetDN,array("dn"));
+		
+		$paramToPreserve = explode(",",$sourceProperties["dn"],2);
+		$paramToPreserve = $paramToPreserve[0];
+
+		$this->helper->cleanResult($sourceProperties);
+		$newDN = $this->helper->escapeString($paramToPreserve.",".$targetDN);
+		// check if it's on the same level
+		if($newDN == $sourceDN) {
+			$ctr = 0;
+			do { // Increase copy counter if there is already a copy of this node
+				$paramToChange = explode("=",$paramToPreserve,2);
+				$newValue = "copy_of".(($ctr) ? "(".$ctr.")" : '')."_".$paramToChange[1];
+				$finalParamToPreserve = $paramToChange[0]."=".$newValue;
+				$newDN = $this->helper->escapeString($finalParamToPreserve.",".$targetDN);
+				
+				$sourceProperties[$paramToChange[0]][0] = $newValue;
+				$ctr++;
+			} while($this->listDN($newDN));
+		} 
+		
+		$connId = $this->getConnection();
+		if(!@ldap_add($connId,$newDN,$sourceProperties)) {
+			throw new AgaviException("Could not add ".$newDN. ":".$this->getError());
+		}
+		// recursive clone
+		if($childs = $this->listDN($sourceDN)) {
+			foreach($childs as $key=>$child) {
+				if(!is_int($key))
+					continue;
+
+				$this->cloneNode((isset($child["aliasdn"]) ? $child["aliasdn"] : $child["dn"]),$newDN);
+			}
+		}
+	}
+	
+	public function moveNode($sourceDN, $targetDN) {
+		$this->cloneNode($sourceDN,$targetDN);
+		$this->removeNodes(array($sourceDN));
+		
+	}
 	
 	public function toStore() {
 		$clSerialized = serialize($this);

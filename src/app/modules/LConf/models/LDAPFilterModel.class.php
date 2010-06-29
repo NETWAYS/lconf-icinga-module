@@ -60,10 +60,10 @@ class LConf_LDAPFilterModel extends IcingaLConfBaseModel
 	public function buildFilterString() {
 		$value = $this->getValue();
 		switch($this->getType()) {
-			case "startswith":
+			case "endswith":
 				$value = "*".$value;
 				break;
-			case "endswith":
+			case "startswith":
 				$value = $value."*";
 				break;
 			case "contains":

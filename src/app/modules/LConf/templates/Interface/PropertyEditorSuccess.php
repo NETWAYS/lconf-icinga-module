@@ -133,6 +133,8 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 	viewProperties: function(selectedDN,connection) {		
 		this.connId = connection;	
 		var id = selectedDN.attributes["aliasdn"] || selectedDN.id;
+		id = id.replace(/^\*\d{4}\*/,"");
+
 		this.getStore().setBaseParam('node', id);
 		this.getStore().setBaseParam('connectionId',connection);
 		this.getStore().load();

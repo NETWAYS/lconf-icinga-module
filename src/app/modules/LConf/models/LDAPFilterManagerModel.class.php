@@ -2,7 +2,13 @@
 
 
 class LConf_LDAPFilterManagerModel extends IcingaBaseModel {
-
+	static protected $filterTranslation = array(
+		"1" => "exact",
+		"2" => "startswith",
+		"3" => "endswith",
+		"4" => "contains"
+	);
+	
 	public function getFilters() {
 		$user = $this->getContext()->getUser();
 		$uid = $user->getNsmUser()->get('user_id');
@@ -70,7 +76,59 @@ class LConf_LDAPFilterManagerModel extends IcingaBaseModel {
 	}
 
 	public function getFilterAsLDAPModel($id) {
-	
+		$filter = $this->getFilterById($id);
+		if(!$filter)
+			throw new Exception("Filter ".$id." not found!");
+
+		$filterDesc = json_decode($filter[0]["filter_json"],true);
+		return $this->buildFilterGroup("AND",$filterDesc["AND"],false);
+	}
+		
+	protected function parseFilterType($filterGrp,$subFilter,$negated = false) {
+		if(isset($subFilter["AND"])) 
+			$filterGrp->addFilter($this->buildFilterGroup("AND",$subFilter["AND"],$negated));			
+		else if(isset($subFilter["OR"]))
+			$filterGrp->addFilter($this->buildFilterGroup("OR",$subFilter["OR"],$negated));
+		else if(isset($subFilter["NOT"]))
+			$this->addNegatedFilters($subFilter["NOT"],$filterGrp,$negated);
+		else if(isset($subFilter["REFERENCE"]))
+			$filterGrp->addFilter($this->resolveReference($subFilter["REFERENCE"],$negated));
+		else if(isset($subFilter["filter_attribute"]))
+			$filterGrp->addFilter($this->buildFilter($subFilter));
 	}
 	
+	protected function buildFilterGroup($type, array $elems,$negated = false) {
+		$filterGrp = $this->getContext()->getModel("LDAPFilterGroup","LConf",array($type,$negated));
+		foreach($elems as $subFilter) {
+			$this->parseFilterType($filterGrp,$subFilter,$negated);
+		}
+		return $filterGrp;
+	}
+	
+	protected function addNegatedFilters(array $filter,$group,$negated = false) {
+		$negated = !$negated;
+		foreach($filter as $subFilter) {
+			$this->parseFilterType($group,$subFilter,$negated);
+		}
+	}
+	
+	protected function resolveReference($referenceArray, $negated = false) {
+		$id = $referenceArray["referenceId"];
+		$filter = $this->getFilterById($id);
+		if(!$filter) {
+			$this->getContext()->getLoggerManager()->log("[WARNING] LConf Filter ".$id." does not exist!");
+			return $this->getContext()->getModel("LDAPFilterGroup","LConf");
+		}	
+		$filterDesc = json_decode($filter[0]["filter_json"],true);
+		return $this->buildFilterGroup("AND",$filterDesc["AND"],$negated);
+	}
+	
+	protected function buildFilter(array $filter) {
+		$filter_type = self::$filterTranslation[$filter["filter_type"]]; 
+		$negated = (boolean) @$filter["filter_negated"];
+		$key = $filter["filter_attribute"];
+		$value = $filter["filter_value"];
+		$filter = $this->getContext()->getModel("LDAPFilter","LConf",array($key,$value,$negated,$filter_type));
+		return $filter;
+	}
 }
