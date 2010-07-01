@@ -27,7 +27,7 @@ class LConf_Backend_getPropertiesSuccessView extends IcingaLConfBaseView
 			$client = LConf_LDAPClientModel::__fromStore($connectionId,$context->getStorage());
 			//$client->setCwd();
 			// Get the raw property list
-			$list = $client->getNodeProperties($node);
+			$list = $client->getNodeProperties($node,array(),true);
 			if(!is_array($list)) // no properties fund, return null
 				return null;
 			// Format the list for json_encoding

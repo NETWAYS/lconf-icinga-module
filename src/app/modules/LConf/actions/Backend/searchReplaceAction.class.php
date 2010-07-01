@@ -1,6 +1,6 @@
 <?php
 
-class LConf_Backend_modifyEntryAction extends IcingaLConfBaseAction
+class LConf_Backend_searchReplaceAction extends IcingaLConfBaseAction
 {
 	/**
 	 * Returns the default view if the action does not serve the request
@@ -14,8 +14,6 @@ class LConf_Backend_modifyEntryAction extends IcingaLConfBaseAction
 	 *                     executed.</li>
 	 *                   </ul>
 	 */
-
-	
 	public function getDefaultViewName()
 	{
 		return 'Success';

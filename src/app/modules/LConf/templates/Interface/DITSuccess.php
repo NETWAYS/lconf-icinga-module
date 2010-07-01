@@ -17,17 +17,27 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 		
 		createNode: function(attr) {
 			var nodeAttr = attr;
-			var objClass = attr.objectclass[0];
+			var i = 0;
+			var objClass = attr.objectclass[i];
+			var noIcon = false
 			
-			// select appropriate icon
-			switch(objClass) {
-			<?php foreach($icons as $objectClass=>$icon) :?>
-				
-				case '<?php echo $objectClass;?>':
-					nodeAttr.iconCls = '<?php echo $icon?>';
-					break;
-			<?php endforeach;?>
-			} 
+			do {
+				objClass = attr.objectclass[i];
+				noIcon = false;
+				// select appropriate icon
+				switch(objClass) {
+				<?php foreach($icons as $objectClass=>$icon) :?>
+					
+					case '<?php echo $objectClass;?>':
+						nodeAttr.iconCls = '<?php echo $icon?>';
+						break;
+				<?php endforeach;?>
+
+					default :
+						noIcon = true;
+						break;
+				} 
+			} while(noIcon && attr.objectclass[++i])
 			var aliasString = "ALIAS=Alias of:";
 			nodeAttr.text = this.getText(attr);
 			nodeAttr.qtip = _("<b>ObjectClass:</b> ")+objClass+
@@ -57,15 +67,31 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 		initEvents: function() {
 			ditTree.superclass.initEvents.call(this);
 			this.on("beforeclose",this.onClose);
+			
 			eventDispatcher.addCustomListener("filterChanged",function(filters) {
 				this.loader.baseParams["filters"] = Ext.encode(filters);
 				this.refreshNode(this.getRootNode(),true);
 			},this)
+			
+			eventDispatcher.addCustomListener("refreshTree",function(node) {
+				this.refreshNode(this.getRootNode(),true);
+			},this);
+			
+			eventDispatcher.addCustomListener("searchDN",this.searchDN,this);
+			
 			this.on("click",function(node) {eventDispatcher.fireCustomEvent("nodeSelected",node,this.id);});
 			this.on("beforeNodeDrop",function(e) {e.dropStatus = true;this.nodeDropped(e);return false},this)
 			this.on("contextmenu",function(node,e) {this.context(node,e)},this);
+			this.on("append",function(obj,parent,node) {
+				if(node.attributes.match == "noMatch") {
+					(function() {node.getUI().addClass('noMatch');}).defer(100)
+					node.expand();
+				}
+			});
+			
 		},
 		
+
 		processDNForServer: function(dn) {
 			dn = dn.replace("ALIAS=Alias of:","");
 			dn = dn.replace(/^\*\d{4}\*/,"");
@@ -125,6 +151,12 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 					iconCls: 'silk-arrow-redo',
 					hidden: !node.attributes.isAlias && !node.id.match(/\*\d{4}\*/),
 					handler: this.jumpToRealNode.createDelegate(this,[node])	
+				},{
+					text: _('Search/Replace'),
+					iconCls: 'silk-zoom',
+					handler: this.searchReplaceMgr.createDelegate(this),
+					hidden: (node.parentNode),
+					scope:this
 				}]
 			});
 			ctx.showAt(e.getXY())
@@ -146,24 +178,35 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			return expanded;
 		},
 		
-		expandViaTreeObject: function(treeObj) {
+		expandViaTreeObject: function(treeObj,finishFn) {
 			Ext.each(treeObj.here,function(nodeId) {
 				var node = this.getNodeById(nodeId);
 				if(!node) {
 					AppKit.log("Gnaaah!")
 					return true;
 				}
-				node.on("expand",function(node) {
+				var getNext = function() {
+					if(!Ext.isEmpty(treeObj.nextLevel.length))
+						finishFn();	
 					Ext.each(treeObj.nextLevel,function(next){
-						this.expandViaTreeObject(next);						
+						this.expandViaTreeObject(next,finishFn);						
 					},this,{single:true})
-				},this);
-				node.expand();
+				}
 				
+				if(!node.isExpanded()) {
+					node.on("expand",function(_node) {
+						getNext.call(this);
+					},this);
+					node.expand();
+				} else {				
+					getNext.call(this);	
+				}		
 			},this);		
 		},
 		
 		refreshNode: function(node,preserveStructure) {
+			if(!node)
+				node = this.getRootNode();
 			if(preserveStructure) {
 				var	expandTree = this.getExpandedSubnodes(node);
 			}
@@ -182,7 +225,107 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			}
 			
 		},
-				
+		
+		searchReplaceMgr: function() {
+			var form = new Ext.form.FormPanel({
+				layout: 'form',
+				borders: false,
+				labelWidth:300,
+				padding:5,
+				items: [{
+					xtype:'textfield',
+					fieldLabel: _('Search RegExp:'),
+					name: 'search',
+					allowBlank: false
+				},{
+					xtype: 'textfield',
+					fieldLabel: _('Attributes to include (comma-separated)'),
+					name: 'fields',
+					allowBlank: false
+				},{
+					xtype: 'textfield',
+					fieldLabel: _('Replace String:'),
+					name: 'replace',
+					allowBlank: true
+				}]	
+			});
+			var curid = Ext.id();
+			
+			var srWnd = new Ext.Window({
+				modal:true,
+				id : 'wnd_'+curid,
+				autoDestroy:true,
+				constrain:true,
+				height:150,
+				width:600,
+				title: _("Search/Replace"),
+				renderTo: Ext.getBody(),
+				layout:'fit',
+				items: form,
+				buttons: [{
+					text: _('Sissy mode (Just show me what would be done)'),
+					handler :function() {
+						var _bForm = form.getForm();
+						if(!_bForm.isValid())
+							return false;
+						this.callSearchReplace(_bForm.getValues(),true);
+					//	Ext.getCmp('wnd_'+curid).close();
+					},
+					scope:this
+				},{
+					text: _('Execute'),
+					handler :function() {
+						var _bForm = form.getForm();
+						if(!_bForm.isValid())
+							return false;
+						this.callSearchReplace(_bForm.getValues());
+						Ext.getCmp('wnd_'+curid).close();
+					},
+					scope:this				
+				}]
+			}).show();
+		},
+		
+		callSearchReplace: function(values,SissyMode) {
+			var mask = new Ext.LoadMask(Ext.getBody(),_("Please wait"));
+			mask.show();
+			Ext.Ajax.request({
+				url: '<?php echo $ro->gen("lconf.data.searchreplace"); ?>',
+				params: {
+					search: values["search"],
+					fields: values["fields"],
+					replace: values["replace"],
+					filters: lconf.getActiveFilters(),
+					connectionId: this.connId,
+					sissyMode: SissyMode
+				},
+
+				success: function(resp) {
+					mask.hide();
+					if(SissyMode)
+						Ext.Msg.alert(_("Search/Replace"),_("The following changes would be made:<br/>")+resp.responseText);
+					else if(resp.responseText  != 'success') {
+						var error = Ext.decode(resp.responseText);
+						var msg = "<div class='lconf_infobox'><ul>";
+						Ext.each(error,function(err){
+							msg += "<li>"+err+"</li>";
+						});
+						msg += "</ul></div>";
+						Ext.Msg.alert(_('Search/Replace error'),_("The following errors were reported:<br/>"+msg));
+					} else {
+						Ext.Msg.alert(_("Success"),_("Seems like everything worked fine!"));
+					}
+					this.refreshNode();
+				},
+				failure: function() {
+					mask.hide();
+					err = (resp.responseText.length<50) ? resp.responseText : 'Internal Exception, please check your logs';
+					Ext.Msg.alert(_("Error"),err);
+				},
+				scope:this
+			});
+		},
+		
 		removeNodes: function(nodes) {
 			var dn = [];
 			if(!Ext.isArray(nodes))
@@ -261,15 +404,37 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			var node = this.getNodeById(id);
 		
 			if(!node)  {
-			 	node = this.searchNodeByDN(id);
+			 	node = this.searchDN(id);
 				return true;
 			} 
 			this.selectPath(node.getPath());
 			this.expandPath(node.getPath());
 		},
 			
-		searchNodeByDN : function(id) {
-			
+		searchDN : function(dn) {
+			AppKit.log("Searching "+dn);
+			var baseDN = this.getRootNode().id;
+			var dnNoBase = dn.substr(0,(dn.length-(baseDN.length+1)));
+			var splitted = dnNoBase.split(",");
+			var expandDescriptor = {
+				here: baseDN,
+				nextLevel: []
+			}
+			var curPos = expandDescriptor;
+			var lastDN = baseDN;
+			while(splitted.length) {
+				lastDN =  splitted.pop()+","+lastDN
+				curPos.nextLevel = {
+					here: lastDN,
+					nextLevel: []
+				}
+				curPos = curPos.nextLevel
+			}
+			var finishFN = function() {
+				var node = this.getNodeById(dn);
+				this.selectPath(node.getPath());
+			}
+			this.expandViaTreeObject(expandDescriptor,finishFN.createDelegate(this));
 		},
 		
 		callNodeCreationWizard : function(cfg) {
@@ -282,7 +447,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 					width:800,
 					id:'newNodeWizardWnd',
 					renderTo: Ext.getBody(),
-					autoHeight:true,
+					height:400,
 					stateful:false,
 					minHeight:400,
 					shadow:false,
@@ -304,16 +469,17 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 		updateWizard: function(view,sTry) { 			
 			this.wizardWindow.removeAll();
 			
-			if(!sTry) {
+			if(!sTry && !lconf.wizard) {
 				if(sTry)
 					Ext.msg.alert(_("Error"),_("View not found despite successful loading"));
 				else 
 					this.lazyloadWizard(view,this.updateWizard)
 			} else {
-				var wizard = new lconf.wizards[view]({parentNode : this.newNodeParent});
+				var wizard = new lconf.wizard({wizardView:view,parentNode : this.newNodeParent});
 				wizard.setConnectionId(this.id);
 				this.wizardWindow.add(wizard);
 				this.wizardWindow.doLayout();
+				this.wizardWindow.setPosition(null,0);
 			}
 		},
 		
@@ -414,6 +580,18 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 					scope:this,
 					iconCls: 'silk-arrow-turn-left'
 				},{
+					text: _('Clone node <b>as subnode</b>'),
+					handler: this.copyNode.createDelegate(this,["append",e.dropNode,e.target]),
+					scope:this,
+					hidden: !e.target.isLeaf(),
+					iconCls: 'silk-arrow-divide'
+				},{
+					text: _('Move node  <b>as subnode</b>'),
+					handler: this.copyNode.createDelegate(this,["append",e.dropNode,e.target,true]),
+					scope:this,
+					hidden: !e.target.isLeaf(),
+					iconCls: 'silk-arrow-turn-left'
+				},{
 					text: _('Create alias here'),
 					iconCls: 'silk-attach',
 					hidden: e.dropNode.attributes.isAlias,
@@ -428,20 +606,41 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 		},
 		
 		buildAlias: function(pos,from,to) {
+			var toDN = to.id;
 			if(pos != 'append')
 				toDN = to.parentNode.id;
-				
-			if(move && from.parentNode.id == toDN) {
+			
+			if(from.parentNode.id == toDN) {
 				Ext.Msg.alert(_("Error"),_("Target and source are the same"))
 				return false;
 			}
 			
-			var aliasParams = {
-				targetDN: this.processDNForServer(toDN),
-				sourceDN: this.processDNForServer(from.id)
-			}
+			var properties = [{
+				"property" : "objectclass",
+				"value" : "extensibleObject",
+			},{
+				"property" : "objectclass",
+				"value" : "alias"
+			},{
+				"property" : "aliasedObjectName",
+				"value" : from.id,
+			}]
 			Ext.Ajax.request({
-				url: '<?php echo $ro->gen("lconf.data.modifynode");?>'
+				url: '<?php echo $ro->gen("lconf.data.modifynode");?>',
+				params: {
+					connectionId: this.connId,
+					xaction: 'create',
+					parentNode: toDN,
+					properties: Ext.encode(properties)
+				},
+				failure:function(resp) {
+					err = (resp.responseText.length<1024) ? resp.responseText : 'Internal Exception, please check your logs';
+					Ext.Msg.alert(_("Error"),_("Couldn't create alias node:<br\>"+err));
+				},
+				success: function() {
+					this.refreshNode(to.parentNode,true);
+				},
+				scope:this
 			});
 					
 		},
@@ -470,7 +669,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 					properties: Ext.encode(copyParams)
 				},
 				failure:function(resp) {
-					err = (resp.responseText.length<127) ? resp.responseText : 'Internal Exception, please check your logs';
+					err = (resp.responseText.length<1024) ? resp.responseText : 'Internal Exception, please check your logs';
 					Ext.Msg.alert(_("Error"),_("Couldn't copy node:<br\>"+err));
 				},
 				success: function() {
@@ -489,6 +688,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 									filters: lconf.getActiveFilters()
 								},
 								listeners: {
+									
 									beforeload: function(obj,node,cbk) {
 										if(node.id.match(/\*\d{4}\*/)) {
 											this.jumpToRealNode(node);
@@ -539,11 +739,29 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 		},
 	});
 	
+	var dnSearchField = new Ext.form.TextField({
+		xtype:'textfield',
+		value: 'Enter dn to search...'
+	});
 	
 	var ditTreeTabPanel = new Ext.TabPanel({
 		autoDestroy: true,
 		resizeTabs:true,
 		
+		fbar: new Ext.Toolbar({
+			items: [
+				dnSearchField,
+			{
+				xtype:'button',
+				iconCls: 'silk-zoom',
+				handler: function(btn) {
+					if(!dnSearchField.isDirty())
+						return false;
+					var dn = dnSearchField.getValue();
+					eventDispatcher.fireCustomEvent("searchDN",dn);
+				}
+			}]
+		}),
 		defaults : {
 			
 			closable: true

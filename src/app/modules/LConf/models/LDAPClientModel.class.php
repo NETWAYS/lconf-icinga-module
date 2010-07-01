@@ -5,7 +5,7 @@
  * for communication with the ldap Server.
  * Automatically saves itself to the store on destruction.
  * 
- * TODO: Validation, Filtering and node creation and deletion functions
+ * 
  * @author jmosshammer
  *
  */
@@ -255,17 +255,24 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 	public function addNode($parentDN,$parameters) {
 		if(!$parameters)
 			throw new AgaviException("No parameters given!");
+		
 		$dn = $parentDN;
 		//always wrap to array
 		if(isset($parameters["property"])) 
 			$parameters = array($newParams);
 		$params = array();
 		foreach($parameters as $parameter) {
-			$params[$parameter["property"]] = $parameter["value"];
+			if(!isset($params[$parameter["property"]]) )
+				$params[$parameter["property"]] = $parameter["value"];
+			else {
+				$params[$parameter["property"]] = array($params[$parameter["property"]]);
+				$params[$parameter["property"]][] = $parameter["value"];
+			}
 			if(in_array(strtolower($parameter["property"]),self::$dnDescriptors))
 				$dn = $parameter["property"]."=".$this->helper->escapeString($parameter["value"]).",".$dn;
 		}
 		$connId = $this->getConnection();
+
 		if(!@ldap_add($connId,$dn,$params)) {
 			throw new AgaviException("Could not add ".$dn. ":".$this->getError());
 		}
@@ -281,7 +288,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 		foreach($dns as $dn) {
 			if(!$dn)
 				continue;
-			if(!$this->recursiveRemoveNode($dn)) {
+			if(!$this->recursiveRemoveNode($dn,$killAliases)) {
 				$errors .= "<br/>".$dn.": ".$this->getError();
 			}
 		}
@@ -291,7 +298,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 	}
 	
 	public function recursiveRemoveNode($dn,$killAliases = true) {
-		$list = $this->listDN($dn,false);
+		$list = $this->listDN($dn,false,true);
 		$this->helper->cleanResult($list);
 		if($list) {
 			$result = true;
@@ -299,8 +306,15 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 				$result = $result && $this->recursiveRemoveNode($subEntries["dn"]);
 			}	
 		}
-		if($killAliases)
-			print_r($this->checkIfNodeIsReferenced($dn));
+		if($killAliases) {
+			if($aliases = $this->getReferencesToNode($dn)) {
+				foreach($aliases as $key=>$alias) {
+					if(!is_array($alias))
+						continue;
+					$this->removeNodes(array($alias["dn"]));
+				}
+			}
+		}
 			
 		return @ldap_delete($this->getConnection(),$dn);
 	}
@@ -311,18 +325,20 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 			$base = $this->getCwd();
 		$searchAttrs = array_merge(array("dn"),$addAttributes);
 		$result = ldap_search($this->getConnection(),$base,$filterString,$searchAttrs);
-		return ldap_get_entries($this->getConnection(),$result);
+		return $result ? ldap_get_entries($this->getConnection(),$result) : null;
 	} 
 	
-	public function checkIfNodeIsReferenced($dn) {
+	public function getReferencesToNode($dn) {
 		$ctx = $this->getContext();
-		
+		$dnToCheck = $dn;
+
 		$filterGroup = $ctx->getModel("LDAPFilterGroup","LConf");
-		$objectClassFilter =  $ctx->getModel("LDAPFilter","LConf",array("objectclass","alias",false,"contains"));
-		$aliasTargetFilter = $ctx->getModel("LDAPFilter","LConf",array("aliasedobjectname","ou=Templates,ou=LConf,dc=icinga,dc=org",false,"exact"));
+		$objectClassFilter =  $ctx->getModel("LDAPFilter","LConf",array("objectclass","alias",false,"exact"));
+		$aliasTargetFilter = $ctx->getModel("LDAPFilter","LConf",array("aliasedobjectname",$dnToCheck,false,"exact"));
 		$filterGroup->addFilter($objectClassFilter);
 		$filterGroup->addFilter($aliasTargetFilter);
-		$result = $this->searchEntries($filterGroup->buildFilterString());
+		$result = $this->searchEntries($filterGroup,$this->getBaseDN());
+		
 		if($result["count"])
 			return $result;
 		return false;
@@ -362,7 +378,8 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 		$entries = @ldap_get_entries($this->getConnection(),$result);
 		if($resolveAlias)
 			$entries = $this->helper->resolveAliases($entries);
-		if($this->getFilter()) {
+		if($this->getFilter() && !$ignoreFilter) {
+
 			$searchResult = $this->searchEntries($this->getFilter(),null,array("dn","objectclass","aliasedobjectname"));			
 			$entries = $this->helper->filterTree($entries,$searchResult);
 		}
@@ -376,14 +393,36 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 	 * @param string $dn
 	 * @return array
 	 */
-	public function getNodeProperties($dn,$fields=array()) {
+	public function getNodeProperties($dn,$fields=array(),$checkInheritance = false) {
 		$connection = $this->getConnection();
 		$result = @ldap_read($connection,$dn,"objectclass=*",$fields);
 		if(!$result)
 			return array();
 		$entries = ldap_get_entries($connection,$result);
-
+		if($checkInheritance) {
+			$inherited = AgaviConfig::get('modules.lconf.inheritance');
+			if($inherited) {
+				$inh_keys =  array_keys($inherited);				
+				foreach($entries[0]["objectclass"] as $key=>$val) {
+					if(in_array($val,$inh_keys))
+						$this->addInheritedProperties($entries[0],$dn,$inherited[$val]);
+				}
+				
+			}
+		}
 		return $entries[0];
+	}
+	
+	protected function addInheritedProperties(array $entries, $dn, $inheritance) {
+		$baseDn = $this->getBaseDN();
+		$strippedDn = substr($dn,0,-1*(strlen($baseDn)+1));
+		$dnParts = explode(",",$strippedDn);
+		$connection = $this->getConnection();
+		for($i=count($dnParts)-1;$i>=0;$i--) {
+			$dn = $dnParts[$i];
+			$baseDn = $dn.",".$baseDn;
+			$result = ldap_get_entries($connection,@ldap_read($connection,$baseDn,"objectclass=*",array()));						
+		}
 	}
 	
 	/**
@@ -394,6 +433,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 	 * 'value' 		the new value name
 	 * 
 	 * @TODO: Yep. like in the add function ldap_mod_replace would make life easier.
+	 * @TODO: Split it up! 
 	 * @param string $dn
 	 * @param string $newParams
 	 * @return array 
@@ -401,12 +441,13 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 	public function modifyNode($dn, $newParams) {
 		if($newParams["id"])
 			$newParams = array($newParams);
-			
+
 		$connId = $this->getConnection();
 		$properties = $this->getNodeProperties($dn);
 		$properties = $this->helper->formatToPropertyArray($properties);
-		$idRegexp = "/^(.*)_(\d*)$/";
 
+		$idRegexp = "/^(.*)_(\d*)$/";
+		$affectsDN = false;
 		foreach($newParams as $parameter) {
 			$idElems = array();
 			preg_match($idRegexp,$parameter["id"],&$idElems);
@@ -415,16 +456,60 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 			}
 			$curProperty = $idElems[1];
 			$curIndex = $idElems[2];
-			if(is_array($properties[$curProperty]))
+			if(is_array($properties[$curProperty])) {
 				$properties[$curProperty][$curIndex] = $parameter["value"];
-			else 
+				if(in_array($curProperty,self::$dnDescriptors))
+					$affectsDN = $curProperty."=".$parameter["value"];
+			} else {
 				$properties[$curProperty] = $parameter["value"];
+				if(in_array($curProperty,self::$dnDescriptors))
+					$affectsDN = $curProperty."=".$parameter["value"];
+			}
 		}	
-		
-		if(!@ldap_modify($connId,$dn,$properties)) {
-			throw new AgaviException("Could not modify ".$dn. ":".$this->getError());
+		// if the dn is affected, the node must be moved instead of being modified
+		if($affectsDN) {
+			$dnToPreserve = explode(",",$dn,2);
+			$dnToPreserve = $dnToPreserve[1];
+			// add new node and remove old
+			$newDN = $affectsDN.",".$dnToPreserve;
+
+			if(!@ldap_add($connId,$newDN,$properties))
+				throw new AgaviException("Couldn't modify node dn to ".$newDN." ".$this->getError());
+			$this->removeNodes(array($dn),false);
+			$this->rechainAliasesForNode($dn,$newDN);
+			
+		} else {
+			if(!@ldap_modify($connId,$dn,$properties)) {
+				throw new AgaviException("Could not modify ".$dn. ":".$this->getError());
+			}
 		}
-		return $properties;
+		return $dn;
+	}
+	
+	public function rechainAliasesForNode($dn,$newDN) {
+		// Rechain aliases
+		if($aliases = $this->getReferencesToNode($dn)) {
+			foreach($aliases as $key=>$alias) {
+				if(!is_array($alias))
+					continue;	
+				$splittedAlias = explode(",",$alias["dn"],2);				
+				/**
+				 *  for some reason, he doesn't like modifying aliasedobjectname via modifyNode...
+				 *  That's why it's done the more comprehensive way
+				 */
+				$this->addNode($splittedAlias[1],array(
+					array("property"=>"objectclass","value"=>"extensibleObject"),
+					array("property"=>"objectclass","value"=>"alias"),
+					array("property"=>"aliasedObjectName","value"=>$newDN)
+				));
+				/**
+				 *  It doesn't matter if the new alias creation has completed or not, as the old alias
+				 *  is useless eitherway. That's why there's no check 
+				 */
+				$this->removeNodes(array($alias["dn"]));
+			}
+		}
+		
 	}
 	
 	/**
@@ -472,7 +557,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 		$paramToPreserve = $paramToPreserve[0];
 
 		$this->helper->cleanResult($sourceProperties);
-		$newDN = $this->helper->escapeString($paramToPreserve.",".$targetDN);
+		$newDN = $paramToPreserve.",".$targetDN;
 		// check if it's on the same level
 		if($newDN == $sourceDN) {
 			$ctr = 0;
@@ -480,7 +565,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 				$paramToChange = explode("=",$paramToPreserve,2);
 				$newValue = "copy_of".(($ctr) ? "(".$ctr.")" : '')."_".$paramToChange[1];
 				$finalParamToPreserve = $paramToChange[0]."=".$newValue;
-				$newDN = $this->helper->escapeString($finalParamToPreserve.",".$targetDN);
+				$newDN = $finalParamToPreserve.",".$targetDN;
 				
 				$sourceProperties[$paramToChange[0]][0] = $newValue;
 				$ctr++;
@@ -504,8 +589,84 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 	
 	public function moveNode($sourceDN, $targetDN) {
 		$this->cloneNode($sourceDN,$targetDN);
-		$this->removeNodes(array($sourceDN));
-		
+		$this->removeNodes(array($sourceDN));	
+	}
+	
+	public function searchReplace($from,$to,array $fields,$sissyMode = false) {
+		$filter = $this->getFilter();
+		$entries_to_check = $this->searchEntries($filter,$this->getBaseDN(),$fields);
+		$mods = array();
+
+		foreach($entries_to_check as $entry) {
+			foreach($fields as $fieldToCheck) {
+				if(!isset($entry[$fieldToCheck]))
+					continue;
+				$field = $entry[$fieldToCheck];
+				if(!is_array($field)) 
+					$field = array($field);
+				
+				foreach($field as $key=>$value) {
+					if(!is_int($key))
+						continue;
+					$matches = array();
+					if(!preg_match("/".$from."/",$value))
+						continue;
+					$mods[] = array(
+						"dn"=>$entry["dn"], 
+						"nr" => $key,
+						"field" => $fieldToCheck,
+						"original" => $value,
+						"new" => preg_replace("/".$from."/",$to,$value)
+					);
+				}
+			}
+		}
+		if($sissyMode)
+			return $this->buildChangesBox($mods);
+		// Changed DNs must be stored 
+		$changedDNs = array();		
+		$errors = array();
+		foreach($mods as $mod) {
+			$dn = $mod["dn"];
+			while(isset($changedDNs[$dn])) {
+				$dn = $changedDNs[$dn];
+			}
+			try {
+				$resultDN = $this->modifyNode($dn,array(
+					"id" => $mod["field"]."_".$mod["nr"],
+					"property" => $mod["field"],
+					"value" => $mod["new"]
+				));
+				
+				if($resultDN != $dn)
+					$changedDNs[$dn] = $resultDN;
+			} catch(Exception $e) {
+				$errors[] = $mod["dn"]."-".$mod["field"]." Can't replace ".
+							$mod["original"]." with ".$mod["new"]." : ".ldap_error($this->getConnection());
+			}
+		}
+		if(!empty($errors))
+			return json_encode($errors);
+		else 
+			return "success";
+	}
+	
+	protected function buildChangesBox(array $mods) {
+		$string = "<div class='lconf_infobox'>";
+		if(empty($mods)) {
+			$string .= "No changes would be made.";
+		} else {
+			$string .=" <ul>";
+			foreach($mods as $mod) {
+				$string .= "<li>";
+				$string .= "In DN=".$mod["dn"]." : Rename field ".$mod["field"]." from ".$mod["original"]." to ".$mod["new"];
+				$string .= "</li>";
+			}
+			$string .=" </ul>";
+		}
+
+		$string .= "</div>";	
+		return $string;	
 	}
 	
 	public function toStore() {
@@ -557,7 +718,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 	
 	public function getError() {
 		if(is_resource($this->getConnection()))
-			return "<br/>LDAP Error:<br/><pre style='margin:10px;width:400px;font-size:10px;padding:5px;border:1px solid #dedede;-moz-border-radius:5px;-webkit-border-radius:5px;background:white;cursor:text;color:red'><code>".ldap_error($this->getConnection())."</code></div>";
+			return "<br/>LDAP Error:<br/><pre class='lconf_infobox'><code>".ldap_error($this->getConnection())."</code></div>";
 	}
 	
 	

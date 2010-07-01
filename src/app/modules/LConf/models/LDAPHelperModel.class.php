@@ -118,7 +118,10 @@ class LConf_LDAPHelperModel extends IcingaLConfBaseModel
 
 		$toDelete = array();
 
-		foreach($elems as $key=>$currentElement) {
+		foreach($elems as $key=>&$currentElement) {
+			if(!is_array($currentElement))
+				continue;
+			$currentElement["match"] = "noMatch";
 			$foundChild = false;
 			foreach($searchresult as $result) {
 				$dnToCheck = $currentElement["dn"];
@@ -133,6 +136,9 @@ class LConf_LDAPHelperModel extends IcingaLConfBaseModel
 					continue;
 				if(substr($resultDn,-1*strlen($dnToCheck)) == $dnToCheck) {
 					$foundChild = true;
+					if($dnToCheck == $resultDn) {
+						$currentElement["match"] = "match";
+					}
 					break;
 				}
 			}

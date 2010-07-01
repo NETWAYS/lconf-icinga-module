@@ -17,12 +17,12 @@ class LConf_PropertyEditor_PropertyWizardAction extends IcingaLConfBaseAction
 	
 	public function executeWrite(AgaviRequestDataHolder $rd) {		
 		$target = $rd->getParameter("view","Default");
-		return $target;
+		return $this->getDefaultViewName();
 	}
 	
 	public function executeRead(AgaviRequestDataHolder $rd) {
 		$target = $rd->getParameter("view","Default");
-		return $target;		
+		return $this->getDefaultViewName();		
 	}
 	
 	public function getDefaultViewName()

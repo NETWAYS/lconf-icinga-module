@@ -4,6 +4,7 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 	activeDN :  null,
 	minHeight: 200,
 	forceFit:true,
+	ctCls: 'lconfGrid',
 	constructor: function(config) {
 		Ext.apply(this,config);
 		this.initializeGridSettings();		
@@ -72,6 +73,7 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 				iconCls: 'silk-disk',
 				handler: function() {
 					this.getStore().save();
+					eventDispatcher.fireCustomEvent("refreshTree");
 				},
 				scope:this
 			}]
@@ -94,7 +96,8 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 			if(resp.status != '200')
 				Ext.Msg.alert('Process failed!',resp.responseText);
 		});
-		this.getStore().on("save",function() {this.reload()},this.getStore());
+		if(!this.noLoadOnSave)
+			this.getStore().on("save",function() {this.reload()},this.getStore());
 		this.on("beforeedit",this.setupEditor,this);
 		
 	},
@@ -132,6 +135,7 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 	
 	viewProperties: function(selectedDN,connection) {		
 		this.connId = connection;	
+		this.selectedNode = selectedDN;
 		var id = selectedDN.attributes["aliasdn"] || selectedDN.id;
 		id = id.replace(/^\*\d{4}\*/,"");
 
@@ -152,9 +156,14 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 	setupEditor: function(e) {
 		var column = e.grid.getColumnModel().columns[e.column];			
 		var editor = null;
+
 		if(e.field == "property") {
 			var editor = lconf.editors.editorFieldMgr.getEditorFieldForProperty("property");
 		} else {
+			if(!e.record.get("property")) {
+				AppKit.notifyMessage(_("Please select the attribute type first"),"");
+				return false;
+			}
 			var type = e.record.get("property").split("_")[0];
 			var editor = lconf.editors.editorFieldMgr.getEditorFieldForProperty(type);
 		}

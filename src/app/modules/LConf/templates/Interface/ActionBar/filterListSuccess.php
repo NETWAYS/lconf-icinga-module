@@ -32,11 +32,16 @@
 	}
 
 	lconf.filters.deactivateFilter = function(filter) {
-		Ext.each(lconf.filters.activeFilters,function(curfilter,idx,all) {
-			if(curfilter == filter)
-				lconf.filters.activeFilters.splice(idx,1);
-			eventDispatcher.fireCustomEvent("filterChanged",lconf.filters.activeFilters,this);
-		},this);
+		removed = false;
+		do {
+			removed = false;
+			Ext.each(lconf.filters.activeFilters,function(curfilter,idx,all) {
+				if(curfilter == filter)
+					lconf.filters.activeFilters.splice(idx,1);
+				removed = true;
+			},this);
+		} while(removed);
+		eventDispatcher.fireCustomEvent("filterChanged",lconf.filters.activeFilters,this);
 	}
 	
 	lconf.filters.deactivateAll = function() {
@@ -171,6 +176,7 @@
 			return this.dView;
 		},
 		
+
 		
 		getView : function() {
 			if(!this.view) {
@@ -289,7 +295,7 @@
 		 * EOF  Node to Tree / Tree to node conversion functions		
 		 */
 		 
-		 
+		
 		filterManager: function(record) {
 			if(record) {
 				

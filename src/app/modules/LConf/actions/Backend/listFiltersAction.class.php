@@ -18,6 +18,20 @@ class LConf_Backend_listFiltersAction extends IcingaLConfBaseAction
 	{
 		return 'Success';
 	}
+	
+	public function executeWrite(AgaviRequestDataHolder $rd) {
+		return $this->getDefaultViewName();
+	}
+
+
+	public function executeRead(AgaviRequestDataHolder $rd) {
+		return $this->getDefaultViewName();
+	}
+	
+	
+	public function isSecure() {
+		return true;
+	}
 }
 
 ?>

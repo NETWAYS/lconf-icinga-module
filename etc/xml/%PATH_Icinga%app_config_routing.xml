@@ -20,6 +20,7 @@
 				<!-- Entry manipulation routes -->
 				<route name=".modifyproperty" pattern="^/propertymodifier(/{field:[\w_]+})?$" action="Backend.modifyEntry"/>
 				<route name=".modifynode" pattern="^/nodemodifier" action="Backend.modifyNode"/>
+				<route name=".searchreplace" pattern="^/searchreplace" action="Backend.searchReplace"/>
 
 				<!-- Connection specific routes -->
 				<route name=".connectionlisting" pattern="^/connections(/{connection_id:\d+})?$" action="Backend.connectionManager.connectionListing"/>

@@ -10,7 +10,6 @@ class LConf_Backend_modifyNodeSuccessView extends IcingaLConfBaseView
 			$connectionId = $rd->getParameter("connectionId");
 			$context = $this->getContext();
 			$context->getModel("LDAPClient","LConf");
-
 			$client = LConf_LDAPClientModel::__fromStore($connectionId,$context->getStorage());
 			
 			if(!$client) {
@@ -29,11 +28,11 @@ class LConf_Backend_modifyNodeSuccessView extends IcingaLConfBaseView
 					break;
 				case 'move':
 					$client->moveNode($properties["sourceDN"],$properties["targetDN"]);
-
 					break;
 				case 'clone':
 					$client->cloneNode($properties["sourceDN"],$properties["targetDN"]);
 					break;
+
 			}
 			return "Success";
 		} catch(Exception $e) {

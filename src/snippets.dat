@@ -1,4 +1,4 @@
-a:1:{i:0;a:3:{s:4:"mark";s:5:"LConf";s:4:"file";s:35:"%PATH_Icinga%/pub/styles/Icinga.css";s:7:"content";s:1349:".ldap-connection {
+a:1:{i:0;a:3:{s:4:"mark";s:5:"LConf";s:4:"file";s:35:"%PATH_Icinga%/pub/styles/Icinga.css";s:7:"content";s:1928:".ldap-connection {
     width:100px;
     margin:5px;
     padding:5px;
@@ -68,7 +68,41 @@ a:1:{i:0;a:3:{s:4:"mark";s:5:"LConf";s:4:"file";s:35:"%PATH_Icinga%/pub/styles/I
 
 .middleAlign {
     vertical-align:middle;
-
 }
 
+.x-tree-node .noMatch *{
+    color:grey;
+}
+
+.lconf_infobox {
+	margin:10px;
+	width:400px;
+	font-size:10px;
+	padding:5px;
+	height:200px;
+	scroll:auto;
+	overflow:scroll;
+        border:1px solid #ababab;
+	-moz-border-radius:5px;
+	-webkit-border-radius:5px;
+	background:white;
+	cursor:text;
+	color:red';
+}
+
+.lconf_infobox ul {
+    margin-left:10px;
+    padding-left:5px;  
+    list-style: circle;
+}
+
+.lconf_infobox ul li {
+    border-bottom:1px solid grey;
+    margin-bottom:2px;
+}
+
+.lconfGrid .x-grid3-col {
+    border-bottom:1px solid #ababab;
+    border-right:1px solid #ababab;
+}
 ";}}

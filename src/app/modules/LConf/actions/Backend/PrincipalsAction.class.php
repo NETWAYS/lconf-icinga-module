@@ -49,6 +49,10 @@ class LConf_Backend_PrincipalsAction extends IcingaLConfBaseAction
 		
 		return 'Success';
 	}
+	
+	public function isSecure() {
+		return true;
+	}
 }
 
 ?>
