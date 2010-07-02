@@ -7,6 +7,7 @@ Ext.ns('lconf.wizards');
 		id : Ext.id("wizard"),
 		root: 'properties',
 		enableFb : true,
+		noLoad:true,
 		noLoadOnSave: true,
 		constructor: function(config) {
 			Ext.apply(this,config);

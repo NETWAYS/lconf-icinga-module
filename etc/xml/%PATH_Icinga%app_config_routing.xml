@@ -28,7 +28,7 @@
 				<route name=".principals" pattern="^/principals$" action="Backend.Principals"/>
 		
 				<!-- LDAP objects -->
-				<route name=".ldapmetaprovider" pattern="^/ldapmeta/(field:\w+)$" action="Backend.LDAPObjects"/>
+				<route name=".ldapmetaprovider" pattern="^/ldapmeta$" action="Backend.LDAPObjects"/>
 			</route>
 			<route name=".admin" pattern="^/admin" action="Interface.Admin.Main">
 				<route name=".principals" pattern="^/principals" action="Interface.Admin.Principals" output_type="simple"/>

@@ -1,4 +1,4 @@
-a:1:{i:0;a:3:{s:4:"mark";s:5:"LConf";s:4:"file";s:35:"%PATH_Icinga%/pub/styles/Icinga.css";s:7:"content";s:1928:".ldap-connection {
+a:1:{i:0;a:3:{s:4:"mark";s:5:"LConf";s:4:"file";s:35:"%PATH_Icinga%/pub/styles/Icinga.css";s:7:"content";s:1984:".ldap-connection {
     width:100px;
     margin:5px;
     padding:5px;
@@ -105,4 +105,7 @@ a:1:{i:0;a:3:{s:4:"mark";s:5:"LConf";s:4:"file";s:35:"%PATH_Icinga%/pub/styles/I
     border-bottom:1px solid #ababab;
     border-right:1px solid #ababab;
 }
-";}}
+
+.lconfGrid .x-grid3-row.inherited{
+    color:#787878;
+}";}}

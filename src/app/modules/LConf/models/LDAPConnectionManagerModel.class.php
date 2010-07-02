@@ -70,7 +70,8 @@ class LConf_LDAPConnectionManagerModel extends IcingaLConfBaseModel
 				continue;
 			$entry->set($field,htmlentities($value));
 		}
-		$entry->save();	
+		$entry->save();
+		return $entry->getIncremented();	
 	}
 	
 	/**

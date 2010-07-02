@@ -20,7 +20,7 @@ class LConfMenuExtender extends AppKitEventHandler implements AppKitEventHandler
 			
 				$icinga_base = AppKitNavItem::create('lconf', 'lconf')
 				->setCaption('LConf')
-				->addAttributes('extjs-iconcls', 'icinga-icon-dot');
+				->addAttributes('extjs-iconcls', 'silk-plugin');
 			
 				// Throws exception if the admin is not there ...
 				if ($nav->getNavItemByName('appkit.admin')) {
@@ -33,12 +33,12 @@ class LConfMenuExtender extends AppKitEventHandler implements AppKitEventHandler
 				
 				$icinga->addSubItem(AppKitNavItem::create('lconf.main', 'lconf.main')
 					->setCaption('LDAP Editor')
-					->addAttributes('extjs-iconcls', 'silk-application-cascade')
+					->addAttributes('extjs-iconcls', 'silk-chart-organisation')
 				);
 				
 				$icinga->addSubItem(AppKitNavItem::create('lconf.admin', 'lconf.admin')
 					->setCaption('LConf Admin')
-					->addAttributes('extjs-iconcls', 'silk-icon-dot')
+					->addAttributes('extjs-iconcls', 'silk-user')
 				);				
 		}
 		

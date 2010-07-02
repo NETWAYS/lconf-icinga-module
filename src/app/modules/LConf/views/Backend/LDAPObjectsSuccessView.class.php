@@ -2,19 +2,38 @@
 
 class LConf_Backend_LDAPObjectsSuccessView extends IcingaLConfBaseView
 {
-	static protected $staticFields = array("objectclass","properties");
-	
+
 	public function executeJson(AgaviRequestDataHolder $rd) {
-		$field = $rd->getParameter("field");
+		$field = json_decode($rd->getParameter("field"),true);
 		$ctx = $this->getContext();
-		$result;
-		if(in_array($field,self::$staticFields)) {
+		$result = array();
+		
+		if(!is_array($field)) {
 			$definitions = null;//$ctx->getStorage()->read("lconf.ldap.entites");
 			if(!$definitions)
 				$definitions = $this->loadStaticLDAPDefinitions();			
 			$result = $definitions[$field];
 			foreach($result as &$entry)
 				$entry = array("entry"=>$entry);
+		} else if(isset($field["LDAP"])) {
+			$connectionId = $rd->getParameter("connectionId");
+			$ctx->getModel("LDAPClient","LConf");
+			$client = LConf_LDAPClientModel::__fromStore($connectionId,$ctx->getStorage());
+			$filtergr = $ctx->getModel("LDAPFilterGroup","LConf",array("OR"));
+			foreach($field["LDAP"] as $filter) {
+				$filter = explode("=",$filter);
+				$filterModel = $ctx->getModel("LDAPFilter","LConf",array($filter[0],$filter[1]));
+				$filtergr->addFilter($filterModel);
+			}
+			
+			foreach($client->searchEntries($filtergr,null,array(@$field["Attr"])) as $entry) {
+				if(is_int($entry))
+					continue;
+				if(@$field["Attr"] != "dn" && $field["Attr"])
+					$result[] = array("entry"=>$entry[$field["Attr"]][0]);
+				else 
+					$result[] = array("entry"=>$entry["dn"]);
+			}
 		}
 		
 		$response = $this->buildResponse($field,$result);

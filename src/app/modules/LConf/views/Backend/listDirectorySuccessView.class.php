@@ -23,14 +23,27 @@ class LConf_Backend_listDirectorySuccessView extends IcingaLConfBaseView
 		return json_encode($nodeList);
 	}
 	
+	protected function aliasFilter($dn) {
+		$or_group = $this->getContext()->getModel("LDAPFilterGroup","LConf",array("OR"));
+		$group = $this->getContext()->getModel("LDAPFilterGroup","LConf");
+		$group->addFilter($this->getContext()->getModel("LDAPFilter","LConf",array("objectclass","alias")));
+		$group->addFilter($this->getContext()->getModel("LDAPFilter","LConf",array("aliasedobjectname",$dn)));		
+		$or_group->addFilter($group);
+		$or_group->addFilter($this->getContext()->getModel("LDAPFilter","LConf",array("dn",$dn)));
+		return $or_group;
+	}
+	
 	protected function applyFilters(array $filters,LConf_LDAPClientModel $client) {
 		if(empty($filters))
 			return true;
 		$filterMgr = $this->getContext()->getModel("LDAPFilterManager","LConf");
 		$allFilters = $this->getContext()->getModel("LDAPFilterGroup","LConf");
 
-		foreach($filters as $filter) {
-			$allFilters->addFilter($filterMgr->getFilterAsLDAPModel($filter));
+		foreach($filters as $type=>$filter) {
+			if($type == "ALIAS")
+				$allFilters->addFilter($this->aliasFilter($filter));
+			else
+				$allFilters->addFilter($filterMgr->getFilterAsLDAPModel($filter));
 		}		
 
 		$client->setFilter($allFilters);
@@ -53,7 +66,8 @@ class LConf_Backend_listDirectorySuccessView extends IcingaLConfBaseView
 
 			if(!is_array($subs) || !@$subs["count"])
 				$node["isLeaf"] = true;
-
+			else 
+				$node["count"] = count($subs);
 			$node["parent"] = $startCWD;	
 			$nodeList[] = $node;	
 		}

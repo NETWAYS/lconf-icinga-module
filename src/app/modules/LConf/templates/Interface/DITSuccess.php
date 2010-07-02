@@ -14,7 +14,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 	var ditTreeLoader = Ext.extend(Ext.tree.TreeLoader,{
 		
 		dataUrl: dataUrl,
-		
+
 		createNode: function(attr) {
 			var nodeAttr = attr;
 			var i = 0;
@@ -43,6 +43,8 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			nodeAttr.qtip = _("<b>ObjectClass:</b> ")+objClass+
 							_("<br/><b>DN:</b> ")+attr["dn"]+
 							_("<br/>Click to modify");
+			
+			
 			nodeAttr.id = attr["dn"];
 			nodeAttr.leaf = attr["isLeaf"] ? true :false;
 			if(nodeAttr.id.substr(0,aliasString.length) == aliasString)
@@ -58,6 +60,8 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			var comma = 1;
 			var txtRegExp = /^.*?\=/;
 			var shortened = attr["dn"].split(",")[0];
+			if(attr["count"] && !attr["isLeaf"])
+				shortened = shortened+"("+attr["count"]+")";
 			return (withDN) ? shortened : shortened.replace(txtRegExp,"");
 		}
 	});
@@ -79,10 +83,28 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			
 			eventDispatcher.addCustomListener("searchDN",this.searchDN,this);
 			
+			eventDispatcher.addCustomListener("aliasMode", function(node) {
+				this.reloadFilters = this.loader.baseParams["filters"];
+				this.loader.baseParams["filters"] = '{"ALIAS":"'+node.id+'"}';
+				this.expandAllRecursive(null);
+	
+				
+			},this);
+			
 			this.on("click",function(node) {eventDispatcher.fireCustomEvent("nodeSelected",node,this.id);});
 			this.on("beforeNodeDrop",function(e) {e.dropStatus = true;this.nodeDropped(e);return false},this)
 			this.on("contextmenu",function(node,e) {this.context(node,e)},this);
+			this.on("beforeappend",function(tree,parent,node) {
+				if(this.getNodeById(node.attributes.dn)) {
+					var rnd = ((Math.floor((Math.random()*10000))+1000)%10000);
+					node.attributes.dn = "*"+rnd+"*"+node.attributes.dn;
+					node.attributes.id = node.attributes.dn; 
+					node.id = node.attributes.id;
+				}	
+			},this);
+			
 			this.on("append",function(obj,parent,node) {
+				
 				if(node.attributes.match == "noMatch") {
 					(function() {node.getUI().addClass('noMatch');}).defer(100)
 					node.expand();
@@ -152,6 +174,13 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 					hidden: !node.attributes.isAlias && !node.id.match(/\*\d{4}\*/),
 					handler: this.jumpToRealNode.createDelegate(this,[node])	
 				},{
+					text: _('Display aliases to this node'),
+					iconCls: 'silk-wand',
+					hidden: node.attributes.isAlias || node.id.match(/\*\d{4}\*/),
+					handler: function(btn) {
+						eventDispatcher.fireCustomEvent("aliasMode",node);
+					}
+				},{
 					text: _('Search/Replace'),
 					iconCls: 'silk-zoom',
 					handler: this.searchReplaceMgr.createDelegate(this),
@@ -162,6 +191,21 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			ctx.showAt(e.getXY())
 			
 			
+		},
+		refreshCounter :  0,
+		expandAllRecursive: function(node,cb) {
+			node = node || this.getRootNode();
+			if(node == this.getRootNode())
+				this.refreshCounter = 0;
+			node.reload();	
+			node.on("load",function() {
+				node.eachChild(function(newNode){
+					this.expandAllRecursive(newNode,cb)
+				});
+				this.refreshCounter--;
+				if(this.refreshCounter<1)
+					cb();
+			},this,{single:true});
 		},
 		
 		getExpandedSubnodes: function(node) {
@@ -187,7 +231,8 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 				}
 				var getNext = function() {
 					if(!Ext.isEmpty(treeObj.nextLevel.length))
-						finishFn();	
+						if(finishFn)
+							finishFn();	
 					Ext.each(treeObj.nextLevel,function(next){
 						this.expandViaTreeObject(next,finishFn);						
 					},this,{single:true})
@@ -196,7 +241,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 				if(!node.isExpanded()) {
 					node.on("expand",function(_node) {
 						getNext.call(this);
-					},this);
+					},this,{single:true});
 					node.expand();
 				} else {				
 					getNext.call(this);	
@@ -204,7 +249,13 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			},this);		
 		},
 		
-		refreshNode: function(node,preserveStructure) {
+		refreshNode: function(node,preserveStructure,callback) {
+			if(this.reloadFilters) {
+				this.loader.baseParams["filters"] = this.reloadFilters;
+				preserveStructure = false;
+			}
+			this.reloadFilters = false;
+			
 			if(!node)
 				node = this.getRootNode();
 			if(preserveStructure) {
@@ -220,7 +271,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			node.reload();
 			if(preserveStructure) {
 				this.on("load", function(elem) {
-					this.expandViaTreeObject(expandTree);
+					this.expandViaTreeObject(expandTree,callback);
 				},this,{single:true});
 			}
 			
@@ -433,6 +484,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			var finishFN = function() {
 				var node = this.getNodeById(dn);
 				this.selectPath(node.getPath());
+				eventDispatcher.fireCustomEvent("nodeSelected",node,this.id);
 			}
 			this.expandViaTreeObject(expandDescriptor,finishFN.createDelegate(this));
 		},
@@ -462,6 +514,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			this.wizardWindow.show();
 			this.wizardWindow.removeAll();
 			this.wizardWindow.add(this.getNodeSelectionDialog());
+		
 			this.wizardWindow.doLayout();
 			
 		},

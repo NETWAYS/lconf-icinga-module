@@ -13,6 +13,12 @@
 					<error>No field provided</error>
 				</errors>
 			</validator>
+			<validator class="string" name="connectionId" required="false">
+				<argument>connectionId</argument>
+				<errors>
+					<error>No connectionId provided</error>
+				</errors>
+			</validator>
 		</validators>
 		
 		<validators method="write">

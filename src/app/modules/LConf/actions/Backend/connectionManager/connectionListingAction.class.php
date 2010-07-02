@@ -36,13 +36,18 @@ class LConf_Backend_connectionManager_connectionListingAction extends IcingaLCon
 			if(!$alteredConnection)
 				throw new AppKitException("Invalid JSON send");
 			// always wrap as array to make it iteratable
+			
 			if(isset($alteredConnection["connection_name"]))
 				$alteredConnection = array($alteredConnection);
-			
+			$userId = $this->getContext()->getUser()->getNsmUser()->get("user_id");
 			$connectionManager = $this->getContext()->getModel("LDAPConnectionManager","LConf");
-			foreach($alteredConnection as $connection)  
-				$connectionManager->addConnection($connection);
+			$mgr = $this->getContext()->getModel("Admin.LConfPrincipalAdmin","LConf");
+			foreach($alteredConnection as $connection) { 
+				$id = $connectionManager->addConnection($connection);
+				$mgr->addPrincipals($id,"users",'{"user_id":"'.$userId.'"}');
+			}	
 		} catch(Exception $e) {
+			
 			$rd->setParameter("_error",$e->getMessage());
 		}
 		return "Success";

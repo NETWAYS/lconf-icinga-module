@@ -11,15 +11,24 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 		Ext.grid.EditorGridPanel.prototype.constructor.call(this,config);
 			
 	},
-
+	
+	viewConfig: {
+		getRowClass: function(record,index) {
+			if(record.get('parent') != "") {
+				return 'inherited';
+			}
+		}
+	},
+	
 	connId: null,
 	initializeGridSettings: function() {
-		
+
 		this.ds =  new Ext.data.JsonStore({
 			proxy: new Ext.data.HttpProxy({
 				url : this.url,
 				api: this.api
 			}),
+			
 			autoSave: false,
 			storeId: this.id+'_store',
 			root: this.root,
@@ -27,7 +36,7 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 				'connectionId' : this.connId				
 			},
 			idProperty: 'id',
-			fields: ['id','property','value'],
+			fields: ['id','property','parent','value'],
 			writer: new Ext.data.JsonWriter({
 				encode:true,
 				writeAllFields:true,
@@ -35,10 +44,11 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 			})
 		});
 		
+		
 		this.colModel = new Ext.grid.ColumnModel({
 			store:this.ds,
 			isCellEditable : function(col,row) {
-				if(this.store.getAt(row).id == 'dn')
+				if(this.store.getAt(row).id == 'dn' || this.store.getAt(row).id == 'dn_dn' || this.store.getAt(row).get('parent'))
 					return false;
 				return  Ext.grid.ColumnModel.prototype.isCellEditable.call(this,col,row);	
 			}, 
@@ -83,15 +93,32 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 	},
 	
 	
+	inheritedMenu: function(grid,idx,event) {
+		var record = this.getStore().getAt(idx);
+		if(!record.get("parent"))
+			return true;
+	
+		var ctx = new Ext.menu.Menu({
+			items: [{
+				iconCls: 'silk-arrow-redo',
+				text:_('Jump to inherited node'),
+				handler: function() {eventDispatcher.fireCustomEvent("searchDN",record.get("parent"))}
+			}]
+		});
+		ctx.showAt(event.getXY());
+	},
 	
 	initEvents: function(){
 		Ext.grid.EditorGridPanel.prototype.initEvents.call(this)
-		eventDispatcher.addCustomListener("nodeSelected",this.viewProperties,this,{buffer:true});
+		if(!this.noLoad)
+			eventDispatcher.addCustomListener("nodeSelected",this.viewProperties,this,{buffer:true});
 		eventDispatcher.addCustomListener("ConnectionClosed",this.disable,this);
 		eventDispatcher.addCustomListener("invalidNode",this.disable,this);
-		
+		if(!this.noLoad)
+			this.on("rowclick",this.inheritedMenu,this); 
 		this.getStore().on("add",function(store,rec,index) {this.getSelectionModel().selectLastRow();},this)
 		this.getStore().on("load", this.getDNFromRecord,this);
+	
 		this.getStore().on("exception",function(proxy,type,action,opt,resp,arg) {
 			if(resp.status != '200')
 				Ext.Msg.alert('Process failed!',resp.responseText);
@@ -101,6 +128,8 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 		this.on("beforeedit",this.setupEditor,this);
 		
 	},
+	
+	
 	clearSelected: function() {
 		this.getStore().remove(this.getSelectionModel().getSelections());
 	},
@@ -166,6 +195,10 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 			}
 			var type = e.record.get("property").split("_")[0];
 			var editor = lconf.editors.editorFieldMgr.getEditorFieldForProperty(type);
+		}
+
+		if(editor.getStore) {
+			editor.getStore().setBaseParam("connectionId",this.connId)
 		}
 		column.setEditor(editor);
 	},

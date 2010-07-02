@@ -36,6 +36,7 @@ class LConf_Backend_PrincipalsAction extends IcingaLConfBaseAction
 				}					
 				$mgr = $this->getContext()->getModel("Admin.LConfPrincipalAdmin","LConf");
 				$mgr->removePrincipals($connection_id,$target,$values);
+				
 				break;
 			case 'create' :
 				if(!$connection_id || !$values || !$target) {
@@ -48,6 +49,10 @@ class LConf_Backend_PrincipalsAction extends IcingaLConfBaseAction
 		}
 		
 		return 'Success';
+	}
+	
+	public function getCredentials() {
+		return 'lconf.admin';
 	}
 	
 	public function isSecure() {

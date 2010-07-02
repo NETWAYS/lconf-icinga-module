@@ -322,8 +322,9 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 	public function searchEntries($filter,$base = null,array $addAttributes = array()) {
 		$filterString = $filter->buildFilterString();
 		if(!$base)
-			$base = $this->getCwd();
+			$base = $this->getBaseDN();
 		$searchAttrs = array_merge(array("dn"),$addAttributes);
+
 		$result = ldap_search($this->getConnection(),$base,$filterString,$searchAttrs);
 		return $result ? ldap_get_entries($this->getConnection(),$result) : null;
 	} 
@@ -413,15 +414,40 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 		return $entries[0];
 	}
 	
-	protected function addInheritedProperties(array $entries, $dn, $inheritance) {
+	protected function addInheritedProperties(array &$entries, $dn, $inheritance) {
 		$baseDn = $this->getBaseDN();
 		$strippedDn = substr($dn,0,-1*(strlen($baseDn)+1));
 		$dnParts = explode(",",$strippedDn);
 		$connection = $this->getConnection();
-		for($i=count($dnParts)-1;$i>=0;$i--) {
+		/**
+		 * Hangle down the dn structure
+		 */
+		for($i=count($dnParts)-1;$i>=1;$i--) {
 			$dn = $dnParts[$i];
 			$baseDn = $dn.",".$baseDn;
+			// check if an inherited object is above this object
 			$result = ldap_get_entries($connection,@ldap_read($connection,$baseDn,"objectclass=*",array()));						
+			foreach($result[0]["objectclass"] as $key=>$obj) {
+				// not inherited
+				if(!isset($inheritance[$obj]))
+					continue;		
+					
+				foreach($inheritance[$obj]["attributes"] as $inhAttributes) {				
+					if(!isset($result[0][$inhAttributes]))
+						continue;	
+					$newAttrs = $result[0][$inhAttributes];
+					unset($newAttrs["count"]);
+					foreach($newAttrs as &$attr) {
+						$attr = array("inherited"=>true,"value"=>$attr,"dn"=>$baseDn);
+					}
+					// Copy attributes
+					if(!isset($entries[$inhAttributes])) {
+						$entries[$inhAttributes] = $newAttrs;
+					} else { 
+						array_push($entries[$inhAttributes],$newAttrs);
+					}
+				}
+			} 
 		}
 	}
 	
@@ -449,6 +475,11 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 		$idRegexp = "/^(.*)_(\d*)$/";
 		$affectsDN = false;
 		foreach($newParams as $parameter) {
+			// ignore inherited params
+			if(isset($parameter["parent"]))
+				if($parameter["parent"] != "")
+					continue;
+			
 			$idElems = array();
 			preg_match($idRegexp,$parameter["id"],&$idElems);
 			if(count($idElems) != 3) {

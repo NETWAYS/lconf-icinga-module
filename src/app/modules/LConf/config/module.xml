@@ -71,14 +71,63 @@
 					</ae:parameter>
 				</setting>
 				
-				<setting name="inheritance">
-					<ae:parameter name="nagiosService">
-						<ae:parameter>nagiosService</ae:parameter>
+				<setting name="propertyPresets">
+					<ae:parameter name="property">
+						<ae:parameter name="factory">ComboBox</ae:parameter>
+						<ae:parameter name="parameter">"properties"</ae:parameter>
 					</ae:parameter>
-					<ae:parameter name="nagiosHost">
-						<ae:parameter>nagiosHost</ae:parameter>
+					
+					<ae:parameter name="objectclass">
+						<ae:parameter name="factory">ComboBox</ae:parameter>
+						<ae:parameter name="parameter">"objectclass"</ae:parameter>
+					</ae:parameter>
+					
+					<ae:parameter name="nagioscheckcommand">
+						<ae:parameter name="factory">ComboBox</ae:parameter>
+						<ae:parameter name="parameter">{"LDAP":["objectclass=nagiosCommand"],"Attr": "cn"}</ae:parameter>
+					</ae:parameter>
+					
+					<ae:parameter name="nagiosmembers">
+						<ae:parameter name="factory">Set</ae:parameter>
+						<ae:parameter name="parameter">{"LDAP":["objectclass=nagiosHost","objectclass=nagioscontact"],"Attr": "cn"}</ae:parameter>
+					</ae:parameter>
+					
+					<ae:parameter name="nagioshostgroups">
+						<ae:parameter name="factory">Set</ae:parameter>
+						<ae:parameter name="parameter">{"LDAP":["objectclass=nagiosHostgroup"],"Attr": "cn"}</ae:parameter>
 					</ae:parameter>
 
+					<ae:parameter name="nagioscontactgroups">
+						<ae:parameter name="factory">Set</ae:parameter>
+						<ae:parameter name="parameter">{"LDAP":[objectclass=nagiosContactgroup],"Attr": "cn"}</ae:parameter>
+					</ae:parameter>					
+					
+					
+				</setting>
+				
+				<setting name="inheritance">
+					<!-- 
+							Inheritance definition service
+					 -->
+					<ae:parameter name="nagiosService">
+						<ae:parameter name="nagiosService">
+							<ae:parameter name="attributes">
+								<ae:parameter>nagioscheckcommand</ae:parameter>
+							</ae:parameter>
+						</ae:parameter>
+					</ae:parameter>
+
+					<!-- 
+							Inheritance definition host
+					 -->
+					<ae:parameter name="nagiosHost">
+						<ae:parameter name="nagiosHost">
+							<ae:parameter name="attributes">
+								<ae:parameter>nagiosaddress</ae:parameter>
+								<ae:parameter>nagiosalias</ae:parameter>
+							</ae:parameter>
+						</ae:parameter>
+					</ae:parameter>
 				</setting>
 				
 				<setting name="ldap_definition_ini">%core.module_dir%/LConf/lib/ldapConfig/staticObjects.ini</setting>

@@ -60,20 +60,28 @@ class LConf_Backend_getPropertiesSuccessView extends IcingaLConfBaseView
 					if(!is_int($nodeKey)) 
 						continue;
 					// create a property record for the response	
-					$nodeList["properties"][] = 
-						array("property" => $key,
-							  "id" => $key."_".$nodeKey,
-							  "value" => $value);	
+					
+					$nodeList["properties"][] = $this->getResult($key,$nodeKey,$value);	
 				}
 			} else { // only one property
 				// create a property record for the response
-				$nodeList["properties"][] = 
-					array("property" => $key, 
-						  "id" => $key,
-						  "value" => $node);
+				$nodeList["properties"][] = $this->getResult($key,$key,$node);
 			}
 		}
 		return $nodeList;
+	}
+	
+	public function getResult($key,$nodeKey,$value) {
+		$baseParams = array("property" => $key,
+					  "id" => $key."_".$nodeKey);
+		if(!is_array($value)) {
+			$baseParams["value"] = $value;	
+			return $baseParams;
+		}
+
+		$baseParams["value"] = $value[0]["value"];
+		$baseParams["parent"] = $value[0]["dn"];
+		return $baseParams;
 	}
 	
 	public function executeHtml(AgaviRequestDataHolder $rd)
