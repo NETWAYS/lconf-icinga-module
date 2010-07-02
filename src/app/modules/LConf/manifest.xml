@@ -12,7 +12,7 @@
 	
 	<Dependencies>
 		<Icinga-Web>
-			<Version>0.9.1</Version>
+			<Version>1.0.1</Version>
 		</Icinga-Web>
 		<PHP>
 			<Version>5.2</Version>
@@ -56,9 +56,9 @@
 	</Files>
 	
 	<Config>
-		<Entry file="%PATH_Icinga%app/modules/AppKit/module" default="http://agavi.org/agavi/config/parts/module/1.0" ae="http://agavi.org/agavi/config/global/envelope/1.0">
+		<Entry file="%PATH_Icinga%app/modules/AppKit/module.xml" default="http://agavi.org/agavi/config/parts/module/1.0" ae="http://agavi.org/agavi/config/global/envelope/1.0">
 			<Nodes base="/ae:configurations/ae:configuration/module[@enabled='true']/settings/">
-				<Node path="setting[@name='menu_extender']" nodeName='ae:parameter'>%MODULE_Name%MenuExtender</Node>
+				<Node path="setting[@name='menu_extender']" nodeName='ae:parameter'>LConfMenuExtender</Node>
 			</Nodes>
 		</Entry> 
 		<!--  Routing -->
