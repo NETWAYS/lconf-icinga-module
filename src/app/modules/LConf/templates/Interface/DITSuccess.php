@@ -499,7 +499,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 					width:800,
 					id:'newNodeWizardWnd',
 					renderTo: Ext.getBody(),
-					height:400,
+					autoHeight:true,
 					stateful:false,
 					minHeight:400,
 					shadow:false,
@@ -540,7 +540,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			wnd = wnd || this.wizardWindow;
 			var pbar = new Ext.ProgressBar({
 				width:200,
-				height:400,
+				autoHeight:true,
 				text: _('Loading wizard')
 			});
 			wnd.add(pbar);
