@@ -57,7 +57,7 @@ abstract class BaseLconfConnection extends Doctrine_Record
              'notnull' => true,
        	     'default' => 389
           ));
-          $this->hasColumn('connection_baseDN', 'string', 256, array(
+          $this->hasColumn('connection_basedn', 'string', 256, array(
              'type' => 'string',
              'length' => 256,
              'fixed' => false,
@@ -78,6 +78,11 @@ abstract class BaseLconfConnection extends Doctrine_Record
 
     public function setUp()
     {
+    	$this->hasMany('LconfPrincipal as principals', array(
+             'local' => 'connection_id',
+             'foreign' => 'connection_id'
+
+        ));
         parent::setUp();
     }
 }
