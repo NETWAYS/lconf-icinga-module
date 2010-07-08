@@ -13,6 +13,7 @@
 				<!-- Directory and Property listing  -->
 				<route name=".directoryprovider" pattern="^/directoryprovider$" action="Backend.listDirectory"/>
 				<route name=".propertyprovider" pattern="^/properties$" action="Backend.getProperties"/>					
+				<route name=".simplesearch" pattern="^/simplesearch$" action="Backend.snippetSearch"/>
 				
 				<route name=".filterlisting" pattern="^/filterprovider$" action="Backend.listFilters"/>
 				<route name=".modifyfilter" pattern="^/filtermodifier$" action="Backend.modifyFilter"/>

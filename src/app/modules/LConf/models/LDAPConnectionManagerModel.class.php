@@ -66,8 +66,7 @@ class LConf_LDAPConnectionManagerModel extends IcingaLConfBaseModel
 		if(!$entry)
 			throw new AppKitException("Connection not found!");
 		foreach($details as $field=>$value) {
-			if(!$value) 
-				continue;
+	
 			$entry->set($field,htmlentities($value));
 		}
 		$entry->save();

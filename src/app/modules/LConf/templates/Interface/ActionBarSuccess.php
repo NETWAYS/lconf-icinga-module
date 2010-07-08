@@ -49,6 +49,7 @@ if(lconf.panelComponent = Ext.getCmp(lconf.panelId)) {
 		new Ext.Panel({
 			title: _('Connections'),
 			id: 'lconf.pl_connections',
+			autoScroll:true,
 			listeners: {
 				render: function(r) {lconf.initActionPanelProc.call(r,'<?php echo $ro->gen('lconf.actionbar.connmanager'); ?>')}
 			}
@@ -58,6 +59,7 @@ if(lconf.panelComponent = Ext.getCmp(lconf.panelId)) {
 		new Ext.Panel({
 			title: _('Filters'),
 			id: 'lconf.pl_filters',
+			autoScroll:true,
 			listeners: {
 				render: function(r) {lconf.initActionPanelProc.call(r,'<?php echo $ro->gen('lconf.actionbar.filtermanager'); ?>')}
 			}

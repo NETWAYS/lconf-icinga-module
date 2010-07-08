@@ -44,7 +44,7 @@
 					autoDestroy:true,
 					fields: [
 						'connection_id','connection_name','connection_description','connection_binddn',
-						'connection_bindpass','connection_host','connection_port','connection_basedn','connection_tls'
+						'connection_bindpass','connection_host','connection_port','connection_basedn','connection_tls','connection_ldaps'
 					],
 					idProperty:'connection_id',
 					root: 'connections',
@@ -60,8 +60,12 @@
 					'<tpl for=".">',
 						'<div class="ldap-connection" ext:qtip="{connection_description}" id="conn_{connection_id}">',
 							'<div class="thumb"></div>',
-							'<span class="X-editable">{connection_name}</span>',
+							'<span class="X-editable"><b>{connection_name}</b></span><br/>',					
+							'<span class="X-editable">',
+							'<tpl if="connection_ldaps == true">ldaps://</tpl>',
+							'{connection_host}:{connection_port}</span><br/>',
 						'</div>',
+
 					'</tpl>'
 				);
 			}

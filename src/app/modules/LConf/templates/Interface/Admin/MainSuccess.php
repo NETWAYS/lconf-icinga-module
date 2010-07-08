@@ -25,7 +25,8 @@ Ext.onReady(function() {
 	lconf.Admin.connectionList = new function() {
 		var recordSkeleton = Ext.data.Record.create([
 			'connection_id','connection_name','connection_description','connection_binddn',
-			'connection_bindpass','connection_host','connection_port','connection_basedn','connection_tls'
+			'connection_bindpass','connection_host','connection_port','connection_basedn','connection_tls', 
+			'connection_ldaps'
 		]);
 		
 		this.addConnection = function(values) {
@@ -54,7 +55,8 @@ Ext.onReady(function() {
 					if(this.ld_mask)
 						this.ld_mask.hide();
 					Ext.MessageBox.alert(_("Error"),_("Connecting failed!<br/><br/>")+response.responseText);
-				}
+				},
+				scope:this
 			});
 		}
 		
@@ -97,7 +99,8 @@ Ext.onReady(function() {
 			autoDestroy:true,
 			fields: [
 				'connection_id','connection_name','connection_description','connection_binddn',
-				'connection_bindpass','connection_host','connection_port','connection_basedn','connection_tls'
+				'connection_bindpass','connection_host','connection_port','connection_basedn','connection_tls',
+				'connection_ldaps'
 			],
 			writer:new Ext.data.JsonWriter({encode: true}),
 			idProperty:'connection_id',
@@ -109,7 +112,10 @@ Ext.onReady(function() {
 			'<tpl for=".">',
 				'<div class="ldap-connection" ext:qtip="{connection_description}" id="conn_{connection_id}">',
 					'<div class="thumb"></div>',
-					'<span class="X-editable">{connection_name}</span>',
+					'<span class="X-editable"><b>{connection_name}</b></span><br/>',					
+					'<span class="X-editable">',
+					'<tpl if="connection_ldaps == true">ldaps://</tpl>',
+					'{connection_host}:{connection_port}</span><br/>',
 				'</div>',
 
 			'</tpl>'
@@ -186,7 +192,8 @@ Ext.onReady(function() {
 		var wnd = new Ext.Window({
 			modal:true,
 			width:500,
-			height:500,
+			height: Ext.getBody().getHeight()*0.9 > 650 ? 650 : Ext.getBody().getHeight()*0.9,
+			autoScroll:true,
 			autoShow:true,
 			layout:'form',
 			padding:5,
@@ -274,8 +281,14 @@ Ext.onReady(function() {
 					}, {
 						xtype:'checkbox',
 						name: 'connection_tls',
-						value: defaults['connection_tls'] || false,
+						checked: defaults['connection_tls'] || false,
 						fieldLabel: _('Use TLS')
+						
+					},{
+						xtype:'checkbox',
+						name: 'connection_ldaps',
+						checked: defaults['connection_ldaps'] || false,
+						fieldLabel: _('Enable SSL (ldaps://)')
 						
 					}]
 				}]
@@ -318,6 +331,7 @@ Ext.onReady(function() {
 			layout: 'fit',
 			margins:'5 5 5 5',
 			cls: false,
+			autoScroll:true,
 			tbar: lconf.Admin.connectionTbar(),
 			items: lconf.Admin.connectionList.dView
 		}]

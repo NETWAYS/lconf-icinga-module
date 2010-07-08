@@ -71,6 +71,7 @@ Ext.onReady(function() {
 	<?php echo $t["js_actionBarInit"]?>
 	<?php echo $t["js_DITinit"]?>
 	<?php echo $t["js_PropertyEditorInit"]?>
+	<?php echo $t["js_SimpleSearchGridInit"]?>
 })
 
 </script>

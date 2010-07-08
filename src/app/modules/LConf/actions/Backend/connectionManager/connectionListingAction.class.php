@@ -33,10 +33,20 @@ class LConf_Backend_connectionManager_connectionListingAction extends IcingaLCon
 		try {
 			$alteredConnection = $rd->getParameter("connections");
 			$alteredConnection = json_decode($alteredConnection,true);
+			
 			if(!$alteredConnection)
 				throw new AppKitException("Invalid JSON send");
 			// always wrap as array to make it iteratable
+			if(isset($alteredConnection["connection_ldaps"])) {
+				if($alteredConnection["connection_ldaps"] == "on")
+					$alteredConnection["connection_ldaps"] = 1; 				
+			} else $alteredConnection["connection_ldaps"] = '0';
 			
+			if(isset($alteredConnection["connection_tls"])) {
+				if($alteredConnection["connection_tls"] == "on")
+					$alteredConnection["connection_tls"] = 1; 
+			} else $alteredConnection["connection_tls"] = '0'; 
+
 			if(isset($alteredConnection["connection_name"]))
 				$alteredConnection = array($alteredConnection);
 			$userId = $this->getContext()->getUser()->getNsmUser()->get("user_id");

@@ -1,5 +1,5 @@
 a:1:{i:0;a:3:{s:4:"mark";s:5:"LConf";s:4:"file";s:35:"%PATH_Icinga%/pub/styles/Icinga.css";s:7:"content";s:1984:".ldap-connection {
-    width:100px;
+    width:150px;
     margin:5px;
     padding:5px;
     height:65px;

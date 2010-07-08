@@ -17,7 +17,7 @@ class LConf_LDAPFilterManagerModel extends IcingaBaseModel {
 				->select('*')
 				->from("LconfFilter lf")
 				->innerJoin("lf.NsmUser user")
-				->where("user.user_id = ?",$uid);
+				->where("user.user_id = ?  OR lf.filter_isglobal = 1",$uid);
 		return $query->execute()->toArray();
 	}
 
@@ -28,7 +28,7 @@ class LConf_LDAPFilterManagerModel extends IcingaBaseModel {
 				->select('*')
 				->from("LconfFilter lf")
 				->innerJoin("lf.NsmUser user")
-				->where("user.user_id = ?",$uid)
+				->where("user.user_id = ? OR lf.filter_isglobal = 1",$uid)
 				->andWhere("lf.filter_id = ?",$id);
 		return $query->execute()->toArray();		
 	}

@@ -22,9 +22,10 @@
 					<ae:parameter name="nagiosCommand">silk-script</ae:parameter>
 					<ae:parameter name="nagiosContact">silk-user</ae:parameter>
 					<ae:parameter name="nagiosContactgroup">silk-group</ae:parameter>
-					<ae:parameter name="nagiosHost">silk-brick</ae:parameter>
-					<ae:parameter name="nagiosHostgroup">silk-bricks</ae:parameter>
+					<ae:parameter name="nagiosHost">silk-server</ae:parameter>
+					<ae:parameter name="nagiosHostgroup">icinga-object-hostgroup</ae:parameter>
 					<ae:parameter name="nagiosService">silk-cog</ae:parameter>
+					<ae:parameter name="nagiosServicegroup">icinga-object-servicegroup</ae:parameter>
 					<ae:parameter name="alias">silk-attach</ae:parameter>
 				</setting>
 				
@@ -32,37 +33,37 @@
 					<ae:parameter>
 						<ae:parameter name="view">Command</ae:parameter>
 						<ae:parameter name="description">Create a Command entry</ae:parameter>
-						<ae:parameter name="iconCls">silk-bricks</ae:parameter>
+						<ae:parameter name="iconCls">silk-script</ae:parameter>
 					</ae:parameter>
 					<ae:parameter>
 						<ae:parameter name="view">Contactgroup</ae:parameter>
 						<ae:parameter name="description">Create a Contactgroup entry</ae:parameter>
-						<ae:parameter name="iconCls">silk-bricks</ae:parameter>
+						<ae:parameter name="iconCls">silk-group</ae:parameter>
 					</ae:parameter>
 					<ae:parameter>
 						<ae:parameter name="view">Contact</ae:parameter>
 						<ae:parameter name="description">Create a Contact entry</ae:parameter>
-						<ae:parameter name="iconCls">silk-bricks</ae:parameter>
+						<ae:parameter name="iconCls">silk-user</ae:parameter>
 					</ae:parameter>
 					<ae:parameter>
 						<ae:parameter name="view">Hostgroup</ae:parameter>
 						<ae:parameter name="description">Create a Hostgroup entry</ae:parameter>
-						<ae:parameter name="iconCls">silk-bricks</ae:parameter>
+						<ae:parameter name="iconCls">icinga-object-hostgroup</ae:parameter>
 					</ae:parameter>
 					<ae:parameter>
 						<ae:parameter name="view">Host</ae:parameter>
 						<ae:parameter name="description">Create a Host entry</ae:parameter>
-						<ae:parameter name="iconCls">silk-bricks</ae:parameter>
+						<ae:parameter name="iconCls">silk-server</ae:parameter>
 					</ae:parameter>
 					<ae:parameter>
 						<ae:parameter name="view">Service</ae:parameter>
 						<ae:parameter name="description">Create a Service entry</ae:parameter>
-						<ae:parameter name="iconCls">silk-bricks</ae:parameter>
+						<ae:parameter name="iconCls">silk-cog</ae:parameter>
 					</ae:parameter>
 					<ae:parameter>
 						<ae:parameter name="view">Timeperiod</ae:parameter>
 						<ae:parameter name="description">Create a Timeperiods entry</ae:parameter>
-						<ae:parameter name="iconCls">silk-bricks</ae:parameter>
+						<ae:parameter name="iconCls">silk-clock-red</ae:parameter>
 					</ae:parameter>
 					<ae:parameter>
 						<ae:parameter name="view">Default</ae:parameter>
@@ -105,6 +106,44 @@
 					
 				</setting>
 				
+				<setting name="searchCategories">
+					<ae:parameter>
+						<ae:parameter name="objectclass">nagiosHost</ae:parameter>
+						<ae:parameter name="category">Host</ae:parameter>
+						<ae:parameter name="iconCls">icinga-object-hostgroup</ae:parameter>
+					</ae:parameter>
+					<ae:parameter>
+						<ae:parameter name="objectclass">nagiosHostgroup</ae:parameter>
+						<ae:parameter name="category">Hostgroup</ae:parameter>
+						<ae:parameter name="iconCls">silk-server</ae:parameter>
+					</ae:parameter>
+					<ae:parameter>
+						<ae:parameter name="objectclass">nagiosService</ae:parameter>
+						<ae:parameter name="category">Service</ae:parameter>
+						<ae:parameter name="iconCls">silk-cog</ae:parameter>
+					</ae:parameter>
+					<ae:parameter>
+						<ae:parameter name="objectclass">nagiosContact</ae:parameter>
+						<ae:parameter name="category">Contact</ae:parameter>
+						<ae:parameter name="iconCls">silk-user</ae:parameter>
+					</ae:parameter>
+					<ae:parameter>
+						<ae:parameter name="objectclass">nagiosContactgroup</ae:parameter>
+						<ae:parameter name="category">Contactgroup</ae:parameter>
+						<ae:parameter name="iconCls">silk-group</ae:parameter>
+					</ae:parameter>
+					<ae:parameter>
+						<ae:parameter name="objectclass">nagiosCommand</ae:parameter>
+						<ae:parameter name="category">Command</ae:parameter>
+						<ae:parameter name="iconCls">silk-script</ae:parameter>
+					</ae:parameter>
+					<ae:parameter>
+						<ae:parameter name="objectclass">nagiosTimeperiod</ae:parameter>
+						<ae:parameter name="category">Contactgroup</ae:parameter>
+						<ae:parameter name="iconCls">silk-clock-red</ae:parameter>
+					</ae:parameter>
+				</setting>
+				
 				<setting name="inheritance">
 					<!-- 
 							Inheritance definition service
@@ -112,7 +151,9 @@
 					<ae:parameter name="nagiosService">
 						<ae:parameter name="nagiosService">
 							<ae:parameter name="attributes">
-								<ae:parameter>nagioscheckcommand</ae:parameter>
+								<ae:parameter name="nagioscheckcommand">
+									<ae:parameter  name="overwrite">true</ae:parameter>
+								</ae:parameter>
 							</ae:parameter>
 						</ae:parameter>
 					</ae:parameter>
@@ -121,12 +162,18 @@
 							Inheritance definition host
 					 -->
 					<ae:parameter name="nagiosHost">
+					
 						<ae:parameter name="nagiosHost">
 							<ae:parameter name="attributes">
-								<ae:parameter>nagiosaddress</ae:parameter>
-								<ae:parameter>nagiosalias</ae:parameter>
+								<ae:parameter name="nagiosaddress">
+									<ae:parameter name="overwrite">true</ae:parameter>
+								</ae:parameter>
+								<ae:parameter name="nagiosalias">
+									<ae:parameter name="overwrite">true</ae:parameter>
+								</ae:parameter>
 							</ae:parameter>
 						</ae:parameter>
+						
 					</ae:parameter>
 				</setting>
 				

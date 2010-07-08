@@ -146,7 +146,9 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 	public function connect() {
 		$connConf = $this->getConnectionModel();
 		$this->helper = AgaviContext::getInstance()->getModel("LDAPHelper","LConf");
-		$connection = ldap_connect($connConf->getHost(),$connConf->getPort());
+		$ldaps = $connConf->isLDAPS() ? 'ldaps://' : '';
+
+		$connection = ldap_connect($ldaps.$connConf->getHost(),$connConf->getPort());
 		if(!is_resource($connection))
 			throw new AgaviException("Could not connect to ".$connConf->getConnectionName());
 		
@@ -432,7 +434,10 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 				if(!isset($inheritance[$obj]))
 					continue;		
 					
-				foreach($inheritance[$obj]["attributes"] as $inhAttributes) {				
+				foreach($inheritance[$obj]["attributes"] as $inhAttributes=>$value) {				
+					if(isset($value["overwrite"]))
+						if($value["overwrite"] == true)
+							 continue;
 					if(!isset($result[0][$inhAttributes]))
 						continue;	
 					$newAttrs = $result[0][$inhAttributes];
@@ -481,7 +486,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 					continue;
 			
 			$idElems = array();
-			preg_match($idRegexp,$parameter["id"],&$idElems);
+			preg_match($idRegexp,$parameter["id"],$idElems);
 			if(count($idElems) != 3) {
 				throw new AppKitException("Invalid ID given to modifyNode ".$parameter["id"]);
 			}
@@ -559,7 +564,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 		$idRegexp = "/^(.*)_(\d*)$/";
 		foreach($remParams as $parameter) {
 			$idElems = array();
-			preg_match($idRegexp,$parameter,&$idElems);
+			preg_match($idRegexp,$parameter,$idElems);
 			if(count($idElems) != 3) {
 				throw new AppKitException("Invalid ID given to removeProperty ".$parameter);
 			}
@@ -621,6 +626,11 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 	public function moveNode($sourceDN, $targetDN) {
 		$this->cloneNode($sourceDN,$targetDN);
 		$this->removeNodes(array($sourceDN));	
+	}
+	
+	public function searchSnippetOccurences($snippet,$unique = false,$isRegExp = false) {
+		$searcher = $this->getContext()->getModel("LDAPSimpleSearch","LConf",array("client"=>$this,"unique"=>$unique));
+		return $searcher->search($snippet);
 	}
 	
 	public function searchReplace($from,$to,array $fields,$sissyMode = false) {
@@ -746,6 +756,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 		// and finally (and hopefuly)- reconnect!
 		$this->connect();
 	}
+
 	
 	public function getError() {
 		if(is_resource($this->getConnection()))

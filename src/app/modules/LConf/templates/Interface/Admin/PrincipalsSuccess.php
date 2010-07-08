@@ -136,12 +136,12 @@ lconf.Admin.PrincipalEditor = function(connection_id) {
 			title: _('Users'),
 			id: connection_id+"_userPanel",
 			columns:[
-				{header:'user_id',name:'user_id'},
-				{header:'user_name',name:'user_name'}
+				{header:_('Id'),name:'user_id'},
+				{header:_('User'),name:'user_name'}
 			],
 			targetColumns:[
-				{header:'user_id',name:'user_id',dataIndex:'user_id'},
-				{header:'user_name',name:'user_name',dataIndex:'user_name'}
+				{header:_('Id'),name:'user_id',dataIndex:'user_id'},
+				{header:_('User'),name:'user_name',dataIndex:'user_name'}
 			]
 		})
 		var groupTab = lconf.Admin.itemGranter({
@@ -150,12 +150,12 @@ lconf.Admin.PrincipalEditor = function(connection_id) {
 			title: _('Groups'),
 			id: connection_id+"_groupPanel",
 			columns: [
-				{header:'role_id',name:'role_id'},
-				{header:'role_name',name:'role_name'}
+				{header:_('Id'),name:'role_id'},
+				{header:_('Group'),name:'role_name'}
 			],
 			targetColumns:[
-				{header:'group_id',name:'role_id',dataIndex:'role_id'},
-				{header:'group_name',name:'role_name',dataIndex:'role_name'}
+				{header:_('Id'),name:'role_id',dataIndex:'role_id'},
+				{header:_('Group'),name:'role_name',dataIndex:'role_name'}
 			]
 		})
 		return new Ext.TabPanel({
@@ -172,6 +172,8 @@ lconf.Admin.PrincipalEditor = function(connection_id) {
 	return new Ext.Window({
 		layout:'hbox',
 		width:700,
+		autoScroll:true,
+		height: Ext.getBody().getHeight()*0.9 > 500 ? 500 : Ext.getBody().getHeight()*0.9,
 		modal:true,
 		id: "wnd_"+id,
 		items: this.getPrincipalTabbar(),
@@ -309,6 +311,7 @@ lconf.Admin.itemGranter = function(config) {
 		var selected =  this.gridSelected;
 		this.interface = new Ext.Panel({
 			layout:'table',
+			height: Ext.getBody().getHeight()*0.9 > 500 ? 500 : Ext.getBody().getHeight()*0.9,
 			title:this.title,
 			width:700,
 			layoutConfig: {

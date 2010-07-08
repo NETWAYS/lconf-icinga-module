@@ -4,7 +4,12 @@ Ext.ns('lconf');
 	$wizards =  AgaviConfig::get("modules.lconf.customDialogs",array());
 	echo "lconf.wizards = ".json_encode($wizards);
 ?>
-
+/***
+ * TODO: Nearly 1000 lines of glorious code, split this class in smaller classes
+ * e.g	 DitTreeNavigator
+ * 		 DitTreeView
+ * 		 DitTreeSearch
+ */
 lconf.ditTreeManager = function(parentId,loaderId) {	
 	var dataUrl = loaderId;
 	var ditPanelParent = Ext.getCmp(parentId);
@@ -83,13 +88,17 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			
 			eventDispatcher.addCustomListener("searchDN",this.searchDN,this);
 			
+			eventDispatcher.addCustomListener("simpleSearch",function(snippet) {
+				AppKit.log("!");
+			},this);
+			
 			eventDispatcher.addCustomListener("aliasMode", function(node) {
 				this.reloadFilters = this.loader.baseParams["filters"];
 				this.loader.baseParams["filters"] = '{"ALIAS":"'+node.id+'"}';
 				this.expandAllRecursive(null);
 	
-				
 			},this);
+		
 			
 			this.on("click",function(node) {eventDispatcher.fireCustomEvent("nodeSelected",node,this.id);});
 			this.on("beforeNodeDrop",function(e) {e.dropStatus = true;this.nodeDropped(e);return false},this)
@@ -204,7 +213,8 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 				});
 				this.refreshCounter--;
 				if(this.refreshCounter<1)
-					cb();
+					if(cb)
+						cb();
 			},this,{single:true});
 		},
 		
@@ -376,6 +386,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 				scope:this
 			});
 		},
+
 		
 		removeNodes: function(nodes) {
 			var dn = [];
@@ -463,7 +474,6 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 		},
 			
 		searchDN : function(dn) {
-			AppKit.log("Searching "+dn);
 			var baseDN = this.getRootNode().id;
 			var dnNoBase = dn.substr(0,(dn.length-(baseDN.length+1)));
 			var splitted = dnNoBase.split(",");
@@ -499,9 +509,9 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 					width:800,
 					id:'newNodeWizardWnd',
 					renderTo: Ext.getBody(),
-					autoHeight:true,
+					height: Ext.getBody().getHeight()> 400 ? 400 : Ext.getBody().getHeight(),
+					centered:true,
 					stateful:false,
-					minHeight:400,
 					shadow:false,
 					autoScroll:true,
 					constrain:true,
@@ -511,11 +521,14 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 					closeAction:'hide'
 				});
 			}
-			this.wizardWindow.show();
+			
+	
 			this.wizardWindow.removeAll();
 			this.wizardWindow.add(this.getNodeSelectionDialog());
-		
+
 			this.wizardWindow.doLayout();
+			this.wizardWindow.show();
+			this.wizardWindow.center();
 			
 		},
 		
@@ -532,7 +545,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 				wizard.setConnectionId(this.id);
 				this.wizardWindow.add(wizard);
 				this.wizardWindow.doLayout();
-				this.wizardWindow.setPosition(null,0);
+				this.wizardWindow.center();
 			}
 		},
 		
@@ -570,9 +583,11 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 				borders:false,
 				autoDestroy:false,
 				margins: "3 3 3 3",
-				autoHeight:true,	
+				height: Ext.getBody().getHeight()*0.9 > 400 ? 400 : Ext.getBody().getHeight()*0.9,
+				autoScroll:true,
+				constrain:true,
 				items: [{
-					height:300,
+					height:Ext.getBody().getHeight()*0.9 > 400 ? 400 : Ext.getBody().getHeight()*0.9,
 					autoScroll:true,
 					singleSelect:true,
 					
@@ -593,7 +608,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 					columns: [{
 						tpl:new Ext.XTemplate("<tpl>",
 								"<div style='width:100%;text-align:left;'>",
-									"<em unselectable='on'><div class='{iconCls}' style='float:left;height:25px;width:25px'>&nbsp;</div>{description}</em>",
+									"<em unselectable='on'><div class='{iconCls}' style='float:left;height:25px;width:25px;overflow:hidden'>&nbsp;</div>{description}</em>",
 								"</div>"),
 						header: _('Entry description'),
 						dataIndex: 'description'							
@@ -791,33 +806,70 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 
 		},
 	});
-	
+	var searchWindow = new Ext.Window({
+		layout:'fit',
+		constrain:true,
+		closeAction:'hide',
+		renderTo:Ext.getBody(),
+	});
 	var dnSearchField = new Ext.form.TextField({
 		xtype:'textfield',
-		value: 'Enter dn to search...'
+		value: 'Search keyword',
+		enableKeyEvents: true,
+		connId: false,
+		listeners: {
+			focus: function(e) {e.setValue("")},
+			change: function(field,val) {
+				if(!field.connId) {
+					field.reset();
+					return false;
+				}
+				if(val == "" || val == field.originalValue) {
+					field.reset();
+					return false
+				}
+				searchWindow.removeAll();
+				searchWindow.add({
+					xtype: 'simplesearchgrid',
+					connId: field.connId,
+					search: val
+				});
+				searchWindow.setTitle(val);
+				searchWindow.doLayout();
+				searchWindow.show();
+				field.reset();
+			},
+			keypress: function(field,e) {
+				if(e.getKey() == e["ENTER"]) {
+					field.blur();
+				}
+				if(e.getKey() == e["ESC"]) 
+					field.reset();
+				
+			},
+			scope: this
+		}
 	});
-	
+
 	var ditTreeTabPanel = new Ext.TabPanel({
 		autoDestroy: true,
 		resizeTabs:true,
 		
 		fbar: new Ext.Toolbar({
-			items: [
-				dnSearchField,
-			{
-				xtype:'button',
-				iconCls: 'silk-zoom',
-				handler: function(btn) {
-					if(!dnSearchField.isDirty())
-						return false;
-					var dn = dnSearchField.getValue();
-					eventDispatcher.fireCustomEvent("searchDN",dn);
-				}
-			}]
+			items:dnSearchField
 		}),
 		defaults : {
-			
 			closable: true
+		},
+		listeners: {
+			tabchange: function(ac) {
+			 	if(!ac.activeTab) {
+			 		dnSearchField.connId = null;
+			 		return false;
+			 	}
+
+				dnSearchField.connId = ac.activeTab.connId;
+			}
 		}
 	});
 	
@@ -828,7 +880,6 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 	
 	// init listener
 	eventDispatcher.addCustomListener("ConnectionStarted",function(connObj) {
-		
 		var tree = new ditTree({
 						enableDD:true,
 						id:connObj.id,

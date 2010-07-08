@@ -12,14 +12,18 @@ class LConf_Backend_listDirectorySuccessView extends IcingaLConfBaseView
 		$client = LConf_LDAPClientModel::__fromStore($connectionId,$context->getStorage());
 		if(!is_array($filters))
 			$filters = array($filters);
-		$this->applyFilters($filters,$client);
-		$client->setCwd($rd->getParameter("node"));
-		$list = $client->listCurrentDir();
-		// filter out base node information
-		if(!is_array($list))
-			return null;
-		$nodeList = $this->reformatList($list,$client);	
-		
+		$nodeList = array();
+		if(isset($filters["MAGIC_WORD"])) {
+			$nodeList = $client->searchSnippetOccurences($filters["MAGIC_WORD"]);			
+		} else {
+			$this->applyFilters($filters,$client);
+			$client->setCwd($rd->getParameter("node"));
+			$list = $client->listCurrentDir();
+			// filter out base node information
+			if(!is_array($list))
+				return null;
+			$nodeList = $this->reformatList($list,$client);	
+		}
 		return json_encode($nodeList);
 	}
 	
@@ -38,11 +42,11 @@ class LConf_Backend_listDirectorySuccessView extends IcingaLConfBaseView
 			return true;
 		$filterMgr = $this->getContext()->getModel("LDAPFilterManager","LConf");
 		$allFilters = $this->getContext()->getModel("LDAPFilterGroup","LConf");
-
+		
 		foreach($filters as $type=>$filter) {
-			if($type == "ALIAS")
+			if($type === "ALIAS") {
 				$allFilters->addFilter($this->aliasFilter($filter));
-			else
+			} else
 				$allFilters->addFilter($filterMgr->getFilterAsLDAPModel($filter));
 		}		
 
@@ -67,7 +71,7 @@ class LConf_Backend_listDirectorySuccessView extends IcingaLConfBaseView
 			if(!is_array($subs) || !@$subs["count"])
 				$node["isLeaf"] = true;
 			else 
-				$node["count"] = count($subs);
+				$node["count"] = count($subs)-1;
 			$node["parent"] = $startCWD;	
 			$nodeList[] = $node;	
 		}

@@ -7,7 +7,7 @@
 	<ae:configuration>
 		
 		<validators >
-			<validator class="number" name="connection_id" required="true">
+			<validator class="number" name="connection_id" required="false">
 				<argument>connection_id</argument>
 				<errors>
 					<error>Validation of "connectionId" failed</error>

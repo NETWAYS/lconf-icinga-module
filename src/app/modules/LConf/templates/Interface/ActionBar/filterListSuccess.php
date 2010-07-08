@@ -79,7 +79,7 @@
 					writer: new Ext.data.JsonWriter(),
 					autoDestroy:true,
 					fields: [
-						'filter_id','filter_name','filter_json'
+						'filter_id','filter_name','filter_json','filter_isglobal'
 					],
 					idProperty:'filter_id',
 					root: 'filters'
@@ -95,6 +95,7 @@
 						'<div class="ldap-filter" ext:qtip="{filter_name}" id="conn_{filter_id}">',
 							'<div class="thumb"></div>',
 							'<span class="X-editable">{filter_name}</span>',
+							'<tpl if="filter_isglobal == 1"> (global)</tpl>',
 						'</div>',
 					'</tpl>'
 				);
@@ -144,6 +145,7 @@
 								},{
 									text: _('Edit filter'),
 									iconCls: 'silk-page-edit',
+									hidden: record.get('filter_isglobal') == '1',
 									handler: function() {
 										this.callMgr(record);
 									},
@@ -151,7 +153,7 @@
 								},{
 									text: _('Delete'),
 									iconCls: 'silk-delete',
-									hidden: lconf.filters.bypassed,
+									hidden: record.get('filter_isglobal') == '1' ||lconf.filters.bypassed,
 									handler: function() {
 										Ext.Msg.confirm(
 											_("Delete filter"),
@@ -307,12 +309,17 @@
 		saveFilter : function(obj,text,record) {
 			var json = Ext.encode(obj);
 			var store = this.getStore();
+			var add = false;
 			if(!record) {
+				add = true;
 				record = new store.recordType();
-				store.add(record);
 			}
 			record.set('filter_json',json);
 			record.set('filter_name',text);
+			record.set('filter_isglobal',false);
+			if(add)
+				store.add(record);
+			lconf.filters.deactivateAll();
 			store.save();
 		},
 		
@@ -325,9 +332,14 @@
 			}
 			var filterManagerWindow = new Ext.Window({
 				modal:true,
+				height: Ext.getBody().getHeight()*0.9 > 500 ? 500 : Ext.getBody().getHeight()*0.9,
 				autoDestroy: true,
 				constrain:true,
-				height:500,
+				resizable:true,
+				autoScroll:true,
+				defaults: {
+					autoScroll:true					
+				},
 				width:700,
 				renderTo: Ext.getBody(),
 				layout:'fit',
@@ -437,7 +449,7 @@
 		
 		getAvailableElementsList: function(record) {
 			return new Ext.grid.GridPanel({
-				height:500,
+				height:400,
 				enableDragDrop: true,
 				autoDestroy: true,
 				ddGroup:'filterEditor',
@@ -472,8 +484,7 @@
 		getFilterTree: function(presets) {
 			var defaultTreeRoot =  new Ext.tree.TreeNode({text:'AND', filterType: 'group', iconCls:'silk-bricks',id:'root', expanded:true});
 			this.tree = new  Ext.tree.TreePanel({ 
-				height:500,
-				
+				height:400,
 				rootVisible:true,
 				autoDestroy: true,
 				enableDD: true,
@@ -508,6 +519,14 @@
 		      				return false;
 		        		var ctx = new Ext.menu.Menu({
 		        			items: [{
+		        				text: _('Edit this node'),
+		        				iconCls: 'silk-page-edit',
+		        				handler: function(btn) {
+		        					AppKit.log(node);
+									this.addFilterTo(node,node.filterAttributes,true);
+		        				},
+		        				scope: this
+		        			},{
 		        				text: _('Remove this node'),
 		        				iconCls: 'silk-delete',
 		        				handler: function(btn) {
@@ -552,7 +571,6 @@
 		        buildTextFromFilter: this.buildTextFromFilter, // reference to function in manager
 		        
 		        addReference: function(target,elem) {
-		        	AppKit.log(elem);
 		        	var node = this.loader.createNode({
 						text: elem.get('name'),
 						iconCls: 'silk-attach',
@@ -569,7 +587,8 @@
 		        	target.appendChild(node);
 		        },
 		        
-		        addFilterTo: function(targetNode) {
+		        addFilterTo: function(targetNode,defaults,replace) {
+		        	defaults = defaults || {}
 		        	var _f = lconf.actionBar.FILTERTYPES; // filter shorthand
 		        	var form = new Ext.form.FormPanel({
 	        			padding:5,
@@ -585,9 +604,11 @@
 	        			items: [{
 	        				fieldLabel: _('NOT'),
 	        				xtype:'checkbox',
+	        				checked: defaults['filter_negated'] ? defaults['filter_negated'] :'',
 	       					name: 'filter_negated'
 	        			},{
 	        				fieldLabel: _('Attribute'),
+	        				value: defaults['filter_attribute'] ? defaults['filter_attribute'] :'',
 	       					name: 'filter_attribute',
 	       					allowBlank:false
 	        			},{
@@ -598,6 +619,7 @@
 	        				displayField: 'filterType',
 	        				mode:'local',
 	        				forceSelection:true,
+	        				value: defaults['filter_type'] ? defaults['filter_type'] :'',
 	        				store: new Ext.data.ArrayStore({
 	        					id: '0',
 	        					fields: ['id','filterType'],
@@ -608,11 +630,12 @@
 	        			},{
 	        				fieldLabel: _('Value'),
 	       					name: 'filter_value',
+	       					value: defaults['filter_value'] ? defaults['filter_value'] :'',
 	       					allowBlank:false
 	        			}]
 		        	});
 		        	
-		        	var ctx = new Ext.Window({
+		        	this.addctx = new Ext.Window({
 		        		title:_('Specify filter'),
 		        		width:500,
 		        		renderTo:Ext.getBody(),
@@ -621,13 +644,13 @@
 		        		layout:'fit',
 		        		items: form,
 	        			buttons: [{
-	        				text: _('Add filter'),
-	        				iconCls: 'silk-add',
+	        				text: replace ? _('Edit filter') : _('Add filter'),
+	        				iconCls: replace ? 'silk-page-edit' : 'silk-add',
 	        				handler: function(btn) {
 	        					if(!form.getForm().isValid())
 	        						return false;
 
-		        				if(targetNode.isLeaf())
+		        				if(targetNode.isLeaf() && !replace)
 		        					targetNode = targetNode.parentNode;
 	        						
 	        				 	var	values = form.getForm().getFieldValues();
@@ -641,8 +664,13 @@
 		        				})
 		        				node.filterType = 'filter';
 		        				node.filterAttributes = values;
-
-		        				targetNode.appendChild(node);
+								if(replace) {
+									targetNode.parentNode.appendChild(node)
+									targetNode.parentNode.removeChild(targetNode);
+								} else 
+			        				targetNode.appendChild(node);
+			        				
+			        			this.addctx.close()
 	        				},
 	        				scope:this
 	        			},{
@@ -652,7 +680,7 @@
 
 	        			}]
 		        	});
-		        	ctx.show();
+		        	this.addctx.show();
 		        }
 		        
 			})

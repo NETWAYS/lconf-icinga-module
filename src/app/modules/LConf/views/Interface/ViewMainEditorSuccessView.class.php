@@ -17,10 +17,14 @@ class LConf_Interface_ViewMainEditorSuccessView extends IcingaLConfBaseView
 		$PropertyEditorParameters = new AgaviRequestDataHolder();
 		$PropertyEditorParameters->setParameter("parentid","center-frame");
 		$PropertyEditorContainer= $container->createExecutionContainer("LConf","Interface.PropertyEditor",$PropertyEditorParameters,"simple");
-		
+
+		$SimpleSearchGrid = new AgaviRequestDataHolder();
+		$SimpleSearchGrid= $container->createExecutionContainer("LConf","Interface.SimpleSearchGrid",null,"simple");
+				
 		$this->setAttribute("js_actionBarInit",$actionBarContainer->execute()->getContent());
 		$this->setAttribute("js_DITinit",$DITContainer->execute()->getContent());
 		$this->setAttribute("js_PropertyEditorInit",$PropertyEditorContainer->execute()->getContent());
+		$this->setAttribute("js_SimpleSearchGridInit",$SimpleSearchGrid->execute()->getContent());
 		
 		$this->setAttribute('_title', 'Interface.ViewMainEditor');
 	}
