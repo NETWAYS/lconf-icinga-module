@@ -36,9 +36,10 @@
 		do {
 			removed = false;
 			Ext.each(lconf.filters.activeFilters,function(curfilter,idx,all) {
-				if(curfilter == filter)
+				if(curfilter == filter) {
 					lconf.filters.activeFilters.splice(idx,1);
-				removed = true;
+					removed = true;
+				} 
 			},this);
 		} while(removed);
 		eventDispatcher.fireCustomEvent("filterChanged",lconf.filters.activeFilters,this);
@@ -568,8 +569,9 @@
 		        		},this)
 		        	}
 		        },
-		        buildTextFromFilter: this.buildTextFromFilter, // reference to function in manager
 		        
+		        buildTextFromFilter: this.buildTextFromFilter, // reference to function in manager
+			
 		        addReference: function(target,elem) {
 		        	var node = this.loader.createNode({
 						text: elem.get('name'),
@@ -588,6 +590,10 @@
 		        },
 		        
 		        addFilterTo: function(targetNode,defaults,replace) {
+		        	if(!lconf.editors) {
+       					lconf.loader.lazyLoadEditors(this.addFilterTo.createDelegate(this,[targetNode,defaults,replace]));
+						return true;
+		        	}
 		        	defaults = defaults || {}
 		        	var _f = lconf.actionBar.FILTERTYPES; // filter shorthand
 		        	var form = new Ext.form.FormPanel({
@@ -602,16 +608,16 @@
 	        				anchor: '90%'
 	        			},
 	        			items: [{
-	        				fieldLabel: _('NOT'),
-	        				xtype:'checkbox',
-	        				checked: defaults['filter_negated'] ? defaults['filter_negated'] :'',
-	       					name: 'filter_negated'
-	        			},{
-	        				fieldLabel: _('Attribute'),
-	        				value: defaults['filter_attribute'] ? defaults['filter_attribute'] :'',
-	       					name: 'filter_attribute',
-	       					allowBlank:false
-	        			},{
+							fieldLabel: _('NOT'),
+							xtype:'checkbox',
+							name: 'filter_negated'
+						},
+	        				new lconf.editors.editorFieldMgr.getEditorFieldForProperty("property",{
+	        					name:'filter_attribute',
+	        					value: defaults['filter_attribute'] ? defaults['filter_attribute'] :'',
+	        					fieldLabel: _('Attribute')
+	        				}),
+	        			{
 	        				fieldLabel: _('Type'),
 	        				xtype: 'combo',
 	        				triggerAction:'all',

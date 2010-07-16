@@ -16,11 +16,11 @@ class LConfMenuExtender extends AppKitEventHandler implements AppKitEventHandler
 
 		$user = $nav->getContext()->getUser();
 		
-		if ($user->hasCredential('icinga.user')) {
+		if ($user->hasCredential('lconf.user')) {
 			
 				$icinga_base = AppKitNavItem::create('lconf', 'lconf')
 				->setCaption('LConf')
-				->addAttributes('extjs-iconcls', 'silk-plugin');
+				->addAttributes('extjs-iconcls', 'lconf-logo');
 			
 				// Throws exception if the admin is not there ...
 				if ($nav->getNavItemByName('appkit.admin')) {
@@ -39,7 +39,14 @@ class LConfMenuExtender extends AppKitEventHandler implements AppKitEventHandler
 				$icinga->addSubItem(AppKitNavItem::create('lconf.admin', 'lconf.admin')
 					->setCaption('LConf Admin')
 					->addAttributes('extjs-iconcls', 'silk-user')
-				);				
+				);			
+				$icinga->addSubItem(AppKitNavItem::create('lconf.about')
+					->setCaption('About')
+					->addAttributes('extjs-iconcls', 'silk-help')
+					->setJsHandler("
+						AppKit.util.contentWindow.createDelegate(null, [{ url: '". AgaviContext::getInstance()->getRouting()->gen('lconf.about') ."' }, 
+						{ title: _('About Lconf')}])")
+				);		
 		}
 		
 		return true;

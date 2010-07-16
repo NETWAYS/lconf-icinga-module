@@ -19,8 +19,28 @@ eventDispatcher = new (Ext.extend(Ext.util.Observable, {
 		this.fireEvent.apply(this,arguments);
 	}
 }))();
+Ext.ns('lconf.loader');
 
-
+lconf.loader.lazyLoadEditors = function(cb) {
+	var route = '<?php echo $ro->gen("lconf.ldapeditor.editorfielddefinitions");?>';
+	var layer = new Ext.LoadMask(Ext.getBody(),{msg:_('Loading editors...')});
+	layer.show();
+	Ext.Ajax.request({
+		url: route,
+		success: function(resp) {
+			layer.hide();
+			eval(resp.responseText);	
+			if(cb)
+				cb();
+		},
+		failure: function(resp) {
+			err = (resp.responseText.length<50) ? resp.responseText : 'Internal Exception, please check your logs';
+			Ext.MessageBox.alert(_("Error"),_("Couldn't load editor:<br\>"+err))
+			layer.hide();
+		}
+	});
+	
+}
 
 
 Ext.onReady(function() {	

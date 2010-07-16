@@ -3,6 +3,8 @@
   <ae:configuration context="web">
     <routes xmlns="http://agavi.org/agavi/config/parts/routing/1.0">
       <route pattern="^/lconf" name="lconf" module="LConf">
+		 	<route name=".about" pattern="^/about$" action="Interface.About" output_type="simple"/>
+		 
 			<route name=".main" pattern="^/$" action="Interface.ViewMainEditor"/>
 			<route name=".actionbar" pattern="^/actionbar" output_type="simple">
 				<route name=".connmanager" pattern="^/connmanager$" action="Interface.ActionBar.connectionList"/>

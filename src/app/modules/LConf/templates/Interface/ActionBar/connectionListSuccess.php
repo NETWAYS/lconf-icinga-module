@@ -44,7 +44,7 @@
 					autoDestroy:true,
 					fields: [
 						'connection_id','connection_name','connection_description','connection_binddn',
-						'connection_bindpass','connection_host','connection_port','connection_basedn','connection_tls','connection_ldaps'
+						'connection_bindpass','connection_host','connection_default','connection_port','connection_basedn','connection_tls','connection_ldaps'
 					],
 					idProperty:'connection_id',
 					root: 'connections',
@@ -64,6 +64,7 @@
 							'<span class="X-editable">',
 							'<tpl if="connection_ldaps == true">ldaps://</tpl>',
 							'{connection_host}:{connection_port}</span><br/>',
+							'<tpl if="connection_default == true">(default)</tpl>',
 						'</div>',
 
 					'</tpl>'

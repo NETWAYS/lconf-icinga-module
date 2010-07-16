@@ -12,6 +12,7 @@ class LConf_LDAPConnectionModel extends IcingaLConfBaseModel
 	protected $baseDN;
 	protected $host;
 	protected $port;
+	protected $default = false;
 	protected $authType = "simple";
 	protected $TLS = false;
 	protected $ldaps = false;
@@ -50,6 +51,10 @@ class LConf_LDAPConnectionModel extends IcingaLConfBaseModel
 	
 	public function getPort()	{
 		return $this->port;
+	}
+	
+	public function isDefault() {
+		return $this->default;
 	}
 	
 	public function getAuthType()	{
@@ -95,6 +100,10 @@ class LConf_LDAPConnectionModel extends IcingaLConfBaseModel
 		$this->port = $port;
 	}
 
+	public function setDefault($bool) {
+		$this->default = (boolean) $bool;
+	}
+	
 	public function setAuthType($authType) {
 		if(in_array($authType,self::$supportedAuthTypes)) {
 			$this->authType = $authType;
@@ -130,6 +139,8 @@ class LConf_LDAPConnectionModel extends IcingaLConfBaseModel
 				$this->setHost($parameter["connection_host"]);
 			if(isset($parameter["connection_port"]))
 				$this->setPort($parameter["connection_port"]);
+			if(isset($parameter["default"]))
+				$this->setDefault($parameter["default"]);
 			if(isset($parameter["connection_basedn"]))
 				$this->setBaseDN($parameter["connection_basedn"]);
 			if(isset($parameter["connection_tls"]))
@@ -154,6 +165,7 @@ class LConf_LDAPConnectionModel extends IcingaLConfBaseModel
 			"connection_basedn" => $this->getBaseDN(),
 			"connection_host" => $this->getHost(),
 			"connection_port" => $this->getPort(),
+			"connection_default" => $this->isDefault(),
 	//		"authType" =>$this->getAuthType(),
 			"connection_tls" => $this->usesTLS(),
 			"connection_ldaps" => $this->isLDAPS()

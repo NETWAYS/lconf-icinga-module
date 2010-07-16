@@ -1,0 +1,752 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<book>
+	<bookinfo>
+		<title>
+			LConf LDAP Manager for Icinga
+		</title>
+		<orgname>
+			<trademark class="registered">NETWAYS</trademark> Gmbh
+		</orgname>
+		<graphic align="center" fileref="images/LConf_Logo.jpg" scale='80%' format="PNG"  />
+		<corpname>
+			<trademark class="registered">NETWAYS</trademark> GmbH
+		</corpname>
+		<copyright>
+			<year>2010</year>
+			<holder>
+				<trademark class="registered">NETWAYS</trademark> GmbH
+			</holder>
+		</copyright>
+		<author>
+			<firstname>Jannis</firstname>
+			<surname>Mo&#223;hammer</surname>	
+			<affiliation>
+				<orgname>
+					<trademark class="registered">NETWAYS</trademark> Gmbh
+				</orgname>
+			</affiliation>
+		</author>
+			
+		<pubdate>2010-07-15</pubdate>	
+	</bookinfo>
+	
+	<chapter>
+		<title>Introduction</title>
+		<mediaobject>
+			<imageobject>
+				<imagedata align="center" fileref="images/LConf_Logo.jpg" scale='80%' format="PNG" />
+			</imageobject>
+		</mediaobject>
+		<para>
+			LConf for icinga is a powerful web-based ldap configuration application. Mainly, it's been 
+			designed for use with the Netways LConf export tool, which allows you to easily manage your Icinga/<trademark class="registered">Nagios</trademark>
+			configuration in an LDAP tree. It's designed for easy use for people new to ldap, but also provides a powerful toolset for the experienced ldap user.
+			The key features are 
+			<itemizedlist>
+				<listitem>
+					<para>A modern, easy-to-use web-interface that allows you to easily create, modify or delete ldap-nodes or attributes</para>
+				</listitem>
+				<listitem>
+					<para>Copy, move nodes and create aliases via drag&amp;drop</para>
+				</listitem>
+				<listitem>
+					<para>LDAP Alias toolkit (Show me aliases pointing to this node, Jump to the node aliased by this node, etc) </para>
+				</listitem>
+				<listitem>
+					<para>A simple to use element search if you just search occurences of a string, or</para>
+				</listitem>
+				<listitem>
+					<para>Support for multiple connections, allowing move/copy of nodes from one connection to another</para>
+				</listitem>
+				<listitem>
+					<para>Administrate connections and grant usage to users or groups</para>
+				</listitem>
+				<listitem>
+					<para>RegExp and searchFilter based Search/Replace for your elements</para>
+				</listitem>
+				<listitem>
+					<para>
+						if you need a more complicated filter, a comprehensive filter template editor that allows you
+						to create nested searches without nesting limitations.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Icons, creation wizards, ajax-proposals, attribute inheritance, etc. are fully customizable
+					</para>
+				</listitem>
+				
+			</itemizedlist>
+		</para>
+	</chapter>
+	<chapter>
+		<title>Installation</title>
+		
+		<para>
+			This chapter entails the installation and software requirements of the LConf module.
+		</para>		
+		<sect1 id="requirements">
+			<title>Requirements</title>
+			
+			<para>
+				The following Software is required for installing the lconf-module
+			</para>
+			
+			<itemizedlist>
+				<listitem>
+					<para>
+						Mysql 5.0 or higher
+					</para>
+				</listitem>
+				<listitem>
+					<para>PHP 5.2+ including</para>
+					<itemizedlist>
+						<listitem>
+							<para>php5-mysql</para>
+						</listitem>
+						<listitem>
+							<para>php5-ldap</para>
+						</listitem>
+					</itemizedlist>
+				</listitem>
+				<listitem>
+					<para>
+						A LDAP Server (for example slapd) 
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Icinga-web 1.0.1+
+					</para>
+				</listitem>
+			</itemizedlist>
+				
+			<para>
+				The following Software is not required for installing the lconf-module, but recommended for use.
+			</para>
+			<itemizedlist>
+				<listitem>
+					<para>
+						The Netways LConf exporter tool (see www.netways.org)						
+					</para>
+				</listitem>
+			</itemizedlist>
+		</sect1>	
+		
+		<sect1 id="Getting">
+			<title>Getting and installing LConf for Icinga</title>
+	
+			<para>
+				The installation is carried out by phing, which is delivered with the module.
+				
+				<orderedlist>
+					<listitem>
+						<para>
+							Download the LConf-module.
+						</para>
+						<para>
+							The module is available on <ulink url="https://www.netways.org/projects/list_files/lconf-icinga-mod">http://www.netways.org</ulink>	
+						</para>
+						<para>
+							Or via git :
+						</para>
+						
+						<para>
+							<code># git clone git://git.netways.de/lconf-icinga-mod.git</code>
+						</para>
+					</listitem>
+					
+					<listitem>
+						<para>Extract the downloaded archive.</para>
+						<para>
+							<code># tar xvf lconf-icinga-mod.tgz</code>
+						</para>
+					</listitem>
+				</orderedlist>
+			</para>
+			<sect2 id="Dependencies">
+				<title>Dependencies</title>
+			
+				<orderedlist>
+					<listitem>
+						<para>Installing the required packages from the distribution</para>
+
+						<para>Debian Lenny:</para>
+
+						<para>
+							<code># aptitude install libapache2-mod-php5 \</code>
+						</para>
+						<para>
+							<code>php5-mysql \</code>
+						</para>
+						<para>
+							<code>php5-ldap \</code>
+						</para>
+					</listitem>
+				</orderedlist>
+			</sect2>
+			<sect2 id="Install">
+				<title>Installation of the module</title>
+				
+				<para>
+					The installation is performed by a phing-based installation wizard shipped with the module.
+					Please note that you need write-access to <code>&lt;Path_to_icinga&gt;</code>.
+				</para>
+				
+				<para>
+					As the installer will create additional tables in your database, you'll need to change the 
+					database settings by typing
+				</para>
+				<para>
+					<code>vi &lt;LConf_module_DIR&gt;/db.ini</code> 
+				</para>
+				<para>
+					Change the settings to fit to your connection. 
+					<emphasis>Notice:</emphasis> The database user must have rights to execute the CREATE TABLE order. 
+				</para>
+				
+				<para>
+					Now you can execute the installation by typing: 
+					
+					<code>cd &lt;LConf_module_DIR&gt;</code>.
+				
+					<code>php ./phing.php install-module</code>.
+					</para>
+
+				<para>
+					When you now log in to your icinga-web frontend, you'll notice that you'll notice no changes. This is because you haven't got any permissions to 
+					view the LConf module. To change this, login as an admin and add all the lconf.access credentials to your root user.   				
+				</para>				
+
+				<para>
+					When you now log out and log in again you should see a new entry in the menu called "LConf".
+				</para>
+			</sect2>
+		</sect1>
+		
+	</chapter>
+	
+	<chapter>
+		<title>Creating Connections</title>
+		<abstract>
+			<para>
+			Before you (or your colleagues) can start browsing through your lconf-tree, you must defina one or more connections.
+			LConf for icinga offers both the admin and the normal user a connection manager, where you can create and manage your connections.
+			</para>
+		</abstract>
+		
+		
+		<sect1 id='managing_connections'>
+			<title>Managing connections</title>
+			<para>
+			Admins generally see all connections and are able to grant or deny access to groups or users for each connection. "Normal" users are only allowed to 
+			manage connections created by them self and are not able to grant any access to other users.		  
+			</para>
+			<para>
+				<mediaobject>
+					<imageobject>
+						<imagedata align="left" scale="100" fileref="images/connection_overview.png" format="PNG" />
+					</imageobject>
+					<caption>Connection list overview</caption>
+				</mediaobject>
+			</para>
+			<para>
+	
+				<variablelist>
+					<abstract><para>In the connection manager, you can</para></abstract>
+					<varlistentry>
+						<term>Create new connections </term>
+						<listitem>
+							<para>Located at the top toolbar of the connection list, this allows you to create a new connection.</para>
+						</listitem>
+					</varlistentry>			
+					<varlistentry>
+						<term>Remove connections </term>
+						<listitem>
+							<para>Located at the top toolbar of the connection list. With this button you can delete one or more selected connections.</para>
+						</listitem>
+					</varlistentry>			
+					<varlistentry>
+						<term>Edit connections </term>
+						<listitem>
+							<para>To edit a connection, perform a left-click on the connection and select the 'edit' item.</para>
+						</listitem>
+					</varlistentry>			
+					<varlistentry>
+						<term>Manage access to connections </term>
+						<listitem>
+							<para>Click on a connection and select 'Manage access' to grant or deny this connection for users/groups</para>
+						</listitem>
+					</varlistentry>			
+				</variablelist>
+				
+			</para>
+	
+		</sect1>
+
+	
+
+		<sect1  id='creating_connections' >
+			<title>Creating and editing connections</title>
+			<abstract>
+				<para>
+				When you want to create or edit connections, you'll see the following mask:
+				</para>
+			</abstract>
+			<para>
+				<mediaobject>
+					<imageobject>
+						<imagedata align="center" fileref="images/new_connection.png" format="PNG" />
+					</imageobject>
+					<caption>Connection modification mask</caption>
+				</mediaobject>
+			</para>
+				<variablelist>
+					<varlistentry>
+						<term>Connection name (*)</term>
+						<listitem>
+							<para>The name that should be shown for your connection.</para>
+						</listitem>
+					</varlistentry>			
+					<varlistentry>
+						<term>Connection Description </term>
+						<listitem>
+							<para>The description for the connection, if any.</para>
+						</listitem>
+					</varlistentry>			
+					<varlistentry>
+						<term>Bind DN (*)</term>
+						<listitem>
+							<para>The Bind DN with which to access the ldap server.</para>
+						</listitem>
+					</varlistentry>			
+					<varlistentry>
+						<term>Bind Pass (*)</term>
+						<listitem>
+							<para>The password to use in order to identify at the server</para>
+						</listitem>
+					</varlistentry>			
+					<varlistentry>
+						<term>Host (*)</term>
+						<listitem>
+							<para>The host address of the ldap server</para>
+						</listitem>
+					</varlistentry>			
+					<varlistentry>
+						<term>Port (*)</term>
+						<listitem>
+							<para>The port of the ldap server</para>
+						</listitem>
+					</varlistentry>
+					<varlistentry>
+						<term>RootDN</term>
+						<listitem>
+							<para>The DN to use as your trees root, if any</para>
+						</listitem>
+					</varlistentry>
+					<varlistentry>
+						<term>Use TLS</term>
+						<listitem>
+							<para>If checked, STARTTLS will be used to start the connection</para>
+						</listitem>
+					</varlistentry>
+					<varlistentry>
+						<term>Enable SSL</term>
+						<listitem>
+							<para>If checked, ldaps:// will be used for the connection (check your port then)</para>
+						</listitem>
+					</varlistentry>
+					<varlistentry>
+						<term>Check Connection</term>
+						<listitem>
+							<para>Check whether a connection can be established.
+							You must enter the password in order to check the connection
+							</para>
+						</listitem>
+					</varlistentry>
+					<varlistentry>
+						<term>Save</term>
+						<listitem>
+							<para>Saves the changes</para>
+						</listitem>
+					</varlistentry>
+				</variablelist>
+		</sect1>
+		
+		<sect1  id='grant_connections' >
+			<title>Grant usage for connections</title>
+			<para>
+				When you have the lconf.admin credential, you are allowed to manage the access for users.
+				This can be done by dragging Users/Groups from the 'available' field to the 'selected' field.
+				<mediaobject>
+					<imageobject>
+						<imagedata align="center" fileref="images/admindd1.png" format="PNG" />
+					</imageobject>
+					<caption>Granting access</caption>
+				</mediaobject>
+			</para>
+		</sect1>
+		
+	</chapter>	
+	<chapter>
+		<title>The LDAP Editor - a quick overview</title>
+		<abstract>
+			<para>In this chapter you'll get a basic overview over the interface elements in the LConf LDAP editor.</para>
+		</abstract>
+		<sect1 id='main_interface'>
+			<title>The main interface</title>
+			<abstract>
+				<para>
+					The main interface of the LDAP Editor consists of the following parts
+					<mediaobject>
+						<imageobject>
+							<imagedata align="center" fileref="images/interface_overview.png" format="PNG" />
+						</imageobject>
+						<caption>The LDAP Main interface</caption>
+					</mediaobject>
+				</para>
+			</abstract>
+			<para>
+				<variablelist>
+					<varlistentry>
+						<term>The LDAP Tree (1)</term>
+						<listitem>
+							<para>
+								The LDAP Tree displays the structure of you ldap server in a handy tree view.
+								In this tree you can create, delete, modify, move or clone entries via Drag&amp;Drop, 
+								create aliases and perform search/replace operations.
+							</para>
+							<para>
+								You can switch between the trees of different connections via the tabbar on top of the tree.
+								It's even possible to drag nodes from one tree to another. Please note that all trees are affected 
+								by filters (which we will discuss later). 
+							</para>
+						</listitem>
+					</varlistentry>			
+					<varlistentry>
+						<term>The connection overview (2) </term>
+						<listitem>
+							<para>Here you see all connections you are granted for and connect to them via clicking on them and selecting "connect".</para>
+						</listitem>
+					</varlistentry>			
+					<varlistentry>
+						<term>The property editor (3)</term>
+						<listitem>
+							<para>This editor assists you by modifying ldap entries. It features ajax-driven combofields for some entries.</para>
+							<para>Please note that the editor does not check if your modification makes sense. Though, the LDAP server will and you'll get a error message</para>	
+							<para>If you want to customize the proposed items of the comobofield, refer to chapter 10 - Pimpin' your LConf-config files</para>
+						</listitem>
+					</varlistentry>			
+					<varlistentry>
+						<term>The quick search (4)</term>
+						<listitem>
+							<para>Enter a search word here and LConf for icinga will search every entry containing this text snippet, showing it in a nice groupable view.</para>
+						</listitem>
+					</varlistentry>			
+					<varlistentry>
+						<term>The filter editor (5)</term>
+						<listitem>
+							<para>
+								If you only want to see specific entries, you can create a filter for it here and save it. There should be some default filters shipped with your installation.		
+							</para>
+						</listitem>
+					</varlistentry>			
+				</variablelist>
+			</para>
+		</sect1>
+	</chapter>	
+	<chapter>
+		<title>The LDAP Tree</title>
+		<abstract>
+			<para>
+				LConf for icinga displays the content of your ldap database in a tree view, like almost any other LDAP Tool does (perhaps because it makes sense).		
+			</para>
+			<para>
+				We tried to achieve a very high grade of usability in this tree, and, as you will see in this chapter, therefore tried to make every action as simple as possible (but not simpler). 
+			</para>
+		</abstract>
+		<sect1 id='Node_modification'>
+			<title>Modify nodes</title>
+			<para>If you want to edit the properties od a node, just click on it. It's properties will be loaded to the property manager.</para>
+			<para>	
+				When you perform a right click on a node, you'll see the following context menu (note that 'delete all nodes' only is shown when more than one node is selected).
+				Some of these options are not available when working on alias nodes.:
+			</para>
+			<para>
+				<mediaobject>
+					<imageobject>
+						<imagedata align="center" fileref="images/nodeoptions.png" format="PNG" />
+					</imageobject>
+					<caption>Node context-menu</caption>
+				</mediaobject>
+				<variablelist>
+					<varlistentry>
+						<term>Refresh this part of the tree</term>
+						<listitem>
+							<para>
+								Reloads the content of this node and its subnodes from the server and displays it.
+							</para>
+						</listitem>
+					</varlistentry>			
+					<varlistentry>
+						<term>Create new node on same level</term>
+						<listitem>
+							<para>Creates a new node on the same level like this node.</para>
+						</listitem>
+					</varlistentry>			
+					<varlistentry>
+						<term>Create new node as child</term>
+						<listitem>
+							<para>Creates a new node below this node.</para>
+						</listitem>
+					</varlistentry>			
+					<varlistentry>
+						<term>Remove only this node</term>
+						<listitem>
+							<para>
+								Removes this node and its subnodes.
+								Aliases to these nodes will be deleted, too.
+							</para>
+						</listitem>
+					</varlistentry>
+					<varlistentry>
+						<term>Remove all selected nodes</term>
+						<listitem>
+							<para>Removes all selected nodes and their subnodes. Aliases to these nodes will be deleted, too. If only one node is selected, this won't be displayed.</para>
+						</listitem>
+					</varlistentry>			
+					<varlistentry>
+						<term>Display aliases to this node</term>
+						<listitem>
+							<para>Shows all aliases pointing to this node (if any).</para>
+						</listitem>
+					</varlistentry>
+					<varlistentry>
+						<term>Jump to alias target</term>
+						<listitem>
+							<para>
+								Only displayed if this node is an alias (or below one). Jumps to the node represented by this alias.
+							</para>
+						</listitem>
+					</varlistentry>			
+				</variablelist>
+			</para>
+			<literallayout>
+		
+			</literallayout>
+		</sect1>
+		
+		<sect1 id='Node_drag'>
+			<title>Moving and copying nodes</title>
+			<para>
+				When you drag a node to another part of the tree, you can choose between one of these actions 
+				(note that when working with aliases or copying your node to other connections, some of these may not be 
+				available):
+				<mediaobject>
+					<imageobject>
+						<imagedata align="center" fileref="images/dd_inTree.png" format="PNG" />
+					</imageobject>
+					<caption>Node drag context-menu</caption>
+				</mediaobject>
+				<variablelist>
+					<varlistentry>
+						<term>Clone node here</term>
+						<listitem>
+							<para>
+								Copies the node to this location (if it already exists here, copy_of will be prepended)
+							</para>
+						</listitem>
+					</varlistentry>			
+					<varlistentry>
+						<term>Move node on same level</term>
+						<listitem>
+							<para>Moves the node to this location. Aliases to this node (or its subnodes) will point to the new position of the node.</para>
+						</listitem>
+					</varlistentry>			
+					<varlistentry>
+						<term>Clone node as subnode</term>
+						<listitem>
+							<para>(Only if applied on leaf) Creates a copy of the dragged node below this node.</para>
+						</listitem>
+					</varlistentry>		
+					<varlistentry>
+						<term>Move node as subnode</term>
+						<listitem>
+							<para>(Only if applied on leaf) Moves the dragged node below this node.  Aliases to this node (or its subnodes) will point to the new position of the node.</para>
+						</listitem>
+					</varlistentry>		
+					<varlistentry>
+						<term>Create alias here</term>
+						<listitem>
+							<para>Create a aliasedObject node pointing to the dragged node here.</para>
+						</listitem>
+					</varlistentry>		
+				</variablelist>
+			</para>
+		</sect1>
+	</chapter>	
+	<chapter>
+		<title>Editing properties</title>
+		<mediaobject>
+			<imageobject>
+				<imagedata align="center" fileref="images/propertyeditor.png" format="PNG" />
+			</imageobject>
+			<caption>Edit properties</caption>
+		</mediaobject>
+		<para>
+			When you select a node, it's properties will be loaded into the property editor. here you can modify, delete or add properties.
+			Via the buttons at the button you can add properties or remove the selected.
+		</para>
+		<para>
+			<emphasis>The changes will only be applied if you press the "Save Changes" button.</emphasis>				
+		</para>
+		<para>
+			When you click on a cell (except the dn cell, which can't be modified manually), you can edit the property. If a data provider is defined for the property type,
+			you'll be assisted by an ajax driven combobox delivering you proposals.
+		</para>
+		<note>
+			<para>
+			If the properties are invalid, the editor won't notice until the ldap server will inform you.
+			</para>
+		</note>
+		<note>
+			<para>
+			Changing the objecttype is not possible, you'll have to create a new element with the same properties and delete this one manually.
+			</para>
+		</note>
+	</chapter>	
+	<chapter>
+		<title>Searching the tree</title>
+		<para>
+			There are two ways of finding entries in the tree: Perform searches or create filters. 
+			In this chapter the use of the search field, which can be used for simple text-occurence search, will be described.
+		</para>
+		<para>
+			The search field is located at the bottom of the LDAP Tree.
+		</para>
+		<mediaobject>
+			<imageobject>
+				<imagedata align="center" fileref="images/search_field.png" format="PNG" />
+			</imageobject>
+			<caption>The search field. You'll like it.</caption>
+		</mediaobject>
+	
+		<para>
+			After you enter the text snippet you want to search, you'll see the result window, nicely grouping the found nodes
+			in categories. If you click on an entry, you can directly jump to the position in the tree where this node is located.
+		</para>
+			<mediaobject>
+				<imageobject>
+					<imagedata align="center" fileref="images/simpleSearch.png" format="PNG" />
+				</imageobject>
+				<caption>The result view.</caption>
+			</mediaobject>
+		<para>
+			 If you wan't to change the group field, just click on the field header and select "Group By This Field".
+		</para>
+			<mediaobject>
+				<imageobject>
+					<imagedata align="center" fileref="images/change_group.png" format="PNG" />
+				</imageobject>
+				<caption>Changing the grouping parameter.</caption>
+			</mediaobject>
+	</chapter>	
+	<chapter>
+		<title>Creating and managing filters</title>
+		<para>Filters offer you a great possibility of making your ldap tree more clear</para>
+		<para>
+			Filters can be rather easy, like 'Show me all hostgroups starting with "local"', but can also get complex, like
+			'Show me all hostgroups, hosts starting with 'local' or all services with checkcoomands starting with PING except services havin g 'dummy' in their name'  
+		</para>
+		<para>
+			Filters can be easily created via Drag&amp;Drop. Just click on the 'New' Button in the filterdialog and the filter manager will appear.
+		</para>
+		<mediaobject>
+			<imageobject>
+				<imagedata align="center" fileref="images/create_filter.png" format="PNG" />
+			</imageobject>
+			<caption>Creating a filter that only displays hosts and hostgroups not havingf srv2 in the name.</caption>
+		</mediaobject>
+		<para>
+			Notice that you can use previous defined filters as parts of your new filter. You can build complex filters out of smaller simple filters and keep
+			the filter tree clear.
+		</para>
+		<para>
+			Click on a filter in the filterlist to activate it. Active filters are displayed with a green icon.
+		</para>
+		<mediaobject>
+			<imageobject>
+				<imagedata align="center" fileref="images/create_filter.png" format="PNG" />
+			</imageobject>
+			<caption>Activate a filter</caption>
+		</mediaobject>
+		<para>
+			At the top of the filterlist there is a bypass button, which allowes you to temporary disable all filters. Filter modification or activation/deactivation
+			is not possible when in bypass mode.
+		</para>
+	</chapter>	
+	<chapter>
+		<title>Search&amp;Replace</title>
+		<para>The last feature we'll describe here is the search&amp;replace function. It's located at the context menu of the root node</para>
+		<mediaobject>
+			<imageobject>
+				<imagedata align="center" fileref="images/s_replace.png" format="PNG" />
+			</imageobject>
+			<caption>The search/replace function is located at the tree root.</caption>
+		</mediaobject>
+		<para>
+			The search/replace mask looks like this:
+		</para>		
+		<mediaobject>
+			<imageobject>
+				<imagedata align="center" fileref="images/s_replace_field.png" format="PNG" />
+			</imageobject>
+			<caption>Search replace.</caption>
+		</mediaobject>
+		<variablelist>
+			<varlistentry>
+				<term>Search RegExp</term>
+				<listitem>
+					<para>
+						A regular expression which should be replaced with the replace string. Backreferences can be achieved with \1. 
+					</para>
+				</listitem>
+			</varlistentry>			
+			<varlistentry>
+				<term>Attributes to include</term>
+				<listitem>
+					<para>The attributes to include in the search/replace process.</para>
+				</listitem>
+			</varlistentry>			
+			<varlistentry>
+				<term>Replace String</term>
+				<listitem>
+					<para>The String to replace the regexp with (grouped fields can be accessed with $1, $2,..,,$9).</para>
+				</listitem>
+			</varlistentry>		
+			<varlistentry>
+				<term>Sissy Mode</term>
+				<listitem>
+					<para>Shows which fields will be affected by the operation. It's better to be a sissy than messing up your tree.</para>
+				</listitem>
+			</varlistentry>		
+			<varlistentry>
+				<term>Execute</term>
+				<listitem>
+					<para>Execute the query.</para>
+				</listitem>
+			</varlistentry>		
+		</variablelist>
+		<note>
+			<para>Filters will be respected when you use search/replace</para>
+		</note>
+	</chapter>	
+	<chapter>
+		<title>Support</title>
+		<para>
+			If you find any issues or have feature request, feel free to open an issue at <ulink url="https://www.netways.org/projects/list_files/lconf-icinga-mod">http://www.netways.org</ulink>
+		</para>	
+	</chapter>
+</book>

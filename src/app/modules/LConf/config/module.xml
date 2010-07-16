@@ -17,7 +17,8 @@
 				<setting name="connectionSource">DB</setting>
 				
 				<setting name="icons">
-					<ae:parameter name="nagiosStructuralObject">silk-chart-organisation</ae:parameter>
+					<ae:parameter name="organizationalUnit">silk-organisation</ae:parameter>
+					<ae:parameter name="nagiosStructuralObject">lconf-logo</ae:parameter>
 					<ae:parameter name="nagiosTimeperiod">silk-clock-red</ae:parameter>
 					<ae:parameter name="nagiosCommand">silk-script</ae:parameter>
 					<ae:parameter name="nagiosContact">silk-user</ae:parameter>

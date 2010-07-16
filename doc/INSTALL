@@ -1,0 +1,31 @@
+
+1) Prerequisites
+
+You need a running mysql and php (with PEAR and CLI) environment w/ icinga-web and ido (ido2db).
+Phing is required for installation - as it comes with icinga-web, you can find it under "/path-to-icinga-web/bin/phing" if
+you don't have installed it seperately.
+ 
+You also need the php5-gd extension and the imagemagick libraries. 
+
+
+2) Installing the plugin
+
+   1) Change the setting db.ini to fit to your db-settings. Currently only MySQL support is guaranteed.
+ 
+   2) Install the plugin by typing "phing install" and answering the questions. 
+      If anything should go wrong check the error messages and read the FAQ, perhaps this can help you.
+
+   3) Check if the icingaScheduler is installed. If not, type "make scheduler-install" at your icinga-web folder.
+
+   4) Now you should see a "LConf" Entry in the main toolbar. If not, try to clear the cache by typing "rm /path-to-icinga/app/cache/config/*"
+
+
+
+3) Removing the plugin
+	
+   1) Go to /path-to-icinga-web/plugins/
+
+   2) Type phing remove
+ 
+   3) Type "LConf" if you're asked which plugin should be removed
+

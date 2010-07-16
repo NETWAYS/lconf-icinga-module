@@ -93,16 +93,29 @@ class LConf_LDAPConnectionManagerModel extends IcingaLConfBaseModel
 		$this->setConnectionArray(array());
 		$this->scope = $scope;
 	}
+	/*
+	public function markDefaultConnection() {
+		$user = $this->getContext()->getUser()->getNsmUser();
+		
+		$result = Doctrine_Query::create()
+				 ->select("def.connection_id")
+				 ->from("LconfDefaultconnection def")
+				 ->where("def.user_id = ".$user->get("user_id"))
+				 ->execute()->toArray();
+
+		$this->getConnectionById($result[0]["connection_id"])->setDefault(true);
 	
+	}
+	*/
 	public function getConnectionsFromDB() {
 		$connections = Doctrine_Query::create()->
-							select("*")->
-							from("LconfConnection lc")->fetchArray();
+							select("lc.*,def.*")	
+							->from("LconfConnection lc")->fetchArray();
 		$ctx = $this->getContext();
 		foreach($connections as $connection) {
 			$this->addToConnectionArray($ctx->getModel("LDAPConnection","LConf",array($connection)));	
 		}
-		
+//		$this->markDefaultConnection();
 		return $connections;
 	}
 
@@ -135,13 +148,14 @@ class LConf_LDAPConnectionManagerModel extends IcingaLConfBaseModel
 		
 		$ctx = $this->getContext();
 		$query = Doctrine_Query::create()
-				->select("conn.*")
+				->select("conn.*, def.user_id")
 				->from("LconfConnection conn")
 				->innerJoin("conn.principals lp")
+				->leftJoin("conn.default def WITH def.user_id = ".$user->get("user_id"))				
 				->where("lp.principal_user_id = ?",$user->get("user_id"));
 		
 		$connections = $query->execute()->toArray();
-		//print_r($connections);
+
 		$result = array();
 		foreach($connections as $connection) {
 			$this->addToConnectionArray($ctx->getModel("LDAPConnection","LConf",array($connection)));
@@ -152,7 +166,7 @@ class LConf_LDAPConnectionManagerModel extends IcingaLConfBaseModel
 				$groupConnections = $this->getConnectionsForGroup($role->get("NsmRole"));
 			}
 		}
-
+		//$this->markDefaultConnection();
 		return $this->getConnectionArray();
 	}
 	

@@ -30,7 +30,7 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 			}),
 			
 			autoSave: false,
-			storeId: this.id+'_store',
+			storeId: Ext.id()+'_store',
 			root: this.root,
 			baseParams: {
 				'connectionId' : this.connId				
@@ -173,7 +173,7 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 		this.getStore().load();
 		this.fbar.setDisabled(false);
 		if(!lconf.editors)
-			this.lazyLoadEditors();
+			lconf.loader.lazyLoadEditors();
 	},
 	
 	sm: new Ext.grid.RowSelectionModel(),
@@ -203,24 +203,6 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 		column.setEditor(editor);
 	},
 	
-	lazyLoadEditors: function() {
-		var route = '<?php echo $ro->gen("lconf.ldapeditor.editorfielddefinitions");?>';
-		var layer = new Ext.LoadMask(Ext.getBody(),{msg:_('Loading editors...')});
-		layer.show();
-		Ext.Ajax.request({
-			url: route,
-			success: function(resp) {
-				layer.hide();
-				eval(resp.responseText);	
-			},
-			failure: function(resp) {
-				err = (resp.responseText.length<50) ? resp.responseText : 'Internal Exception, please check your logs';
-				Ext.MessageBox.alert(_("Error"),_("Couldn't load editor:<br\>"+err))
-				layer.hide();
-			}
-		});
-		
-	}
 });
 
 

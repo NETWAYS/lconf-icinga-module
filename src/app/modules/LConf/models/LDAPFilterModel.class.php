@@ -61,21 +61,24 @@ class LConf_LDAPFilterModel extends IcingaLConfBaseModel
 		$value = $this->getValue();
 		switch($this->getType()) {
 			case "endswith":
-				$value = "*".$value;
+				$value = $this->getKey()."="."*".$value;
 				break;
 			case "startswith":
-				$value = $value."*";
+				$value = $this->getKey()."=".$value."*";
 				break;
 			case "contains":
-				$value = "*".$value."*";		
-				break;			
+
+				$value = "|(".$this->getKey()."=".$value."*)(".$this->getKey()."=*".$value.")(".$this->getKey()."=".$value.")";		
+				break;		
+			default:
+				$value = $this->getKey()."=".$value;
 		}
 		
 		$filterString = ($this->isNegated() ? '(!(' : '(').
-							$this->getKey()."=".$value.
+							$value.
 						($this->isNegated() ? '))' : ')');
 		$this->setFilterString($filterString);
-		
+
 		return $filterString;	
 	}
 

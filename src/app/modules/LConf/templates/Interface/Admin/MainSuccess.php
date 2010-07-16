@@ -1,4 +1,5 @@
 <script type='text/javascript'>
+Ext.Msg.minWidth = 200;
 Ext.onReady(function() {
 	Ext.ns("lconf.Admin");
 		
@@ -26,7 +27,7 @@ Ext.onReady(function() {
 		var recordSkeleton = Ext.data.Record.create([
 			'connection_id','connection_name','connection_description','connection_binddn',
 			'connection_bindpass','connection_host','connection_port','connection_basedn','connection_tls', 
-			'connection_ldaps'
+			'connection_ldaps','connection_default'
 		]);
 		
 		this.addConnection = function(values) {
@@ -54,7 +55,9 @@ Ext.onReady(function() {
 				failure: function(response) {
 					if(this.ld_mask)
 						this.ld_mask.hide();
+					Ext.Msg.minWidth = 500;
 					Ext.MessageBox.alert(_("Error"),_("Connecting failed!<br/><br/>")+response.responseText);
+					Ext.Msg.minWidth = 200;
 				},
 				scope:this
 			});
@@ -100,7 +103,7 @@ Ext.onReady(function() {
 			fields: [
 				'connection_id','connection_name','connection_description','connection_binddn',
 				'connection_bindpass','connection_host','connection_port','connection_basedn','connection_tls',
-				'connection_ldaps'
+				'connection_ldaps','connection_default'
 			],
 			writer:new Ext.data.JsonWriter({encode: true}),
 			idProperty:'connection_id',
@@ -116,6 +119,7 @@ Ext.onReady(function() {
 					'<span class="X-editable">',
 					'<tpl if="connection_ldaps == true">ldaps://</tpl>',
 					'{connection_host}:{connection_port}</span><br/>',
+					'<tpl if="connection_default == true">(default)</tpl>',
 				'</div>',
 
 			'</tpl>'
@@ -137,19 +141,28 @@ Ext.onReady(function() {
 						autoShow :true,
 						autoDestroy:true,
 						items: [{
-							text:'Edit',
+							text:_('Edit'),
 							iconCls:'silk-application-edit',
 							handler: lconf.Admin.addUserPanel.createCallback(record.data)
 						}, {
-							text:'Manage access',
+							text:_('Manage access'),
 							iconCls:'silk-user',
 							handler: function() {
 								var conn_id = record.get("connection_id");
 								var wnd = lconf.Admin.PrincipalEditor(conn_id);
 
 								wnd.show();
+							},
+							hidden: <?php echo AgaviContext::getInstance()->getUser()->hasCredentials("lconf.admin") ? 'false' : 'true' ?>
+						}/*, {
+							text:_('Mark as default'),
+							iconCls:'silk-accept',
+							handler: function() {
+								var conn_id = record.get("connection_id");
+								record.set('connection_default',true);
+								record.store.save();
 							}
-						}]
+						}*/]
 					}).showAt(event.getXY());
 					
 				}

@@ -16,11 +16,11 @@
 			delete(registeredEditorFields[property]);
 		}	
 		
-		this.getEditorFieldForProperty = function(property) {
+		this.getEditorFieldForProperty = function(property,cfg) {
 			var field = registeredEditorFields[property];
 			
 			if(Ext.isDefined(field)) {
-				return new field;
+				return new field(cfg);
 			}
 		
 			return registeredEditorFields["default"];

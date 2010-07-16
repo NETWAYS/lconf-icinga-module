@@ -14,17 +14,25 @@ Ext.ns('lconf.wizards');
 			
 			lconf.propertyManager.prototype.constructor.call(this,config);
 			if(!lconf.editors)
-				this.lazyLoadEditors();
+				lconf.loader.lazyLoadEditors(this.initMe.createDelegate(this));
+			this.initMe();
+
+		},
+		initMe : function() {
 			this.on("render", function(elem) {
 				var record = Ext.data.Record.create(['id','property','value']);
 						
 				this.getStore().on("exception",function(proxy,type,action,options,response) {
-					
 					if(response.status != '200')
 						Ext.Msg.alert(_("Element could not be created"),_("An error occured: "+response.responseText));
-					else if(response.status == 'success')
-						Ext.Msg.alert(_("Element created"),_("Node created successfully.<br/>You can now close the window or create a similar object"));
-				});
+					else if(response.status == '200') {
+ 						if(this.getStore().closeOnSave)
+							this.ownerCt.hide();
+						this.getStore().closeOnSave = false;
+					
+						eventDispatcher.fireCustomEvent("refreshTree");
+					}
+				},this);
 				this.getStore().removeListener("save");
 
 				if(lconf.presetFields[this.wizardView]) {
@@ -40,16 +48,13 @@ Ext.ns('lconf.wizards');
 					text: _('Save and close'),
 					iconCls: 'silk-disk',
 					handler: function() {
+						this.getStore().closeOnSave = true;
 						this.getStore().save();
-						this.getStore().on("save",elem.ownerCt.hide,elem.ownerCt,{single:true});		
-						eventDispatcher.fireCustomEvent("refreshTree");
 					},
 					scope: this
 				})
-			},this);
-
+			},this);	
 		},
-
 		height: Ext.getBody().getHeight()*0.9 > 400 ? 400 : Ext.getBody().getHeight()*0.9,
 		autoScroll:true,
 		width:40

@@ -17,7 +17,10 @@ class LConf_Backend_modifyNodeSuccessView extends IcingaLConfBaseView
 				return null;
 			}
 			$client->setCwd($parentDN);
+			$sourceConn = null;
 			
+			if(isset($properties["targetConnId"]))
+				$sourceConn = $properties["targetConnId"];
 			switch($rd->getParameter("xaction")) {
 				case 'update':
 				case 'create':
@@ -27,10 +30,10 @@ class LConf_Backend_modifyNodeSuccessView extends IcingaLConfBaseView
 					$client->removeNodes($properties);
 					break;
 				case 'move':
-					$client->moveNode($properties["sourceDN"],$properties["targetDN"]);
+					$client->moveNode($properties["sourceDN"],$properties["targetDN"],$sourceConn);
 					break;
 				case 'clone':
-					$client->cloneNode($properties["sourceDN"],$properties["targetDN"]);
+					$client->cloneNode($properties["sourceDN"],$properties["targetDN"],$sourceConn);
 					break;
 
 			}

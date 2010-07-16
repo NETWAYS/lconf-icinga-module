@@ -101,6 +101,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 		
 			
 			this.on("click",function(node) {eventDispatcher.fireCustomEvent("nodeSelected",node,this.id);});
+			this.on("startdrag",function(tree,node) {node.connId = this.connId});
 			this.on("beforeNodeDrop",function(e) {e.dropStatus = true;this.nodeDropped(e);return false},this)
 			this.on("contextmenu",function(node,e) {this.context(node,e)},this);
 			this.on("beforeappend",function(tree,parent,node) {
@@ -639,7 +640,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			var ctx = new Ext.menu.Menu({
 				items: [{
 					text: _('Clone node here'),
-					handler: this.copyNode.createDelegate(this,[e.point,e.dropNode,e.target]),
+					handler: this.copyNode.createDelegate(ditTreeTabPanel.getActiveTab(),[e.point,e.dropNode,e.target]),
 					scope:this,
 					iconCls: 'silk-arrow-divide'
 				},{
@@ -662,7 +663,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 				},{
 					text: _('Create alias here'),
 					iconCls: 'silk-attach',
-					hidden: e.dropNode.attributes.isAlias,
+					hidden: e.dropNode.attributes.isAlias || e.dropNode.connId != e.target.ownerTree.connId,
 					handler: this.buildAlias.createDelegate(this,[e.point,e.dropNode,e.target])
 				},{
 					text: _('Cancel'),
@@ -714,7 +715,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 		},
 		
 		copyNode: function(pos,from,to,move) {
-			
+			AppKit.log({"this":this,"from":from,"to":to});
 			var toDN = to.id;
 			if(pos != 'append')
 				toDN = to.parentNode.id;
@@ -726,13 +727,14 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			
 			var copyParams = {
 				targetDN: this.processDNForServer(toDN),
+				targetConnId: this.connId,
 				sourceDN: this.processDNForServer(from.id)
 			}
 						
 			Ext.Ajax.request({
 				url: '<?php echo $ro->gen("lconf.data.modifynode");?>',
 				params: {
-					connectionId: this.connId,
+					connectionId: from.connId,
 					xaction: move ? 'move' :'clone' ,
 					properties: Ext.encode(copyParams)
 				},
@@ -793,7 +795,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 		containerScroll:true,
 		minSize:500,
 		border:false,
-		
+		ddGroup: 'treenodes',
 		enableDD: true,
 		root: {
 			nodeType: 'async',
@@ -861,6 +863,62 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 		defaults : {
 			closable: true
 		},
+		
+		initTab : function(item,index) {
+			  var before = this.strip.dom.childNodes[index],
+	        p = this.getTemplateArgs(item),
+	        el = before ?
+	             this.itemTpl.insertBefore(before, p) :
+	             this.itemTpl.append(this.strip, p),
+	        cls = 'x-tab-strip-over',
+	        tabEl = Ext.get(el);
+	
+	        tabEl.hover(function(){
+	            if(!item.disabled){
+	                tabEl.addClass(cls);
+	            }
+	        }, function(){
+	            tabEl.removeClass(cls);
+	        });
+	
+	        if(item.tabTip){
+	            tabEl.child('span.x-tab-strip-text', true).qtip = item.tabTip;
+	        }
+	        item.tabEl = el;
+	
+	        // Route *keyboard triggered* click events to the tab strip mouse handler.
+	        tabEl.select('a').on('click', function(e){
+	            if(!e.getPageX()){
+	                this.onStripMouseDown(e);
+	            }
+	        }, this, {preventDefault: true});
+	
+	        item.on({
+	            scope: this,
+	            disable: this.onItemDisabled,
+	            enable: this.onItemEnabled,
+	            titlechange: this.onItemTitleChanged,
+	            iconchange: this.onItemIconChanged,
+	            beforeshow: this.onBeforeShowItem
+	        });
+			var dropZone = new Ext.dd.DropZone(tabEl,{
+				srcScope : this,
+				ddGroup:'treenodes',
+				getTargetFromEvent: function(e) {
+		            return {el:tabEl,idx:index};
+		        },
+						
+				onNodeEnter: function(node) {
+					this.srcScope.swapConnection.delay(600,null,this.srcScope,[node]);					
+				},
+				onNodeOut : function() {
+					this.srcScope.swapConnection.cancel();
+				}
+				
+			});
+		},
+		swapConnection : new Ext.util.DelayedTask(function(tab) {this.setActiveTab(tab.idx)}),
+
 		listeners: {
 			tabchange: function(ac) {
 			 	if(!ac.activeTab) {
@@ -869,7 +927,12 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			 	}
 
 				dnSearchField.connId = ac.activeTab.connId;
-			}
+				
+			},
+			render: function(cmp) {
+				
+			},
+			scope:this
 		}
 	});
 	

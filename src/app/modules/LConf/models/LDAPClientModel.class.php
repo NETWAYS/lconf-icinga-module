@@ -61,7 +61,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 	 */
 	public static $dnDescriptors = array('cn','l','st','o','ou','c','street','dc','uid','aliasedobjectname');
 	
-	
+	private static $clientInstances = array();
 	/**
 	 * The current working dir
 	 * @var string
@@ -326,7 +326,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 		if(!$base)
 			$base = $this->getBaseDN();
 		$searchAttrs = array_merge(array("dn"),$addAttributes);
-
+		
 		$result = ldap_search($this->getConnection(),$base,$filterString,$searchAttrs);
 		return $result ? ldap_get_entries($this->getConnection(),$result) : null;
 	} 
@@ -584,7 +584,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 		return null;
 	}
 	
-	public function cloneNode($sourceDN, $targetDN) {
+	public function cloneNode($sourceDN, $targetDN,$sourceConnId = null) {
 		$connId = $this->getConnection();
 		$sourceProperties = $this->getNodeProperties($sourceDN);
 		$targetProperties = $this->getNodeProperties($targetDN,array("dn"));
@@ -607,10 +607,27 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 				$ctr++;
 			} while($this->listDN($newDN));
 		} 
-		
+
 		$connId = $this->getConnection();
-		if(!@ldap_add($connId,$newDN,$sourceProperties)) {
-			throw new AgaviException("Could not add ".$newDN. ":".$this->getError());
+		/**
+		 * Check if we're performing a copy/paste to another connection
+		 */
+		if(!$sourceConnId || $sourceConnId == $this->getId()) {
+			if(!@ldap_add($connId,$newDN,$sourceProperties)) {
+				throw new AgaviException("Could not add ".$newDN. ":".$this->getError());
+			}
+		} else {
+			//don't worry, the __fromStore function checks if it has been instanciated yet ;)
+			$client = LConf_LDAPClientModel::__fromStore($sourceConnId,$this->getContext()->getStorage());
+			if(!$client)
+				throw new AgaviException("Target connection not found!");
+			$id = $client->getConnection();
+			$existCheck = $this->getNodeProperties($newDN);
+			if(!empty($existCheck))
+				throw new AgaviException("<br/>DN alredy exists");
+			if(!@ldap_add($id,$newDN,$sourceProperties)) {
+				throw new AgaviException("Could not add ".$newDN. ":".$this->getError());
+			}
 		}
 		// recursive clone
 		if($childs = $this->listDN($sourceDN)) {
@@ -718,8 +735,12 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 	}
 	
 	static public function __fromStore($id,AgaviStorage $storage) {
+		if(isset(self::$clientInstances[$id]))
+			return self::$clientInstances[$id];
 		$clSerialized = $storage->read("Icinga.ldap.client.".$id);
-		return unserialize($clSerialized);
+		$cl = unserialize($clSerialized);
+		self::$clientInstances[$id] = $cl;
+		return $cl;
 	}
 	
 	public function disableStoring() {
