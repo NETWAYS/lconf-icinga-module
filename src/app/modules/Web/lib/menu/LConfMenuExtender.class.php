@@ -37,7 +37,7 @@ class LConfMenuExtender extends AppKitEventHandler implements AppKitEventHandler
 				);
 				
 				$icinga->addSubItem(AppKitNavItem::create('lconf.admin', 'lconf.admin')
-					->setCaption('LConf Admin')
+					->setCaption('LConf Connection Manager')
 					->addAttributes('extjs-iconcls', 'silk-user')
 				);			
 				$icinga->addSubItem(AppKitNavItem::create('lconf.about')
