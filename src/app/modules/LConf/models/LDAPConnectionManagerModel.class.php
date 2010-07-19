@@ -151,7 +151,7 @@ class LConf_LDAPConnectionManagerModel extends IcingaLConfBaseModel
 				->select("conn.*, def.user_id")
 				->from("LconfConnection conn")
 				->innerJoin("conn.principals lp")
-				->leftJoin("conn.default def WITH def.user_id = ".$user->get("user_id"))				
+		//		->leftJoin("conn.default def WITH def.user_id = ".$user->get("user_id"))				
 				->where("lp.principal_user_id = ?",$user->get("user_id"));
 		
 		$connections = $query->execute()->toArray();

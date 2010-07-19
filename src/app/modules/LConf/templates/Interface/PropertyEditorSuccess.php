@@ -76,7 +76,7 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 				handler: this.clearSelected,
 				scope: this
 			},{
-				xtype:'tbseparator',
+				xtype:'tbseparator'
 			},{
 				xtype:'button',	
 				text: _('Save Changes'),
@@ -201,7 +201,7 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 			editor.getStore().setBaseParam("connectionId",this.connId)
 		}
 		column.setEditor(editor);
-	},
+	}
 	
 });
 
@@ -215,7 +215,7 @@ if(!propertyParent)
 propertyParent.add(new lconf.propertyManager({
 	url: '<?php echo $ro->gen("lconf.data.modifyproperty");?>',
 	api: {
-		read :'<?php echo $ro->gen("lconf.data.propertyprovider");?>',			
+		read :'<?php echo $ro->gen("lconf.data.propertyprovider");?>'			
 	},
 	root: 'properties',
 	id: 'properties_grid'

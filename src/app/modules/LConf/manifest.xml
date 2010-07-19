@@ -79,7 +79,7 @@
 	<Database>
 		<Doctrine>
 			<Models>
-				<Prefix>LConf</Prefix>
+				<Prefix>Lconf</Prefix>
 			</Models>
 		</Doctrine>
 		<!-- Register Models -->

@@ -229,7 +229,7 @@ Ext.onReady(function() {
 					xtype:'fieldset',
 					title: _('General details'),
 					defaults: {
-						xtype:'textfield',
+						xtype:'textfield'
 					},
 					items: [{
 						fieldLabel: _('Connection Name'),

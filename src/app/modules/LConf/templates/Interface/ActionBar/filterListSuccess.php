@@ -9,7 +9,7 @@
 		1 : _('matches'),
 		2 : _('starts with'),
 		3 : _('ends with'),
-		4 : _('contains'),					
+		4 : _('contains')				
 	};
 	Ext.ns("lconf.filters");
 	lconf.filters.activeFilters = [];
@@ -682,7 +682,7 @@
 	        			},{
         					text: _('Close'),
         					iconCls: 'silk-cancel',
-        					handler: function() {this.ownerCt.ownerCt.close()},
+        					handler: function() {this.ownerCt.ownerCt.close()}
 
 	        			}]
 		        	});

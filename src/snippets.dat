@@ -1,4 +1,4 @@
-a:1:{i:0;a:3:{s:4:"mark";s:5:"LConf";s:4:"file";s:35:"%PATH_Icinga%/pub/styles/Icinga.css";s:7:"content";s:2711:".ldap-connection {
+a:1:{i:0;a:3:{s:4:"mark";s:5:"LConf";s:4:"file";s:35:"%PATH_Icinga%/pub/styles/Icinga.css";s:7:"content";s:2817:".ldap-connection {
     width:150px;
     margin:5px;
     padding:5px;
@@ -125,5 +125,6 @@ a:1:{i:0;a:3:{s:4:"mark";s:5:"LConf";s:4:"file";s:35:"%PATH_Icinga%/pub/styles/I
 
 .lconf-logo { background-image: url(../images/LConf/tree_small.png) !important; background-repeat: no-repeat;}
 .silk-arrow-divide { background-image: url(../images/fam/arrow_divide.png) !important; background-repeat: no-repeat; }
+.silk-server {background-image: url(../images/fam/server.png) !important; background-repeat: no-repeat; }
 .silk-arrow-turn-left { background-image: url(../images/fam/arrow_turn_left.png) !important; background-repeat: no-repeat; }
 .silk-arrow-right-medium { background-image: url(../images/fam/other/iconRightMedium.gif) !important; background-repeat: no-repeat; }";}}

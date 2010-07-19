@@ -73,7 +73,15 @@ abstract class BaseLconfConnection extends Doctrine_Record
              'autoincrement' => false,
              'default' => 0     
         ));
-
+		$this->hasColumn('connection_ldaps', 'integer', 4, array(
+             'type' => 'integer',
+             'length' => 4,
+             'unsigned' => 0,
+             'primary' => false,
+             'notnull' => false,
+             'autoincrement' => false,
+             'default' => 0     
+        ));
     }
 
     public function setUp()

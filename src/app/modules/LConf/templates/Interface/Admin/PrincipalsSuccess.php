@@ -64,7 +64,7 @@ lconf.Admin.PrincipalEditor = function(connection_id) {
 			encode:true
 		}),
 		proxy: new Ext.data.HttpProxy({
-			url:'<? echo $ro->gen("lconf.data.principals") ?>',
+			url:'<? echo $ro->gen("lconf.data.principals") ?>'
 		}),
 		listeners: {
 			// function to filter out already selected values from the available view
@@ -120,7 +120,7 @@ lconf.Admin.PrincipalEditor = function(connection_id) {
 			encode:true
 		}),
 		proxy: new Ext.data.HttpProxy({
-			url:'<? echo $ro->gen("lconf.data.principals") ?>',
+			url:'<? echo $ro->gen("lconf.data.principals") ?>'
 		}),
 		listeners: {
 			// function to filter out already selected values from the available view
@@ -255,7 +255,7 @@ lconf.Admin.itemGranter = function(config) {
 		height:400,
 		enableDragDrop: true,		
 		sm: new Ext.grid.RowSelectionModel({
-			singleSelect:false,
+			singleSelect:false
 		}),
 		
 		listeners: {
@@ -282,7 +282,7 @@ lconf.Admin.itemGranter = function(config) {
 		height:400,
 		enableDragDrop: true,
 		sm: new Ext.grid.RowSelectionModel({
-			singleSelect:false,
+			singleSelect:false
 			
 		}),
 		
@@ -315,8 +315,7 @@ lconf.Admin.itemGranter = function(config) {
 			title:this.title,
 			width:700,
 			layoutConfig: {
-				columns:3,
-				
+				columns:3
 			},
 			defaults: {
 				cellCls: 'middleAlign'

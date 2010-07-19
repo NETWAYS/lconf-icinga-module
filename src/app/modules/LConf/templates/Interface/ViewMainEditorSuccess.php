@@ -80,8 +80,7 @@ Ext.onReady(function() {
 			cls: false,
 			width:200,
 			minSize:100,
-			maxSize:200,
-
+			maxSize:200
 		}]
 	})	
 	

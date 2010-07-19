@@ -149,7 +149,7 @@
 				autoDestroy: true,
 				closable: true,
 				modal: true,
-				defaultType: 'field',
+				defaultType: 'field'
 				
 			});
 			detailWindow.render(Ext.getBody());

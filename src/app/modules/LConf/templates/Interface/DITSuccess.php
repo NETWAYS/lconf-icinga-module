@@ -686,13 +686,13 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			
 			var properties = [{
 				"property" : "objectclass",
-				"value" : "extensibleObject",
+				"value" : "extensibleObject"
 			},{
 				"property" : "objectclass",
 				"value" : "alias"
 			},{
 				"property" : "aliasedObjectName",
-				"value" : from.id,
+				"value" : from.id
 			}]
 			Ext.Ajax.request({
 				url: '<?php echo $ro->gen("lconf.data.modifynode");?>',
@@ -806,13 +806,13 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			text: 'Root DSE',
 			leaf:true
 
-		},
+		}
 	});
 	var searchWindow = new Ext.Window({
 		layout:'fit',
 		constrain:true,
 		closeAction:'hide',
-		renderTo:Ext.getBody(),
+		renderTo:Ext.getBody()
 	});
 	var dnSearchField = new Ext.form.TextField({
 		xtype:'textfield',
