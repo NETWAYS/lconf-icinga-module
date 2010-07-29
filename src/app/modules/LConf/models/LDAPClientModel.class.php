@@ -326,7 +326,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 		if(!$base)
 			$base = $this->getBaseDN();
 		$searchAttrs = array_merge(array("dn"),$addAttributes);
-		
+	
 		$result = ldap_search($this->getConnection(),$base,$filterString,$searchAttrs);
 		return $result ? ldap_get_entries($this->getConnection(),$result) : null;
 	} 
@@ -509,9 +509,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 			// add new node and remove old
 			$newDN = $affectsDN.",".$dnToPreserve;
 
-			if(!@ldap_add($connId,$newDN,$properties))
-				throw new AgaviException("Couldn't modify node dn to ".$newDN." ".$this->getError());
-			$this->removeNodes(array($dn),false);
+			$this->cloneNode($dn, $dnToPreserve,null,$affectsDN);
 			$this->rechainAliasesForNode($dn,$newDN);
 			
 		} else {
@@ -584,22 +582,23 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 		return null;
 	}
 	
-	public function cloneNode($sourceDN, $targetDN,$sourceConnId = null) {
+	public function cloneNode($sourceDN, $targetDN,$sourceConnId = null,$newName = null) {
 		$connId = $this->getConnection();
 		$sourceProperties = $this->getNodeProperties($sourceDN);
 		$targetProperties = $this->getNodeProperties($targetDN,array("dn"));
-		
 		$paramToPreserve = explode(",",$sourceProperties["dn"],2);
-		$paramToPreserve = $paramToPreserve[0];
-
 		$this->helper->cleanResult($sourceProperties);
-		$newDN = $paramToPreserve.",".$targetDN;
+		$newDN = $newName.",".$targetDN;
+		if(!$newName) {
+			$paramToPreserve = $paramToPreserve[0];
+			$newDN = $paramToPreserve.",".$targetDN;
+		} 
 		// check if it's on the same level
-		if($newDN == $sourceDN) {
+		if($this->listDN($newDN)) {
 			$ctr = 0;
 			do { // Increase copy counter if there is already a copy of this node
 				$paramToChange = explode("=",$paramToPreserve,2);
-				$newValue = "copy_of".(($ctr) ? "(".$ctr.")" : '')."_".$paramToChange[1];
+				$newValue = ("copy_of".(($ctr) ? "(".$ctr.")" : '')."_").$paramToChange[1];
 				$finalParamToPreserve = $paramToChange[0]."=".$newValue;
 				$newDN = $finalParamToPreserve.",".$targetDN;
 				
@@ -642,6 +641,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 	
 	public function moveNode($sourceDN, $targetDN) {
 		$this->cloneNode($sourceDN,$targetDN);
+		$this->rechainAliasesForNode($sourceDN,$targetDN);
 		$this->removeNodes(array($sourceDN));	
 	}
 	
