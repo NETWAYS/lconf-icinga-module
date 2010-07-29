@@ -509,9 +509,21 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 			// add new node and remove old
 			$newDN = $affectsDN.",".$dnToPreserve;
 
-			$this->cloneNode($dn, $dnToPreserve,null,$affectsDN);
-			$this->rechainAliasesForNode($dn,$newDN);
 			
+			$this->rechainAliasesForNode($dn,$newDN);
+			if(!@ldap_add($connId,$newDN,$properties)) {
+				throw new AgaviException("Could not modify ".$dn. ":".$this->getError());
+			}	
+			// recursive clone
+			if($childs = $this->listDN($dn)) {
+				foreach($childs as $key=>$child) {
+					if(!is_int($key))
+						continue;
+	
+					$this->cloneNode((isset($child["aliasdn"]) ? $child["aliasdn"] : $child["dn"]),$newDN);
+				}
+			}
+			$this->removeNodes($dn);
 		} else {
 			if(!@ldap_modify($connId,$dn,$properties)) {
 				throw new AgaviException("Could not modify ".$dn. ":".$this->getError());
