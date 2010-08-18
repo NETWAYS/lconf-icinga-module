@@ -91,6 +91,21 @@ Ext.onReady(function() {
 	<?php echo $t["js_DITinit"]?>
 	<?php echo $t["js_PropertyEditorInit"]?>
 	<?php echo $t["js_SimpleSearchGridInit"]?>
+	
+	/**
+	 * Batch for displaying a specific connection/node on startup
+	 */
+	var connId = '<?php if(isset($t["start_connection"])) echo $t["start_connection"]?>'; 
+	var dn = '<?php if(isset($t["start_dn"])) echo $t["start_dn"]?>';
+	if(connId) {
+		eventDispatcher.addCustomListener("connectionsLoaded",function(store,conn) {
+			conn.startConnect(store.indexOfId(connId));
+			if(dn)
+				eventDispatcher.addCustomListener("TreeReady",function(tree) {
+					tree.searchDN(dn);
+				});	
+		},this,{single:true})
+	}
 })
 
 </script>

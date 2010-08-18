@@ -46,7 +46,7 @@ Ext.ns('lconf.wizards');
 				this.fbar.add({
 					xtype: 'button',
 					text: _('Save and close'),
-					iconCls: 'silk-disk',
+					iconCls: 'icinga-icon-disk',
 					handler: function() {
 						this.getStore().closeOnSave = true;
 						this.getStore().save();

@@ -125,7 +125,7 @@
 							var ctx = new Ext.menu.Menu({
 								items: [{
 									text: _('Activate'),
-									iconCls: 'silk-accept',
+									iconCls: 'icinga-icon-accept',
 									handler: function() {
 										node.isActivated = true;
 										lconf.filters.activateFilter(record.get('filter_id'));
@@ -135,7 +135,7 @@
 									hidden: node.isActivated || lconf.filters.bypassed
 								},{
 									text: _('Deactivate'),
-									iconCls: 'silk-stop',
+									iconCls: 'icinga-icon-stop',
 									handler: function() {
 										node.isActivated = false;
 										lconf.filters.deactivateFilter(record.get('filter_id'));
@@ -145,7 +145,7 @@
 									hidden: !node.isActivated || lconf.filters.bypassed
 								},{
 									text: _('Edit filter'),
-									iconCls: 'silk-page-edit',
+									iconCls: 'icinga-icon-page-edit',
 									hidden: record.get('filter_isglobal') == '1',
 									handler: function() {
 										this.callMgr(record);
@@ -153,7 +153,7 @@
 									scope:this
 								},{
 									text: _('Delete'),
-									iconCls: 'silk-delete',
+									iconCls: 'icinga-icon-delete',
 									hidden: record.get('filter_isglobal') == '1' ||lconf.filters.bypassed,
 									handler: function() {
 										Ext.Msg.confirm(
@@ -188,7 +188,7 @@
 						title: _('Create filter'),
 						items: [{
 							xtype: 'button',
-							iconCls: 'silk-add',
+							iconCls: 'icinga-icon-add',
 							text:_('New'),
 							handler:function() {this.filterManager()},
 							scope:this
@@ -196,7 +196,7 @@
 							xtype: 'button',
 							enableToggle:true,
 							allowDepress: true,
-							iconCls: 'silk-stop',
+							iconCls: 'icinga-icon-stop',
 							text:_('Bypass'),
 							scope: this,
 							toggleHandler: function(btn,active) {
@@ -266,7 +266,7 @@
 						node = new Ext.tree.TreeNode({
 							text: i,
 							expanded:true,
-							iconCls: 'silk-bricks',
+							iconCls: 'icinga-icon-bricks',
 							filterType: 'group'
 						});
 					 	Ext.each(presets[i], function(preset) {
@@ -277,7 +277,7 @@
 					node = new Ext.tree.TreeNode({
 						text:presets["REFERENCE"]["filter_name"],
 						leaf:true,
-						iconCls: 'silk-attach'
+						iconCls: 'icinga-icon-attach'
 					});
 					node.filterAttributes = presets["REFERENCE"];
 					node.referenceId = presets["REFERENCE"]["referencedId"];
@@ -286,7 +286,7 @@
 					node = new  Ext.tree.TreeNode({
 						text:this.buildTextFromFilter(presets),
 						leaf:true,
-						iconCls: 'silk-brick'
+						iconCls: 'icinga-icon-brick'
 					});
 					node.filterAttributes = presets;
 					node.filterType = 'filter';
@@ -358,7 +358,7 @@
 				},
 				buttons: [{
 					text: _('Save filter'),
-					iconCls: 'silk-disk',
+					iconCls: 'icinga-icon-disk',
 					handler: function(btn) {
 						var obj = this.treeToFilterObject();
 						if(!obj)
@@ -467,7 +467,7 @@
 						menuDisabled:true,
 						
 						renderer: function(value, metaData) {
-							metaData.css = (value == 'group' ? 'silk-bricks' : (value == 'filter') ? 'silk-brick' : 'silk-attach');
+							metaData.css = (value == 'group' ? 'icinga-icon-bricks' : (value == 'filter') ? 'icinga-icon-brick' : 'icinga-icon-attach');
 							value = ''
 							return value;
 						},
@@ -483,7 +483,7 @@
 		},
 		
 		getFilterTree: function(presets) {
-			var defaultTreeRoot =  new Ext.tree.TreeNode({text:'AND', filterType: 'group', iconCls:'silk-bricks',id:'root', expanded:true});
+			var defaultTreeRoot =  new Ext.tree.TreeNode({text:'AND', filterType: 'group', iconCls:'icinga-icon-bricks',id:'root', expanded:true});
 			this.tree = new  Ext.tree.TreePanel({ 
 				height:400,
 				rootVisible:true,
@@ -521,7 +521,7 @@
 		        		var ctx = new Ext.menu.Menu({
 		        			items: [{
 		        				text: _('Edit this node'),
-		        				iconCls: 'silk-page-edit',
+		        				iconCls: 'icinga-icon-page-edit',
 		        				handler: function(btn) {
 		        					AppKit.log(node);
 									this.addFilterTo(node,node.filterAttributes,true);
@@ -529,7 +529,7 @@
 		        				scope: this
 		        			},{
 		        				text: _('Remove this node'),
-		        				iconCls: 'silk-delete',
+		        				iconCls: 'icinga-icon-delete',
 		        				handler: function(btn) {
 		        					node.parentNode.removeChild(node,true);
 		        				},
@@ -560,7 +560,7 @@
 			        			// Groups and predefined filters can be directly added
 			        			event.dropNode.push(this.loader.createNode({
 									text: elem.get('name'),
-									iconCls: (elem.get('type')  == 'group' ? 'silk-bricks' : 'silk-brick'),
+									iconCls: (elem.get('type')  == 'group' ? 'icinga-icon-bricks' : 'icinga-icon-brick'),
 		    	    				nodeType:'node',
 		    	    				filterType: elem.get('type'),
 		        					leaf: elem.get('type') != 'group'
@@ -575,7 +575,7 @@
 		        addReference: function(target,elem) {
 		        	var node = this.loader.createNode({
 						text: elem.get('name'),
-						iconCls: 'silk-attach',
+						iconCls: 'icinga-icon-attach',
 	    				nodeType:'node',
 	    				referenceId : elem.get('type'),
 	    				filterType: 'reference',
@@ -651,7 +651,7 @@
 		        		items: form,
 	        			buttons: [{
 	        				text: replace ? _('Edit filter') : _('Add filter'),
-	        				iconCls: replace ? 'silk-page-edit' : 'silk-add',
+	        				iconCls: replace ? 'icinga-icon-page-edit' : 'icinga-icon-add',
 	        				handler: function(btn) {
 	        					if(!form.getForm().isValid())
 	        						return false;
@@ -664,7 +664,7 @@
 	        					values.filter_parent = targetNode;
 	        					var node = this.loader.createNode({
 									text: txt,
-									iconCls: 'silk-brick',
+									iconCls: 'icinga-icon-brick',
 		    	    				nodeType:'node',
 		        					leaf: true
 		        				})
@@ -681,7 +681,7 @@
 	        				scope:this
 	        			},{
         					text: _('Close'),
-        					iconCls: 'silk-cancel',
+        					iconCls: 'icinga-icon-cancel',
         					handler: function() {this.ownerCt.ownerCt.close()}
 
 	        			}]

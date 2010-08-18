@@ -31,7 +31,8 @@ lconf.Admin.PrincipalEditor = function(connection_id) {
 		idProperty: 'role_id',
 		autoLoad:true,
 		remoteSort: true,
-		url: '<? echo $ro->gen("appkit.data.groups")?>',
+		root:'roles',
+		url: '<?php echo $ro->gen("appkit.data.groups")?>',
 		fields: [
 			'role_id',
 			'role_name'
@@ -51,7 +52,7 @@ lconf.Admin.PrincipalEditor = function(connection_id) {
 		sourceStore: this.groupStore,
 		autoLoad:true,
 		root:'groups',
-		url: '<? echo $ro->gen("lconf.data.principals") ?>',
+		url: '<?php echo $ro->gen("lconf.data.principals") ?>',
 		baseParams: {
 			target: 'groups',
 			connection_id: connection_id
@@ -64,7 +65,7 @@ lconf.Admin.PrincipalEditor = function(connection_id) {
 			encode:true
 		}),
 		proxy: new Ext.data.HttpProxy({
-			url:'<? echo $ro->gen("lconf.data.principals") ?>'
+			url:'<?php echo $ro->gen("lconf.data.principals") ?>'
 		}),
 		listeners: {
 			// function to filter out already selected values from the available view
@@ -82,7 +83,7 @@ lconf.Admin.PrincipalEditor = function(connection_id) {
 		totalProperty: 'totalCount',
 		root: 'users',
 		idProperty: 'user_id',
-		url: '<? echo $ro->gen("appkit.data.users")?>',
+		url: '<?php echo $ro->gen("appkit.data.users")?>',
 		remoteSort: true,
 		baseParams: {
 			hideDisabled: false
@@ -107,7 +108,7 @@ lconf.Admin.PrincipalEditor = function(connection_id) {
 		idProperty: 'user_id',
 		autoLoad:true,
 		root:'users',
-		url: '<? echo $ro->gen("lconf.data.principals") ?>',
+		url: '<?php echo $ro->gen("lconf.data.principals") ?>',
 		baseParams: {
 			target: 'users',
 			connection_id: connection_id
@@ -120,7 +121,7 @@ lconf.Admin.PrincipalEditor = function(connection_id) {
 			encode:true
 		}),
 		proxy: new Ext.data.HttpProxy({
-			url:'<? echo $ro->gen("lconf.data.principals") ?>'
+			url:'<?php echo $ro->gen("lconf.data.principals") ?>'
 		}),
 		listeners: {
 			// function to filter out already selected values from the available view
@@ -142,7 +143,8 @@ lconf.Admin.PrincipalEditor = function(connection_id) {
 			targetColumns:[
 				{header:_('Id'),name:'user_id',dataIndex:'user_id'},
 				{header:_('User'),name:'user_name',dataIndex:'user_name'}
-			]
+			],
+			
 		})
 		var groupTab = lconf.Admin.itemGranter({
 			targetStore: this.selectedGroupsStore,
@@ -158,6 +160,7 @@ lconf.Admin.PrincipalEditor = function(connection_id) {
 				{header:_('Group'),name:'role_name',dataIndex:'role_name'}
 			]
 		})
+
 		return new Ext.TabPanel({
 			activeTab: 0,
 			items: [

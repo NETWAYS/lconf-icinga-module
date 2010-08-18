@@ -22,6 +22,7 @@ class LConf_LDAPResultModel extends IcingaLConfBaseModel
 				}
 			}			
  		}
+
  		return $returnArray;
 	}
 	

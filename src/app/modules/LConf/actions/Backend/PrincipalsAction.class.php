@@ -27,7 +27,7 @@ class LConf_Backend_PrincipalsAction extends IcingaLConfBaseAction
 		if($target)
 			$values = $rd->getParameter($target);
 		$connection_id = $rd->getParameter("connection_id");
-
+	
 		switch($rd->getParameter("xaction",false))  {
 			case 'destroy':
 				if(!$connection_id || !$values || !$target) {

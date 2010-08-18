@@ -66,23 +66,28 @@ class dependencyCheckerTask extends Task {
 			$configXPath->registerNamespace("default","http://agavi.org/agavi/1.0/config");
 
 			// Check major version
-			$versionEntries = $configXPath->query('//default:setting[@name="appkit.version.major"]');
+			$versionEntries = $configXPath->query('//default:setting[@name="version.major"]');
 			$major = $versionEntries->item(0)->nodeValue;
 			if($versionSplitted[0]>$major)
-				throw new BuildException("Icinga-Web has incorrect version, at least ".$version." needed");
-								
+				throw new BuildException("Icinga-Web has incorrect version, at least ".$version." needed, you have version ".(implode(',',$versionSplitted)));
+			if($versionSplitted[0]<$major)
+				return true;
+
 			// Check minor version
-			$versionEntries = $configXPath->query('//default:setting[@name="appkit.version.minor"]');
+			$versionEntries = $configXPath->query('//default:setting[@name="version.minor"]');
 			$minor = $versionEntries->item(0)->nodeValue;
 			if($versionSplitted[1]>$minor)
-				throw new BuildException("Icinga-Web has incorrect version, at least ".$version." needed");
-
+				throw new BuildException("Icinga-Web has incorrect version, at least ".$version." needed, you have version ".(implode(',',$versionSplitted)));
+			if($versionSplitted[1]<$minor)
+				return true;
+				
 			// Check patch version
-			$versionEntries = $configXPath->query('//default:setting[@name="appkit.version.patch"]');
+			$versionEntries = $configXPath->query('//default:setting[@name="version.patch"]');
 			$patch = $versionEntries->item(0)->nodeValue;
 			if($versionSplitted[2]>$patch)
-				throw new BuildException("Icinga-Web has incorrect version, at least ".$version." needed");	
-									
+				throw new BuildException("Icinga-Web has incorrect version, at least ".$version." needed, you have version ".(implode(',',$versionSplitted)));	
+			if($versionSplitted[2]<$patch)
+				return true;					
 		}
 		
 		return true;

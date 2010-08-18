@@ -20,12 +20,17 @@ class LConf_Interface_ViewMainEditorSuccessView extends IcingaLConfBaseView
 
 		$SimpleSearchGrid = new AgaviRequestDataHolder();
 		$SimpleSearchGrid= $container->createExecutionContainer("LConf","Interface.SimpleSearchGrid",null,"simple");
-				
+
 		$this->setAttribute("js_actionBarInit",$actionBarContainer->execute()->getContent());
 		$this->setAttribute("js_DITinit",$DITContainer->execute()->getContent());
 		$this->setAttribute("js_PropertyEditorInit",$PropertyEditorContainer->execute()->getContent());
 		$this->setAttribute("js_SimpleSearchGridInit",$SimpleSearchGrid->execute()->getContent());
 		
+		if($rd->getParameter("connection"))
+			$this->setAttribute("start_connection",$rd->getParameter("connection"));
+		if($rd->getParameter("dn"))
+			$this->setAttribute("start_dn",$rd->getParameter("dn"));
+			
 		$this->setAttribute('_title', 'Interface.ViewMainEditor');
 	}
 	

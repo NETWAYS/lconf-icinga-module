@@ -70,8 +70,8 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			return (withDN) ? shortened : shortened.replace(txtRegExp,"");
 		}
 	});
-	
-	var ditTree = Ext.extend(Ext.tree.TreePanel,{
+
+	var ditTree = Ext.extend(Ext.ux.MultiSelectTreePanel,{
 	
 		initEvents: function() {
 			ditTree.superclass.initEvents.call(this);
@@ -89,7 +89,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			eventDispatcher.addCustomListener("searchDN",this.searchDN,this);
 			
 			eventDispatcher.addCustomListener("simpleSearch",function(snippet) {
-				AppKit.log("!");
+			
 			},this);
 			
 			eventDispatcher.addCustomListener("aliasMode", function(node) {
@@ -135,24 +135,24 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			var ctx = new Ext.menu.Menu({
 				items: [{
 					text: _('Refresh this part of the tree'),
-					iconCls: 'silk-arrow-refresh',
+					iconCls: 'icinga-icon-arrow-refresh',
 					handler: this.refreshNode.createDelegate(this,[node,true]),
 					scope: this,
 					hidden: node.isLeaf()
 				},{
 					text: _('Create new node on same level'),
-					iconCls: 'silk-add',
+					iconCls: 'icinga-icon-add',
 					handler: this.callNodeCreationWizard.createDelegate(this,[{node:node}]),
 					scope: this,
 					hidden: !(node.parentNode)
 				},{
 					text: _('Create new node as child'),
-					iconCls: 'silk-sitemap',
+					iconCls: 'icinga-icon-sitemap',
 					handler: this.callNodeCreationWizard.createDelegate(this,[{node:node,isChild:true}]),
 					scope: this
 				},{
 					text: _('Remove <b>only this</b> node'),
-					iconCls: 'silk-delete',
+					iconCls: 'icinga-icon-delete',
 					handler: function() {
 						Ext.Msg.confirm(_("Remove selected nodes"),_("Do you really want to delete this entry?<br/>")+
 																  _("Subentries will be deleted, too!"),
@@ -165,7 +165,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 					scope: this
 				},{
 					text: _('Remove <b>all selected</b> nodes'),
-					iconCls: 'silk-cross',
+					iconCls: 'icinga-icon-cross',
 					hidden:!(this.getSelectionModel().getSelectedNodes().length),
 					handler: function() {
 						Ext.Msg.confirm(_("Remove selected nodes"),_("Do you really want to delete the selected entries?<br/>")+
@@ -180,19 +180,19 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 					scope: this		
 				},{
 					text: _('Jump to alias target'),
-					iconCls: 'silk-arrow-redo',
+					iconCls: 'icinga-icon-arrow-redo',
 					hidden: !node.attributes.isAlias && !node.id.match(/\*\d{4}\*/),
 					handler: this.jumpToRealNode.createDelegate(this,[node])	
 				},{
 					text: _('Display aliases to this node'),
-					iconCls: 'silk-wand',
+					iconCls: 'icinga-icon-wand',
 					hidden: node.attributes.isAlias || node.id.match(/\*\d{4}\*/),
 					handler: function(btn) {
 						eventDispatcher.fireCustomEvent("aliasMode",node);
 					}
 				},{
 					text: _('Search/Replace'),
-					iconCls: 'silk-zoom',
+					iconCls: 'icinga-icon-zoom',
 					handler: this.searchReplaceMgr.createDelegate(this),
 					hidden: (node.parentNode),
 					scope:this
@@ -237,7 +237,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			Ext.each(treeObj.here,function(nodeId) {
 				var node = this.getNodeById(nodeId);
 				if(!node) {
-					AppKit.log("Gnaaah!")
+					AppKit.log("Node "+nodeId+" not found")
 					return true;
 				}
 				var getNext = function() {
@@ -482,6 +482,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 				here: baseDN,
 				nextLevel: []
 			}
+	
 			var curPos = expandDescriptor;
 			var lastDN = baseDN;
 			while(splitted.length) {
@@ -495,8 +496,12 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			var finishFN = function() {
 				var node = this.getNodeById(dn);
 				this.selectPath(node.getPath());
+	
 				eventDispatcher.fireCustomEvent("nodeSelected",node,this.id);
+				this.scrollIntoView(this,node.lastChild || node);
+				
 			}
+			
 			this.expandViaTreeObject(expandDescriptor,finishFN.createDelegate(this));
 		},
 		
@@ -637,117 +642,131 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 		},
 		
 		nodeDropped: function(e) {
+			AppKit.log(e);
+			var containsAlias = false;
+			Ext.each(e.dropNode,function(node) {
+				if(node.attributes.isAlias)
+					containsAlias = true;
+				return !containsAlias;
+			});
 			var ctx = new Ext.menu.Menu({
 				items: [{
 					text: _('Clone node here'),
 					handler: this.copyNode.createDelegate(ditTreeTabPanel.getActiveTab(),[e.point,e.dropNode,e.target]),
 					scope:this,
-					iconCls: 'silk-arrow-divide'
+					iconCls: 'icinga-icon-arrow-divide'
 				},{
 					text: _('Move node here'),
 					handler: this.copyNode.createDelegate(this,[e.point,e.dropNode,e.target,true]),
 					scope:this,
-					iconCls: 'silk-arrow-turn-left'
+					iconCls: 'icinga-icon-arrow-turn-left'
 				},{
 					text: _('Clone node <b>as subnode</b>'),
 					handler: this.copyNode.createDelegate(this,["append",e.dropNode,e.target]),
 					scope:this,
 					hidden: !e.target.isLeaf(),
-					iconCls: 'silk-arrow-divide'
+					iconCls: 'icinga-icon-arrow-divide'
 				},{
 					text: _('Move node  <b>as subnode</b>'),
 					handler: this.copyNode.createDelegate(this,["append",e.dropNode,e.target,true]),
 					scope:this,
 					hidden: !e.target.isLeaf(),
-					iconCls: 'silk-arrow-turn-left'
+					iconCls: 'icinga-icon-arrow-turn-left'
 				},{
 					text: _('Create alias here'),
-					iconCls: 'silk-attach',
-					hidden: e.dropNode.attributes.isAlias || e.dropNode.connId != e.target.ownerTree.connId,
+					iconCls: 'icinga-icon-attach',
+					hidden: containsAlias || e.dropNode.connId != e.target.ownerTree.connId,
 					handler: this.buildAlias.createDelegate(this,[e.point,e.dropNode,e.target])
 				},{
 					text: _('Cancel'),
-					iconCls: 'silk-cancel'
+					iconCls: 'icinga-icon-cancel'
 				}]
 			});
 			ctx.showAt(e.rawEvent.getXY())
 			
 		},
 		
-		buildAlias: function(pos,from,to) {
-			var toDN = to.id;
-			if(pos != 'append')
-				toDN = to.parentNode.id;
-			
-			if(from.parentNode.id == toDN) {
-				Ext.Msg.alert(_("Error"),_("Target and source are the same"))
-				return false;
-			}
-			
-			var properties = [{
-				"property" : "objectclass",
-				"value" : "extensibleObject"
-			},{
-				"property" : "objectclass",
-				"value" : "alias"
-			},{
-				"property" : "aliasedObjectName",
-				"value" : from.id
-			}]
-			Ext.Ajax.request({
-				url: '<?php echo $ro->gen("lconf.data.modifynode");?>',
-				params: {
-					connectionId: this.connId,
-					xaction: 'create',
-					parentNode: toDN,
-					properties: Ext.encode(properties)
-				},
-				failure:function(resp) {
-					err = (resp.responseText.length<1024) ? resp.responseText : 'Internal Exception, please check your logs';
-					Ext.Msg.alert(_("Error"),_("Couldn't create alias node:<br\>"+err));
-				},
-				success: function() {
-					this.refreshNode(to.parentNode,true);
-				},
-				scope:this
-			});
-					
+		buildAlias: function(pos,fromArr,to) {
+			Ext.each(fromArr,function(from) {
+				var toDN = to.id;
+				if(pos != 'append')
+					toDN = to.parentNode.id;
+				
+				if(from.parentNode.id == toDN) {
+					Ext.Msg.alert(_("Error"),_("Target and source are the same"))
+					return false;
+				}
+				
+				var properties = [{
+					"property" : "objectclass",
+					"value" : "extensibleObject"
+				},{
+					"property" : "objectclass",
+					"value" : "alias"
+				},{
+					"property" : "aliasedObjectName",
+					"value" : from.id
+				}]
+				Ext.Ajax.request({
+					url: '<?php echo $ro->gen("lconf.data.modifynode");?>',
+					params: {
+						connectionId: this.connId,
+						xaction: 'create',
+						parentNode: toDN,
+						properties: Ext.encode(properties)
+					},
+					failure:function(resp) {
+						err = (resp.responseText.length<1024) ? resp.responseText : 'Internal Exception, please check your logs';
+						Ext.Msg.alert(_("Error"),_("Couldn't create alias node:<br\>"+err));
+					},
+					success: function() {
+						if(to.getOwnerTree())
+							this.refreshNode(to.parentNode,true);
+					},
+					scope:this
+				});
+			},this);
 		},
 		
-		copyNode: function(pos,from,to,move) {
-			AppKit.log({"this":this,"from":from,"to":to});
-			var toDN = to.id;
-			if(pos != 'append')
-				toDN = to.parentNode.id;
+		copyNode: function(pos,fromArr,to,move) {
+
+			Ext.each(fromArr,function(from) {
+				AppKit.log(from);
+				var toDN = to.id;
+				if(pos != 'append')
+					toDN = to.parentNode.id;
+					
+				if(move && from.parentNode.id == toDN) {
+					Ext.Msg.alert(_("Error"),_("Target and source are the same"))
+					return false;
+				}
 				
-			if(move && from.parentNode.id == toDN) {
-				Ext.Msg.alert(_("Error"),_("Target and source are the same"))
-				return false;
-			}
-			
-			var copyParams = {
-				targetDN: this.processDNForServer(toDN),
-				targetConnId: this.connId,
-				sourceDN: this.processDNForServer(from.id)
-			}
-						
-			Ext.Ajax.request({
-				url: '<?php echo $ro->gen("lconf.data.modifynode");?>',
-				params: {
-					connectionId: from.connId,
-					xaction: move ? 'move' :'clone' ,
-					properties: Ext.encode(copyParams)
-				},
-				failure:function(resp) {
-					err = (resp.responseText.length<1024) ? resp.responseText : 'Internal Exception, please check your logs';
-					Ext.Msg.alert(_("Error"),_("Couldn't copy node:<br\>"+err));
-				},
-				success: function() {
-					this.refreshNode(to.parentNode,true);
-					this.refreshNode(from.parentNode,true);
-				},
-				scope:this
-			});
+				var copyParams = {
+					targetDN: this.processDNForServer(toDN),
+					targetConnId: this.connId,
+					sourceDN: this.processDNForServer(from.id)
+				}
+							
+				Ext.Ajax.request({
+					url: '<?php echo $ro->gen("lconf.data.modifynode");?>',
+					params: {
+						connectionId: fromArr.connId,
+						xaction: move ? 'move' :'clone' ,
+						properties: Ext.encode(copyParams)
+					},
+					failure:function(resp) {
+						err = (resp.responseText.length<1024) ? resp.responseText : 'Internal Exception, please check your logs';
+						Ext.Msg.alert(_("Error"),_("Couldn't copy node:<br\>"+err));
+					},
+					success: function() {
+						if(to.getOwnerTree())
+							this.refreshNode(to.parentNode,true);
+						if(from.getOwnerTree())
+							this.refreshNode(from.parentNode,true);
+					},
+					scope:this
+				});
+			},this)
 		},
 		
 		initLoader: function() {
@@ -788,8 +807,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			this.initLoader();
 			
 		},
-		
-		selModel:new Ext.tree.MultiSelectionModel(),
+	
 		autoScroll:true,
 		animate:false,
 		containerScroll:true,
@@ -948,18 +966,21 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 						id:connObj.id,
 						title:connObj.connectionName
 					});
+		new Ext.tree.TreeSorter(tree);
 		tree.connId = connObj.id;
 		ditTreeTabPanel.add(tree);	
 		ditTreeTabPanel.setActiveTab(connObj.id);
 		ditTreeTabPanel.doLayout();
-		
+			
 		tree.setRootNode(new Ext.tree.AsyncTreeNode({
 							id:connObj.rootNode,
 							leaf:false,
-							iconCls:'silk-world',
+							iconCls:'icinga-icon-world',
 							text: connObj.rootNode
 						}));
-		
+						
+	
+		(function() {eventDispatcher.fireCustomEvent("TreeReady",tree)}).defer(400);
 	},this);
 
 }

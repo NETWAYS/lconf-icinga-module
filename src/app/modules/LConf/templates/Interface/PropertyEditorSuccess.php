@@ -63,7 +63,7 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 			items:[{
 				xtype: 'button',
 				text: _('Add property'),
-				iconCls: 'silk-add',
+				iconCls: 'icinga-icon-add',
 				handler: function() {
 					var record = Ext.data.Record.create(['id','property','value']);
 					this.getStore().add(new record());				
@@ -72,7 +72,7 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 			},{
 				xtype: 'button',
 				text: _('Remove properties'),
-				iconCls: 'silk-delete',
+				iconCls: 'icinga-icon-delete',
 				handler: this.clearSelected,
 				scope: this
 			},{
@@ -80,7 +80,7 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 			},{
 				xtype:'button',	
 				text: _('Save Changes'),
-				iconCls: 'silk-disk',
+				iconCls: 'icinga-icon-disk',
 				handler: function() {
 					this.getStore().save();
 					eventDispatcher.fireCustomEvent("refreshTree");
@@ -100,7 +100,7 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 	
 		var ctx = new Ext.menu.Menu({
 			items: [{
-				iconCls: 'silk-arrow-redo',
+				iconCls: 'icinga-icon-arrow-redo',
 				text:_('Jump to inherited node'),
 				handler: function() {eventDispatcher.fireCustomEvent("searchDN",record.get("parent"))}
 			}]
@@ -110,6 +110,7 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 	
 	initEvents: function(){
 		Ext.grid.EditorGridPanel.prototype.initEvents.call(this)
+		
 		if(!this.noLoad)
 			eventDispatcher.addCustomListener("nodeSelected",this.viewProperties,this,{buffer:true});
 		eventDispatcher.addCustomListener("ConnectionClosed",this.disable,this);
@@ -163,6 +164,7 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 	},
 	
 	viewProperties: function(selectedDN,connection) {		
+		
 		this.connId = connection;	
 		this.selectedNode = selectedDN;
 		var id = selectedDN.attributes["aliasdn"] || selectedDN.id;

@@ -29,9 +29,14 @@
 					autoLoad:true,
 					listeners: {
 						// Check for errors
+						load: function() {
+							eventDispatcher.fireCustomEvent("connectionsLoaded",this.getStore(),this);
+							
+						},
 						exception : function(prox,type,action,options,response,arg) {
-							if(response.status == 200)
+							if(response.status == 200) {
 								return true;
+							}
 							response = Ext.decode(response.responseText);
 							if(response.error.length > 100)
 								response.error = _("A critical error occured, please check your logs");
@@ -39,7 +44,8 @@
 						},
 						save: function(store) {
 							store.load();
-						}
+						},
+						scope:this
 					},
 					autoDestroy:true,
 					fields: [
@@ -125,13 +131,13 @@
 					items:[{
 						text: 'Connect',
 						id: this.id+'-connect-'+index,
-						iconCls: 'silk-database-go',
+						iconCls: 'icinga-icon-database-go',
 						handler : function() {this.startConnect(index,node);},
 						scope:this
 					},{
 						text: 'View',
 						id: this.id+'-edit'+index,
-						iconCls: 'silk-database',
+						iconCls: 'icinga-icon-database',
 						handler : function() {this.viewDetails(index,node);},
 						scope:this
 					}]
@@ -199,7 +205,7 @@
 			}
 		    AppKit.notifyMessage(connName, 'Connecting...');
 			Ext.Ajax.request({
-				url: '<? echo $ro->gen("lconf.data.connect")?>',
+				url: '<?php echo $ro->gen("lconf.data.connect")?>',
 				success: this.onConnectionSuccess,
 				failure: this.onConnectionFailure,
 				params: {connection_id : record.get('connection_id')},

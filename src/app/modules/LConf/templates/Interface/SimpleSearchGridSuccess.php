@@ -47,7 +47,7 @@ lconf.simpleSearchGrid = function(cfg) {
 				new Ext.menu.Menu({
 					items: [{
 						text:_('Show in tree'),
-						iconCls: 'silk-zoom',
+						iconCls: 'icinga-icon-zoom',
 						handler: function(e) {
 							var dn = grid.getStore().getAt(idx).get("dn");
 							eventDispatcher.fireCustomEvent("searchDN",dn);			

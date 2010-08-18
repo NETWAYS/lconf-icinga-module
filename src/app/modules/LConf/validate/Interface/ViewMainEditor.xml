@@ -7,7 +7,18 @@
 	<ae:configuration>
 		
 		<validators> 
-		
+			<validator class="string" name="connection" required="false">
+				<argument>connection</argument>
+				<errors>
+					<error>Validation of 'connection' failed</error>
+				</errors>
+			</validator>
+			<validator class="string" name="dn" required="false">
+				<argument>dn</argument>
+				<errors>
+					<error>Validation of 'dn' failed</error>
+				</errors>
+			</validator>
 		</validators>
 		
 	</ae:configuration>

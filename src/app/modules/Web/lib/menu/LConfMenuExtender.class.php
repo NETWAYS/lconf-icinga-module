@@ -33,16 +33,16 @@ class LConfMenuExtender extends AppKitEventHandler implements AppKitEventHandler
 				
 				$icinga->addSubItem(AppKitNavItem::create('lconf.main', 'lconf.main')
 					->setCaption('LDAP Editor')
-					->addAttributes('extjs-iconcls', 'silk-chart-organisation')
+					->addAttributes('extjs-iconcls', 'icinga-icon-chart-organisation')
 				);
 				
 				$icinga->addSubItem(AppKitNavItem::create('lconf.admin', 'lconf.admin')
 					->setCaption('LConf Connection Manager')
-					->addAttributes('extjs-iconcls', 'silk-user')
+					->addAttributes('extjs-iconcls', 'icinga-icon-user')
 				);			
 				$icinga->addSubItem(AppKitNavItem::create('lconf.about')
 					->setCaption('About')
-					->addAttributes('extjs-iconcls', 'silk-help')
+					->addAttributes('extjs-iconcls', 'icinga-icon-help')
 					->setJsHandler("
 						AppKit.util.contentWindow.createDelegate(null, [{ url: '". AgaviContext::getInstance()->getRouting()->gen('lconf.about') ."' }, 
 						{ title: _('About Lconf')}])")

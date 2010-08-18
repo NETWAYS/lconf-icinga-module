@@ -4,12 +4,15 @@
     <routes xmlns="http://agavi.org/agavi/config/parts/routing/1.0">
       <route pattern="^/lconf" name="lconf" module="LConf">
 			 <route name=".about" pattern="^/about$" action="Interface.About" output_type="simple"/>
-		 
-			<route name=".main" pattern="^/$" action="Interface.ViewMainEditor"/>
-			<route name=".actionbar" pattern="^/actionbar" output_type="simple">
-				<route name=".connmanager" pattern="^/connmanager$" action="Interface.ActionBar.connectionList"/>
-				<route name=".filtermanager" pattern="^/filtermanager$" action="Interface.ActionBar.filterList"/>
+			 <route name="lconfDNs" output_type="json" pattern="^/cronk/dns" action="Backend.Cronks.CustomVarDNCollector"/>
+			<route name=".main" pattern="^/$" action="Interface.ViewMainEditor">
+			
 			</route>
+			<route name=".startPoint" pattern="^/main/(connection:\d+)/(dn:.+)" action="Interface.ViewMainEditor"/>
+			<route name=".actionbar" pattern="^/actionbar" output_type="simple">
+				
+				<route name=".filtermanager" pattern="^/filtermanager$" action="Interface.ActionBar.filterList"/>
+			<route name=".connmanager" pattern="^/connmanager$" action="Interface.ActionBar.connectionList"/></route>
 			
 			<route name=".data" pattern="^/data" output_type="json">
 				<!-- Directory and Property listing  -->
@@ -40,7 +43,7 @@
 				<route name=".editorfielddefinitions" pattern="^/getfields" action="Interface.jsLDAPEditors" output_type="simple"/>
 				<route name=".editorwizard" pattern="^/wizard" action="PropertyEditor/PropertyWizard" output_type="simple"/>
 			</route>
-		</route>
+		<route name=".main" pattern="^/$" action="Interface.ViewMainEditor"/></route>
     </routes>
   </ae:configuration>
 </ae:configurations>

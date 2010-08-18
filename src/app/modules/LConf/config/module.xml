@@ -15,36 +15,47 @@
 				<setting name="description">An example module</setting>
 -->				
 				<setting name="connectionSource">DB</setting>
+				<!-- Adding styles -->
+
+				<setting name="appkit_module.app.css_files">
+					<!-- extjs stylesheets -->
+					<ae:parameter>/styles/icinga_lconf.css</ae:parameter>
+				</setting>
+
+				<setting name="appkit_module.app.javascript_files">
+					<!-- extjs stylesheets -->
+					<ae:parameter>%core.module_dir%/LConf/lib/js/MultiSelectTree.js</ae:parameter>
+				</setting>
 				
 				<setting name="icons">
-					<ae:parameter name="organizationalUnit">silk-organisation</ae:parameter>
+					<ae:parameter name="organizationalUnit">icinga-icon-organisation</ae:parameter>
 					<ae:parameter name="nagiosStructuralObject">lconf-logo</ae:parameter>
-					<ae:parameter name="nagiosTimeperiod">silk-clock-red</ae:parameter>
-					<ae:parameter name="nagiosCommand">silk-script</ae:parameter>
-					<ae:parameter name="nagiosContact">silk-user</ae:parameter>
-					<ae:parameter name="nagiosContactgroup">silk-group</ae:parameter>
-					<ae:parameter name="nagiosHost">silk-server</ae:parameter>
-					<ae:parameter name="nagiosHostgroup">icinga-object-hostgroup</ae:parameter>
-					<ae:parameter name="nagiosService">silk-cog</ae:parameter>
+					<ae:parameter name="nagiosTimeperiod">icinga-icon-clock-red</ae:parameter>
+					<ae:parameter name="nagiosCommand">icinga-icon-script</ae:parameter>
+					<ae:parameter name="nagiosContact">icinga-icon-user</ae:parameter>
+					<ae:parameter name="nagiosContactgroup">icinga-icon-group</ae:parameter>
+					<ae:parameter name="nagiosHost">icinga-icon-server</ae:parameter>
+					<ae:parameter name="nagiosHostgroup">icinga-icon-hostgroup</ae:parameter>
+					<ae:parameter name="nagiosService">icinga-icon-cog</ae:parameter>
 					<ae:parameter name="nagiosServicegroup">icinga-object-servicegroup</ae:parameter>
-					<ae:parameter name="alias">silk-attach</ae:parameter>
+					<ae:parameter name="alias">icinga-icon-attach</ae:parameter>
 				</setting>
 				
 				<setting name="customDialogs">
 					<ae:parameter>
 						<ae:parameter name="view">Command</ae:parameter>
 						<ae:parameter name="description">Create a Command entry</ae:parameter>
-						<ae:parameter name="iconCls">silk-script</ae:parameter>
+						<ae:parameter name="iconCls">icinga-icon-script</ae:parameter>
 					</ae:parameter>
 					<ae:parameter>
 						<ae:parameter name="view">Contactgroup</ae:parameter>
 						<ae:parameter name="description">Create a Contactgroup entry</ae:parameter>
-						<ae:parameter name="iconCls">silk-group</ae:parameter>
+						<ae:parameter name="iconCls">icinga-icon-group</ae:parameter>
 					</ae:parameter>
 					<ae:parameter>
 						<ae:parameter name="view">Contact</ae:parameter>
 						<ae:parameter name="description">Create a Contact entry</ae:parameter>
-						<ae:parameter name="iconCls">silk-user</ae:parameter>
+						<ae:parameter name="iconCls">icinga-icon-user</ae:parameter>
 					</ae:parameter>
 					<ae:parameter>
 						<ae:parameter name="view">Hostgroup</ae:parameter>
@@ -54,22 +65,27 @@
 					<ae:parameter>
 						<ae:parameter name="view">Host</ae:parameter>
 						<ae:parameter name="description">Create a Host entry</ae:parameter>
-						<ae:parameter name="iconCls">silk-server</ae:parameter>
+						<ae:parameter name="iconCls">icinga-icon-server</ae:parameter>
 					</ae:parameter>
 					<ae:parameter>
 						<ae:parameter name="view">Service</ae:parameter>
 						<ae:parameter name="description">Create a Service entry</ae:parameter>
-						<ae:parameter name="iconCls">silk-cog</ae:parameter>
+						<ae:parameter name="iconCls">icinga-icon-cog</ae:parameter>
 					</ae:parameter>
 					<ae:parameter>
 						<ae:parameter name="view">Timeperiod</ae:parameter>
 						<ae:parameter name="description">Create a Timeperiods entry</ae:parameter>
-						<ae:parameter name="iconCls">silk-clock-red</ae:parameter>
+						<ae:parameter name="iconCls">icinga-icon-clock-red</ae:parameter>
+					</ae:parameter>
+					<ae:parameter>
+						<ae:parameter name="view">Lconf Structural Object</ae:parameter>
+						<ae:parameter name="description">Create a structrual object</ae:parameter>
+						<ae:parameter name="iconCls">lconf-logo</ae:parameter>
 					</ae:parameter>
 					<ae:parameter>
 						<ae:parameter name="view">Default</ae:parameter>
 						<ae:parameter name="description">Custom entry</ae:parameter>
-						<ae:parameter name="iconCls">silk-bricks</ae:parameter>
+						<ae:parameter name="iconCls">icinga-icon-bricks</ae:parameter>
 					</ae:parameter>
 				</setting>
 				
@@ -111,37 +127,37 @@
 					<ae:parameter>
 						<ae:parameter name="objectclass">nagiosHost</ae:parameter>
 						<ae:parameter name="category">Host</ae:parameter>
-						<ae:parameter name="iconCls">icinga-object-hostgroup</ae:parameter>
+						<ae:parameter name="iconCls">icinga-icon-hostgroup</ae:parameter>
 					</ae:parameter>
 					<ae:parameter>
 						<ae:parameter name="objectclass">nagiosHostgroup</ae:parameter>
 						<ae:parameter name="category">Hostgroup</ae:parameter>
-						<ae:parameter name="iconCls">silk-server</ae:parameter>
+						<ae:parameter name="iconCls">icinga-icon-server</ae:parameter>
 					</ae:parameter>
 					<ae:parameter>
 						<ae:parameter name="objectclass">nagiosService</ae:parameter>
 						<ae:parameter name="category">Service</ae:parameter>
-						<ae:parameter name="iconCls">silk-cog</ae:parameter>
+						<ae:parameter name="iconCls">icinga-icon-cog</ae:parameter>
 					</ae:parameter>
 					<ae:parameter>
 						<ae:parameter name="objectclass">nagiosContact</ae:parameter>
 						<ae:parameter name="category">Contact</ae:parameter>
-						<ae:parameter name="iconCls">silk-user</ae:parameter>
+						<ae:parameter name="iconCls">icinga-icon-user</ae:parameter>
 					</ae:parameter>
 					<ae:parameter>
 						<ae:parameter name="objectclass">nagiosContactgroup</ae:parameter>
 						<ae:parameter name="category">Contactgroup</ae:parameter>
-						<ae:parameter name="iconCls">silk-group</ae:parameter>
+						<ae:parameter name="iconCls">icinga-icon-group</ae:parameter>
 					</ae:parameter>
 					<ae:parameter>
 						<ae:parameter name="objectclass">nagiosCommand</ae:parameter>
 						<ae:parameter name="category">Command</ae:parameter>
-						<ae:parameter name="iconCls">silk-script</ae:parameter>
+						<ae:parameter name="iconCls">icinga-icon-script</ae:parameter>
 					</ae:parameter>
 					<ae:parameter>
 						<ae:parameter name="objectclass">nagiosTimeperiod</ae:parameter>
 						<ae:parameter name="category">Contactgroup</ae:parameter>
-						<ae:parameter name="iconCls">silk-clock-red</ae:parameter>
+						<ae:parameter name="iconCls">icinga-icon-clock-red</ae:parameter>
 					</ae:parameter>
 				</setting>
 				

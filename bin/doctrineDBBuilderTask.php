@@ -56,6 +56,7 @@ class doctrineDBBuilderTask extends Task {
 	 */
 	protected function removeTablesForModels() {
 		$tablesToDelete = file_get_contents($this->models);
+		echo $tablesToDelete;
 		Doctrine_Manager::getInstance()->getCurrentConnection()->getDbh()->query(
 		//	"SET FOREIGN_KEY_CHECKS=0;
 			 "DROP TABLE ".$tablesToDelete.";
@@ -83,7 +84,7 @@ class doctrineDBBuilderTask extends Task {
 		}
 
 		Doctrine::createTablesFromModels(array($this->models.'/generated',$this->models));
-	
+		
 		file_put_contents($modelPath."/.models.cfg",implode(",",$tableList));
 	}
 	

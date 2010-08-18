@@ -386,7 +386,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 			$searchResult = $this->searchEntries($this->getFilter(),null,array("dn","objectclass","aliasedobjectname"));			
 			$entries = $this->helper->filterTree($entries,$searchResult);
 		}
-		
+
 		return $entries;
 	}
 	

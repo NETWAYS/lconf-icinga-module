@@ -38,6 +38,7 @@
 		<Additional>
 			<File>%PATH_Icinga%app/modules/Web/lib/menu/%MODULE_Name%MenuExtender.class.php</File>
 			<Folder>pub/images/LConf/</Folder>
+			<Folder>pub/styles/icinga_lconf.css</Folder>
 			<Folder to="doc/$1" noInstall="true">%PATH_Module%meta/**</Folder>
 		</Additional>
 		
@@ -51,7 +52,7 @@
 		
 		<!--  Check icnga.css for MODULE[name] Entries -->
 		<Extractor>
-			<Extract mark="%MODULE_Name%">%PATH_Icinga%/pub/styles/Icinga.css</Extract>
+		
 		</Extractor>
 	</Files>
 	

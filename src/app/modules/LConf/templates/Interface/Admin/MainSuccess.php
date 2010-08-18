@@ -7,11 +7,11 @@ Ext.onReady(function() {
 		var tbar = new Ext.Toolbar({
 			items: [{
 				text:_('New connection'),
-				iconCls: 'silk-add',
+				iconCls: 'icinga-icon-add',
 				handler: lconf.Admin.addUserPanel
 			}, {
 				text:_('Remove connections'),
-				iconCls: 'silk-cancel',
+				iconCls: 'icinga-icon-cancel',
 				handler: lconf.Admin.removeSelected
 			}]
 		});
@@ -32,6 +32,8 @@ Ext.onReady(function() {
 		
 		this.addConnection = function(values) {
 			var record = new recordSkeleton(values);	
+			if(!values.connection_ldaps)
+				values.connection_ldaps = false;
 			this.dStore.add(record);
 		}
 		
@@ -119,7 +121,7 @@ Ext.onReady(function() {
 					'<span class="X-editable">',
 					'<tpl if="connection_ldaps == true">ldaps://</tpl>',
 					'{connection_host}:{connection_port}</span><br/>',
-					'<tpl if="connection_default == true">(default)</tpl>',
+				
 				'</div>',
 
 			'</tpl>'
@@ -142,11 +144,11 @@ Ext.onReady(function() {
 						autoDestroy:true,
 						items: [{
 							text:_('Edit'),
-							iconCls:'silk-application-edit',
+							iconCls:'icinga-icon-application-edit',
 							handler: lconf.Admin.addUserPanel.createCallback(record.data)
 						}, {
 							text:_('Manage access'),
-							iconCls:'silk-user',
+							iconCls:'icinga-icon-user',
 							handler: function() {
 								var conn_id = record.get("connection_id");
 								var wnd = lconf.Admin.PrincipalEditor(conn_id);
@@ -156,7 +158,7 @@ Ext.onReady(function() {
 							hidden: <?php echo AgaviContext::getInstance()->getUser()->hasCredentials("lconf.admin") ? 'false' : 'true' ?>
 						}/*, {
 							text:_('Mark as default'),
-							iconCls:'silk-accept',
+							iconCls:'icinga-icon-accept',
 							handler: function() {
 								var conn_id = record.get("connection_id");
 								record.set('connection_default',true);
