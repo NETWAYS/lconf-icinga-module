@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<IcingaPlugin>
+	
+	<!--  Meta information about the module-->
+	<Meta>
+		<Name>Cronk integration for LConf for icinga</Name>
+		<Version>0.1</Version>
+		<Description><![CDATA[Adapter for linking to the ldap tree from normal icinga cronks]]></Description>
+		<Author>
+			Jannis Moßhammer (Jannis.Mosshammer@netways.de)
+</Author>
+		<Company>NETWAYS GmbH</Company>	
+	</Meta>
+	
+	<Dependencies>
+		<Icinga-Web>
+			<Version>1.0.2</Version>
+		</Icinga-Web>
+		<PHP>
+			<Version>5.2</Version>
+			<Extensions>
+			</Extensions>
+		</PHP>
+		
+	</Dependencies>
+	
+	<!-- Filesystem information -->
+	<Files>		
+
+		<Paths>
+			<Icinga>/usr/local/icinga-web/</Icinga>
+		</Paths>
+		
+		<Additional>
+		</Additional>
+		
+		<Excludes>
+			<file>**/cache/**/*.xml</file>
+			<file>**/cache/*.xml</file>
+			<folder>**/.git/</folder>
+			<folder>**/output/room*/**</folder>
+
+		</Excludes>
+	
+		<Extractor>
+		</Extractor>
+	</Files>
+	
+	<Config>
+	</Config>
+	
+	<!--  Database information -->
+	<Database>
+		
+	</Database>
+	
+	
+</IcingaPlugin>

@@ -66,6 +66,12 @@
 		<Entry file="%PATH_Icinga%app/config/routing.xml">
 			<Nodes fromConfig="true" base="//ae:configurations/ae:configuration[@context='web']/routes/route[@name='lconf']"/>
 		</Entry>
+		<!--  Default init (for cronk) -->
+		<Entry file="%PATH_Icinga%app/config/icinga.xml">
+			<Nodes base="settings[@prefix='org.icinga.']/" ae="http://agavi.org/agavi/config/global/envelope/1.0" default="http://agavi.org/agavi/1.0/config">
+				<Node path="setting[@name='appkit.init_modules']" nodeName="parameter">LConf</Node>
+			</Nodes>
+		</Entry>
 		
 			<!--  Autoloader settings -->
 		<Entry file="%PATH_Icinga%app/modules/Web/config/autoload.xml" 	default="http://agavi.org/agavi/config/parts/autoload/1.0" 
