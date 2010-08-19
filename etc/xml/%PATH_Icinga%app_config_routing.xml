@@ -3,11 +3,10 @@
   <ae:configuration context="web">
     <routes xmlns="http://agavi.org/agavi/config/parts/routing/1.0">
       <route pattern="^/lconf" name="lconf" module="LConf">
-			 <route name=".about" pattern="^/about$" action="Interface.About" output_type="simple"/>
-			 <route name="lconfDNs" output_type="json" pattern="^/cronk/dns" action="Backend.Cronks.CustomVarDNCollector"/>
-			<route name=".main" pattern="^/$" action="Interface.ViewMainEditor">
-			
-			</route>
+			<route name=".about" pattern="^/about$" action="Interface.About" output_type="simple"/>
+			<route name="lconfDNs" output_type="json" pattern="^/cronk/dns" action="Backend.Cronks.CustomVarDNCollector"/>
+			<route name=".main" pattern="^/$" action="Interface.ViewMainEditor"></route>
+
 			<route name=".startPoint" pattern="^/main/(connection:\d+)/(dn:.+)" action="Interface.ViewMainEditor"/>
 			<route name=".actionbar" pattern="^/actionbar" output_type="simple">
 				
@@ -43,7 +42,8 @@
 				<route name=".editorfielddefinitions" pattern="^/getfields" action="Interface.jsLDAPEditors" output_type="simple"/>
 				<route name=".editorwizard" pattern="^/wizard" action="PropertyEditor/PropertyWizard" output_type="simple"/>
 			</route>
-		<route name=".main" pattern="^/$" action="Interface.ViewMainEditor"/></route>
+			
+		</route>
     </routes>
   </ae:configuration>
 </ae:configurations>

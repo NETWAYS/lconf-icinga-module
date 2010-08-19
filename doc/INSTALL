@@ -19,7 +19,8 @@ You also need the php5-gd extension and the imagemagick libraries.
    
    4) Now you should see a "LConf" Entry in the main toolbar. If not, try to clear the cache by typing "rm /path-to-icinga/app/cache/config/*"
 
-
+   5) (Optional) If you want to integrate lconf to the host/service/hostgroup/servicegroup view:
+   	  run phing install-cronk in the CronkIntegration directory
 
 3) Removing the plugin
 	
