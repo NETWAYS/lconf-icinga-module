@@ -9,15 +9,15 @@
 		var registeredEditorFields = {}
 		
 		this.registerEditorField = function(property,editor) {
-			registeredEditorFields[property] = editor; 
+			registeredEditorFields[property.toLowerCase()] = editor;
 		} 
 		
 		this.unregisterEditorField = function(property) {
-			delete(registeredEditorFields[property]);
+			delete(registeredEditorFields[property.toLowerCase()]);
 		}	
 		
 		this.getEditorFieldForProperty = function(property,cfg) {
-			var field = registeredEditorFields[property];
+			var field = registeredEditorFields[property.toLowerCase()];
 			
 			if(Ext.isDefined(field)) {
 				return new field(cfg);

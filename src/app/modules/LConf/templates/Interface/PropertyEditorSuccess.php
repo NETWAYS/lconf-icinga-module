@@ -168,16 +168,18 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 	
 	viewProperties: function(selectedDN,connection,noAsk) {		
 		var store = this.getStore();
-		if(store.modified[0] && !noAsk) {
-			Ext.Msg.confirm(_("Unsaved changes pending"),_("Save changes?"),function(btn) {
-				if(btn == 'yes') {
-					store.save();
-					store.on("save",function() {this.viewProperties(selectedDN,connection,true);},this,{single:true});
-				} else
-					this.viewProperties(selectedDN,connection,true);	
-			},this);
-			return false;
-		} 
+		if(store) {
+			if(store.modified[0] && !noAsk) {
+				Ext.Msg.confirm(_("Unsaved changes pending"),_("Save changes?"),function(btn) {
+					if(btn == 'yes') {
+						store.save();
+						store.on("save",function() {this.viewProperties(selectedDN,connection,true);},this,{single:true});
+					} else
+						this.viewProperties(selectedDN,connection,true);
+				},this);
+				return false;
+			}
+		}
 		this.connId = connection;	
 		this.selectedNode = selectedDN;
 		var id = selectedDN.attributes["aliasdn"] || selectedDN.id;
@@ -211,10 +213,11 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 			var type = e.record.get("property").split("_")[0];
 			var editor = lconf.editors.editorFieldMgr.getEditorFieldForProperty(type);
 		}
-
-		if(editor.getStore) {
-			editor.getStore().setBaseParam("connectionId",this.connId)
+		
+		if(editor.store) {
+			editor.store.setBaseParam("connectionId",this.connId || this.store.baseParams.connectionId)
 		}
+		AppKit.log(editor,this);
 		column.setEditor(editor);
 	}
 	

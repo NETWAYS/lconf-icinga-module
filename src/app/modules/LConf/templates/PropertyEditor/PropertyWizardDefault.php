@@ -19,7 +19,15 @@ Ext.ns('lconf.wizards');
 
 		},
 		initMe : function() {
+			
 			this.on("render", function(elem) {
+			
+				this.ownerCt.on("hide",function(elem) {
+					this.getStore().rejectChanges();
+					this.getStore().on("beforeload",function(store,rec,ope) {
+						return false; //supress reading
+					});
+				},this,{single:true})
 				var record = Ext.data.Record.create(['id','property','value']);
 						
 				this.getStore().on("exception",function(proxy,type,action,options,response) {
@@ -29,7 +37,7 @@ Ext.ns('lconf.wizards');
  						if(this.getStore().closeOnSave)
 							this.ownerCt.hide();
 						this.getStore().closeOnSave = false;
-					
+						
 						eventDispatcher.fireCustomEvent("refreshTree");
 					}
 				},this);

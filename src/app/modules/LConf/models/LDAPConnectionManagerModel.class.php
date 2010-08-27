@@ -138,7 +138,7 @@ class LConf_LDAPConnectionManagerModel extends IcingaLConfBaseModel
 				$arr[] = $connection->__toArray();
 				
 		}
-		return json_encode(array("connections" => $arr));
+		return json_encode(array("success"=>true,"connections" => $arr));
 	}
 
 
