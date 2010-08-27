@@ -168,17 +168,17 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 	
 	viewProperties: function(selectedDN,connection,noAsk) {		
 		var store = this.getStore();
-		if(store) {
-			if(store.modified[0] && !noAsk) {
-				Ext.Msg.confirm(_("Unsaved changes pending"),_("Save changes?"),function(btn) {
-					if(btn == 'yes') {
-						store.save();
-						store.on("save",function() {this.viewProperties(selectedDN,connection,true);},this,{single:true});
-					} else
-						this.viewProperties(selectedDN,connection,true);
-				},this);
-				return false;
-			}
+		if(!store)
+			return null;
+		if(store.modified[0] && !noAsk) {
+			Ext.Msg.confirm(_("Unsaved changes pending"),_("Save changes?"),function(btn) {
+				if(btn == 'yes') {
+					store.save();
+					store.on("save",function() {this.viewProperties(selectedDN,connection,true);},this,{single:true});
+				} else
+					this.viewProperties(selectedDN,connection,true);	
+			},this);
+			return false;
 		}
 		this.connId = connection;	
 		this.selectedNode = selectedDN;
