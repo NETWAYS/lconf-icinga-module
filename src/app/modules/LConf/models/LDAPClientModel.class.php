@@ -59,7 +59,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 	 * RFC 4514, Section 3
 	 * http://www.ietf.org/rfc/rfc4514.txt?number=2253
 	 */
-	public static $dnDescriptors = array('cn','l','st','o','ou','c','street','dc','uid','aliasedobjectname');
+	public static $dnDescriptors = array('cn','l','st','o','ou','c','street','dc','uid');
 	
 	private static $clientInstances = array();
 	/**

@@ -63,7 +63,9 @@ class LConf_LDAPHelperModel extends IcingaLConfBaseModel
 		return $dn;
 	}
 	
-	static public function cleanResult(array &$result,$firstLevel = true) {
+	static public function cleanResult(&$result,$firstLevel = true) {
+		if(!is_array($result))
+			return false;
 		if(isset($result["count"]))
 			unset($result["count"]);
 		
@@ -94,7 +96,8 @@ class LConf_LDAPHelperModel extends IcingaLConfBaseModel
 	}
 	
 	static public function resolveAliases($resultset) {
-
+		if(!is_array($resultset))
+			return $resultset;
 		foreach($resultset as &$result) {
 			if(!is_array($result))
 				continue;
@@ -108,14 +111,15 @@ class LConf_LDAPHelperModel extends IcingaLConfBaseModel
 			}
 			if(!$isAlias)
 				continue;
-			$result["aliasdn"] = $result["dn"];
-			$result["dn"] = "ALIAS=Alias of:".$result["aliasedobjectname"][0];
+		//	$result["aliasdn"] = $result["aliasedobjectname"];
+			//$result["dn"] = "ALIAS=Alias of:".$result["aliasedobjectname"][0];
 		}
 		return $resultset;
 	}
 	
-	static public function filterTree(array $elems,array $searchresult) {
-
+	static public function filterTree($elems,array $searchresult) {
+		if(!is_array($elems))
+			return $elems;
 		$toDelete = array();
 
 		foreach($elems as $key=>&$currentElement) {

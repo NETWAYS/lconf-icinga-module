@@ -30,7 +30,10 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 				objClass = attr.objectclass[i];
 				noIcon = false;
 				// select appropriate icon
+				if(objClass == 'alias')
+					nodeAttr.isAlias = true;
 				switch(objClass) {
+					
 				<?php foreach($icons as $objectClass=>$icon) :?>
 					
 					case '<?php echo $objectClass;?>':
@@ -43,7 +46,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 						break;
 				} 
 			} while(noIcon && attr.objectclass[++i])
-			var aliasString = "ALIAS=Alias of:";
+			//var aliasString = "ALIAS=Alias of:";
 			nodeAttr.text = this.getText(attr);
 			nodeAttr.qtip = _("<b>ObjectClass:</b> ")+objClass+
 							_("<br/><b>DN:</b> ")+attr["dn"]+
@@ -52,8 +55,9 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			
 			nodeAttr.id = attr["dn"];
 			nodeAttr.leaf = attr["isLeaf"] ? true :false;
-			if(nodeAttr.id.substr(0,aliasString.length) == aliasString)
-				nodeAttr.isAlias = true;
+			
+			
+			
 			return Ext.tree.TreeLoader.prototype.createNode.call(this,nodeAttr);
 		},
 		
@@ -463,7 +467,8 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 		
 		
 		jumpToRealNode : function(alias) {
-			var id = this.processDNForServer(alias.id);
+			var id = this.processDNForServer(alias.attributes.aliasedobjectname[0]);
+			AppKit.log(alias);
 			var node = this.getNodeById(id);
 		
 			if(!node)  {
@@ -706,6 +711,9 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 				},{
 					"property" : "aliasedObjectName",
 					"value" : from.id
+				},{
+					"property" : "ou",
+					"value" : from.id.split(",")[0].split("=")[1]
 				}]
 				Ext.Ajax.request({
 					url: '<?php echo $ro->gen("lconf.data.modifynode");?>',
