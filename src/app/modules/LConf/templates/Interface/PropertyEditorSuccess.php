@@ -43,7 +43,9 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 				autoSave:true
 			}),
 			listeners: {
-			
+				load: function(resp) {
+					resp.responseText.substr(0,200);
+				}	
 			}
 		});
 		
