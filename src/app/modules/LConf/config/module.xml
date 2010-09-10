@@ -29,15 +29,15 @@
 				
 				<setting name="icons">
 					<ae:parameter name="organizationalUnit">icinga-icon-organisation</ae:parameter>
-					<ae:parameter name="nagiosStructuralObject">lconf-logo</ae:parameter>
-					<ae:parameter name="nagiosTimeperiod">icinga-icon-clock-red</ae:parameter>
-					<ae:parameter name="nagiosCommand">icinga-icon-script</ae:parameter>
-					<ae:parameter name="nagiosContact">icinga-icon-user</ae:parameter>
-					<ae:parameter name="nagiosContactgroup">icinga-icon-group</ae:parameter>
-					<ae:parameter name="nagiosHost">icinga-icon-server</ae:parameter>
-					<ae:parameter name="nagiosHostgroup">icinga-icon-hostgroup</ae:parameter>
-					<ae:parameter name="nagiosService">icinga-icon-cog</ae:parameter>
-					<ae:parameter name="nagiosServicegroup">icinga-object-servicegroup</ae:parameter>
+					<ae:parameter name="@@SCHEMA_PREFIX@@StructuralObject">lconf-logo</ae:parameter>
+					<ae:parameter name="@@SCHEMA_PREFIX@@Timeperiod">icinga-icon-clock-red</ae:parameter>
+					<ae:parameter name="@@SCHEMA_PREFIX@@Command">icinga-icon-script</ae:parameter>
+					<ae:parameter name="@@SCHEMA_PREFIX@@Contact">icinga-icon-user</ae:parameter>
+					<ae:parameter name="@@SCHEMA_PREFIX@@Contactgroup">icinga-icon-group</ae:parameter>
+					<ae:parameter name="@@SCHEMA_PREFIX@@Host">icinga-icon-server</ae:parameter>
+					<ae:parameter name="@@SCHEMA_PREFIX@@Hostgroup">icinga-icon-hostgroup</ae:parameter>
+					<ae:parameter name="@@SCHEMA_PREFIX@@Service">icinga-icon-cog</ae:parameter>
+					<ae:parameter name="@@SCHEMA_PREFIX@@Servicegroup">icinga-object-servicegroup</ae:parameter>
 					<ae:parameter name="alias">icinga-icon-attach</ae:parameter>
 				</setting>
 				
@@ -100,24 +100,24 @@
 						<ae:parameter name="parameter">"objectclass"</ae:parameter>
 					</ae:parameter>
 					
-					<ae:parameter name="nagioscheckcommand">
+					<ae:parameter name="@@SCHEMA_PREFIX@@checkcommand">
 						<ae:parameter name="factory">ComboBox</ae:parameter>
-						<ae:parameter name="parameter">{"LDAP":["objectclass=nagiosCommand"],"Attr": "cn"}</ae:parameter>
+						<ae:parameter name="parameter">{"LDAP":["objectclass=@@SCHEMA_PREFIX@@Command"],"Attr": "cn"}</ae:parameter>
 					</ae:parameter>
 					
-<!--					<ae:parameter name="nagiosmembers">-->
+<!--					<ae:parameter name="@@SCHEMA_PREFIX@@members">-->
 <!--						<ae:parameter name="factory">Set</ae:parameter>-->
-<!--						<ae:parameter name="parameter">{"LDAP":["objectclass=nagiosHost","objectclass=nagioscontact"],"Attr": "cn"}</ae:parameter>-->
+<!--						<ae:parameter name="parameter">{"LDAP":["objectclass=@@SCHEMA_PREFIX@@Host","objectclass=@@SCHEMA_PREFIX@@contact"],"Attr": "cn"}</ae:parameter>-->
 <!--					</ae:parameter>-->
 <!--					-->
-<!--					<ae:parameter name="nagioshostgroups">-->
+<!--					<ae:parameter name="@@SCHEMA_PREFIX@@hostgroups">-->
 <!--						<ae:parameter name="factory">Set</ae:parameter>-->
-<!--						<ae:parameter name="parameter">{"LDAP":["objectclass=nagiosHostgroup"],"Attr": "cn"}</ae:parameter>-->
+<!--						<ae:parameter name="parameter">{"LDAP":["objectclass=@@SCHEMA_PREFIX@@Hostgroup"],"Attr": "cn"}</ae:parameter>-->
 <!--					</ae:parameter>-->
 <!---->
-<!--					<ae:parameter name="nagioscontactgroups">-->
+<!--					<ae:parameter name="@@SCHEMA_PREFIX@@contactgroups">-->
 <!--						<ae:parameter name="factory">Set</ae:parameter>-->
-<!--						<ae:parameter name="parameter">{"LDAP":[objectclass=nagiosContactgroup],"Attr": "cn"}</ae:parameter>-->
+<!--						<ae:parameter name="parameter">{"LDAP":[objectclass=@@SCHEMA_PREFIX@@Contactgroup],"Attr": "cn"}</ae:parameter>-->
 <!--					</ae:parameter>					-->
 					
 					
@@ -125,37 +125,37 @@
 				
 				<setting name="searchCategories">
 					<ae:parameter>
-						<ae:parameter name="objectclass">nagiosHost</ae:parameter>
+						<ae:parameter name="objectclass">@@SCHEMA_PREFIX@@Host</ae:parameter>
 						<ae:parameter name="category">Host</ae:parameter>
 						<ae:parameter name="iconCls">icinga-icon-hostgroup</ae:parameter>
 					</ae:parameter>
 					<ae:parameter>
-						<ae:parameter name="objectclass">nagiosHostgroup</ae:parameter>
+						<ae:parameter name="objectclass">@@SCHEMA_PREFIX@@Hostgroup</ae:parameter>
 						<ae:parameter name="category">Hostgroup</ae:parameter>
 						<ae:parameter name="iconCls">icinga-icon-server</ae:parameter>
 					</ae:parameter>
 					<ae:parameter>
-						<ae:parameter name="objectclass">nagiosService</ae:parameter>
+						<ae:parameter name="objectclass">@@SCHEMA_PREFIX@@Service</ae:parameter>
 						<ae:parameter name="category">Service</ae:parameter>
 						<ae:parameter name="iconCls">icinga-icon-cog</ae:parameter>
 					</ae:parameter>
 					<ae:parameter>
-						<ae:parameter name="objectclass">nagiosContact</ae:parameter>
+						<ae:parameter name="objectclass">@@SCHEMA_PREFIX@@Contact</ae:parameter>
 						<ae:parameter name="category">Contact</ae:parameter>
 						<ae:parameter name="iconCls">icinga-icon-user</ae:parameter>
 					</ae:parameter>
 					<ae:parameter>
-						<ae:parameter name="objectclass">nagiosContactgroup</ae:parameter>
+						<ae:parameter name="objectclass">@@SCHEMA_PREFIX@@Contactgroup</ae:parameter>
 						<ae:parameter name="category">Contactgroup</ae:parameter>
 						<ae:parameter name="iconCls">icinga-icon-group</ae:parameter>
 					</ae:parameter>
 					<ae:parameter>
-						<ae:parameter name="objectclass">nagiosCommand</ae:parameter>
+						<ae:parameter name="objectclass">@@SCHEMA_PREFIX@@Command</ae:parameter>
 						<ae:parameter name="category">Command</ae:parameter>
 						<ae:parameter name="iconCls">icinga-icon-script</ae:parameter>
 					</ae:parameter>
 					<ae:parameter>
-						<ae:parameter name="objectclass">nagiosTimeperiod</ae:parameter>
+						<ae:parameter name="objectclass">@@SCHEMA_PREFIX@@Timeperiod</ae:parameter>
 						<ae:parameter name="category">Contactgroup</ae:parameter>
 						<ae:parameter name="iconCls">icinga-icon-clock-red</ae:parameter>
 					</ae:parameter>
@@ -165,10 +165,10 @@
 					<!-- 
 							Inheritance definition service
 					 -->
-					<ae:parameter name="nagiosService">
-						<ae:parameter name="nagiosService">
+					<ae:parameter name="@@SCHEMA_PREFIX@@Service">
+						<ae:parameter name="@@SCHEMA_PREFIX@@Service">
 							<ae:parameter name="attributes">
-								<ae:parameter name="nagioscheckcommand">
+								<ae:parameter name="@@SCHEMA_PREFIX@@checkcommand">
 									<ae:parameter  name="overwrite">true</ae:parameter>
 								</ae:parameter>
 							</ae:parameter>
@@ -178,14 +178,14 @@
 					<!-- 
 							Inheritance definition host
 					 -->
-					<ae:parameter name="nagiosHost">
+					<ae:parameter name="@@SCHEMA_PREFIX@@Host">
 					
-						<ae:parameter name="nagiosHost">
+						<ae:parameter name="@@SCHEMA_PREFIX@@Host">
 							<ae:parameter name="attributes">
-								<ae:parameter name="nagiosaddress">
+								<ae:parameter name="@@SCHEMA_PREFIX@@address">
 									<ae:parameter name="overwrite">true</ae:parameter>
 								</ae:parameter>
-								<ae:parameter name="nagiosalias">
+								<ae:parameter name="@@SCHEMA_PREFIX@@alias">
 									<ae:parameter name="overwrite">true</ae:parameter>
 								</ae:parameter>
 							</ae:parameter>

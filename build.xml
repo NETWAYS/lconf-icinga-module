@@ -99,7 +99,20 @@ Available targets:
 				<sqlRunner files="etc/sql" ini="db.ini"/>
  			</then>
 		</if>		
-		
+	
+		<echo>Setting up config files</echo>
+		<input propertyName="schemaPrefix" promptChar="?" defaultValue="lconf">Prefix for config schema (in most cases lconf)</input>
+		<reflexive>
+			<fileset dir="${PATH_Icinga}/app/modules/${MODULE_Name}/">
+				<include name="config/*.xml" />
+				<include name="lib/ldapConfig/*.ini" />
+			</fileset>
+			<filterchain>
+				<replacetokens beginToken="@@" endToken="@@">
+					<token key="SCHEMA_PREFIX" value="${schemaPrefix}"/>
+				</replacetokens>
+			</filterchain>
+		</reflexive>	
 		<property name="buildAdditional" value="false" />
 		<available file="additional.xml" property="buildAdditional" value="true" />
 		<if>
@@ -108,7 +121,9 @@ Available targets:
 				<phing phingfile="additional.xml" inheritAll="true" />
 			</then>
 		</if>
-		
+	
+
+	
 		<echo>Clearing cache</echo>
 		<delete dir="${PATH_Icinga}/app/cache/config" />	
 		
