@@ -342,7 +342,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 		$filterGroup->addFilter($aliasTargetFilter);
 		$result = $this->searchEntries($filterGroup,$this->getBaseDN());
 		
-		if($result["count"])
+		if(isset($result["count"]))
 			return $result;
 		return false;
 	}
@@ -470,7 +470,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 	 * @return array 
 	 */
 	public function modifyNode($dn, $newParams) {
-		if($newParams["id"])
+		if(isset($newParams["id"]))
 			$newParams = array($newParams);
 
 		$connId = $this->getConnection();
