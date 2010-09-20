@@ -7,7 +7,7 @@
 # config
 docbookXsl="/usr/share/xml/docbook/stylesheet/nwalsh/fo/docbook.xsl"
 inputFile="./icinga_lconf_mod"
-outputFile="./lconf_icinga"
+outputFile="./icinga_lconf"
 
 # determine binaries
 xsltprocBin=`which xsltproc`

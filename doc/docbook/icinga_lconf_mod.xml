@@ -9,7 +9,11 @@
 		<orgname>
 			<trademark class="registered">NETWAYS</trademark> Gmbh
 		</orgname>
-		<graphic align="center" fileref="images/LConf_Logo.jpg" scale='80%' format="PNG"  />
+		<mediaobject>
+			<imageobject>
+				<imagedata align="center" fileref="images/LConf_Logo.jpg" scale='80%' format="PNG"  />
+			</imageobject>
+		</mediaobject>
 		<corpname>
 			<trademark class="registered">NETWAYS</trademark> GmbH
 		</corpname>
@@ -29,14 +33,14 @@
 			</affiliation>
 		</author>
 			
-		<pubdate>2010-07-15</pubdate>	
+		<pubdate>2010-9-20</pubdate>
 	</bookinfo>
 	
 	<chapter>
 		<title>Introduction</title>
 		<mediaobject>
 			<imageobject>
-				<imagedata align="center" fileref="images/LConf_Logo.jpg" scale='80%' format="PNG" />
+				<imagedata scalefit="0" align="center" fileref="images/LConf_Logo.jpg" scale='80%' format="PNG" />
 			</imageobject>
 		</mediaobject>
 		<para>
@@ -50,6 +54,9 @@
 				</listitem>
 				<listitem>
 					<para>Copy, move nodes and create aliases via drag&amp;drop</para>
+				</listitem>
+				<listitem>
+					<para>Optional integration to the general Host/Service view of icinga-web</para>
 				</listitem>
 				<listitem>
 					<para>LDAP Alias toolkit (Show me aliases pointing to this node, Jump to the node aliased by this node, etc) </para>
@@ -212,7 +219,10 @@
 					
 					<code>cd &lt;LConf_module_DIR&gt;</code>.
 				
-					<code>php ./phing.php install-module</code>.
+					<code>./install.sh</code>.
+
+					When asked for the prefix, type in the prefix chosen by the lconf script. If you have an older lconf
+					setup, use 'nagios' as prefix.
 					</para>
 
 				<para>
@@ -247,7 +257,7 @@
 			<para>
 				<mediaobject>
 					<imageobject>
-						<imagedata align="left" scale="100" fileref="images/connection_overview.png" format="PNG" />
+						<imagedata align="left"  scalefit="1" contentdepth="100%" width="100%" fileref="images/connection_overview.png" format="PNG" />
 					</imageobject>
 					<caption>Connection list overview</caption>
 				</mediaobject>
@@ -382,7 +392,7 @@
 				This can be done by dragging Users/Groups from the 'available' field to the 'selected' field.
 				<mediaobject>
 					<imageobject>
-						<imagedata align="center" fileref="images/admindd1.png" format="PNG" />
+						<imagedata align="center"  scalefit="1" contentdepth="100%" width="100%" fileref="images/admindd1.png" format="PNG" />
 					</imageobject>
 					<caption>Granting access</caption>
 				</mediaobject>
@@ -402,7 +412,7 @@
 					The main interface of the LDAP Editor consists of the following parts
 					<mediaobject>
 						<imageobject>
-							<imagedata align="center" fileref="images/interface_overview.png" format="PNG" />
+							<imagedata align="center"  scalefit="1" contentdepth="100%" width="100%" fileref="images/interface_overview.png" format="PNG" />
 						</imageobject>
 						<caption>The LDAP Main interface</caption>
 					</mediaobject>
@@ -477,7 +487,7 @@
 			<para>
 				<mediaobject>
 					<imageobject>
-						<imagedata align="center" fileref="images/nodeoptions.png" format="PNG" />
+						<imagedata align="center"  scalefit="1" contentdepth="100%" width="100%" fileref="images/nodeoptions.png" format="PNG" />
 					</imageobject>
 					<caption>Node context-menu</caption>
 				</mediaobject>
@@ -546,7 +556,7 @@
 				available):
 				<mediaobject>
 					<imageobject>
-						<imagedata align="center" fileref="images/dd_inTree.png" format="PNG" />
+						<imagedata align="center"  scalefit="1" contentdepth="100%" width="100%" fileref="images/dd_inTree.png" format="PNG" />
 					</imageobject>
 					<caption>Node drag context-menu</caption>
 				</mediaobject>
@@ -591,7 +601,7 @@
 		<title>Editing properties</title>
 		<mediaobject>
 			<imageobject>
-				<imagedata align="center" fileref="images/propertyeditor.png" format="PNG" />
+				<imagedata align="center"  scalefit="1" contentdepth="100%" width="100%" fileref="images/propertyeditor.png" format="PNG" />
 			</imageobject>
 			<caption>Edit properties</caption>
 		</mediaobject>
@@ -628,7 +638,7 @@
 		</para>
 		<mediaobject>
 			<imageobject>
-				<imagedata align="center" fileref="images/search_field.png" format="PNG" />
+				<imagedata align="center"  scalefit="1" contentdepth="100%" width="100%" fileref="images/search_field.png" format="PNG" />
 			</imageobject>
 			<caption>The search field. You'll like it.</caption>
 		</mediaobject>
@@ -639,7 +649,7 @@
 		</para>
 			<mediaobject>
 				<imageobject>
-					<imagedata align="center" fileref="images/simpleSearch.png" format="PNG" />
+					<imagedata align="center"  scalefit="1" contentdepth="100%" width="100%" fileref="images/simpleSearch.png" format="PNG" />
 				</imageobject>
 				<caption>The result view.</caption>
 			</mediaobject>
@@ -648,7 +658,7 @@
 		</para>
 			<mediaobject>
 				<imageobject>
-					<imagedata align="center" fileref="images/change_group.png" format="PNG" />
+					<imagedata align="center"  scalefit="1" contentdepth="100%" width="100%" fileref="images/change_group.png" format="PNG" />
 				</imageobject>
 				<caption>Changing the grouping parameter.</caption>
 			</mediaobject>
@@ -665,7 +675,7 @@
 		</para>
 		<mediaobject>
 			<imageobject>
-				<imagedata align="center" fileref="images/create_filter.png" format="PNG" />
+				<imagedata align="center"  scalefit="1" contentdepth="100%" width="100%" fileref="images/create_filter.png" format="PNG" />
 			</imageobject>
 			<caption>Creating a filter that only displays hosts and hostgroups not havingf srv2 in the name.</caption>
 		</mediaobject>
@@ -678,7 +688,7 @@
 		</para>
 		<mediaobject>
 			<imageobject>
-				<imagedata align="center" fileref="images/create_filter.png" format="PNG" />
+				<imagedata align="center" scalefit="1" contentdepth="100%" width="100%" fileref="images/create_filter.png" format="PNG" />
 			</imageobject>
 			<caption>Activate a filter</caption>
 		</mediaobject>
@@ -692,7 +702,7 @@
 		<para>The last feature we'll describe here is the search&amp;replace function. It's located at the context menu of the root node</para>
 		<mediaobject>
 			<imageobject>
-				<imagedata align="center" fileref="images/s_replace.png" format="PNG" />
+				<imagedata align="center"  scalefit="1" contentdepth="100%" width="100%" fileref="images/s_replace.png" format="PNG" />
 			</imageobject>
 			<caption>The search/replace function is located at the tree root.</caption>
 		</mediaobject>
@@ -701,7 +711,7 @@
 		</para>		
 		<mediaobject>
 			<imageobject>
-				<imagedata align="center" fileref="images/s_replace_field.png" format="PNG" />
+				<imagedata align="center"  scalefit="1" contentdepth="100%" width="100%" fileref="images/s_replace_field.png" format="PNG" />
 			</imageobject>
 			<caption>Search replace.</caption>
 		</mediaobject>
@@ -742,11 +752,28 @@
 		<note>
 			<para>Filters will be respected when you use search/replace</para>
 		</note>
-	</chapter>	
+	</chapter>
+	<chapter>
+		<title>Integration to icinga-web host/service view (optional)</title>
+		<para>You have the possibility to execute the additional CronkIntegration script, which allows you to jump directly from
+			  a host/service in the host/service view to it's appropriate ldap entry. In the module folder, type
+			  <code>
+				  cd CronkIntegration;
+			 </code>
+			 <code>
+				  ./install.sh
+			  </code>
+			  And follow the instructions.
+			  <note>
+				<para>You need a CustomVariable entry named "DN" and containing the DN for each host that is in the tree</para>
+			  </note>
+		</para>
+
+	</chapter>
 	<chapter>
 		<title>Support</title>
 		<para>
-			If you find any issues or have feature request, feel free to open an issue at <ulink url="https://www.netways.org/projects/list_files/lconf-icinga-mod">http://www.netways.org</ulink>
+			If you find any issues or have a feature request, feel free to open an issue at <ulink url="https://www.netways.org/projects/list_files/lconf-icinga-mod">http://www.netways.org</ulink>
 		</para>	
 	</chapter>
 </book>
