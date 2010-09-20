@@ -22,15 +22,15 @@ class LConf_Backend_modifyEntrySuccessView extends IcingaLConfBaseView
 			switch($parameters["xaction"]) {
 				case 'create':
 					$client->addNodeProperty($node, $properties);
-					return "Success";
+					return "{success :true}";
 					break;
 				case 'update':
 					$client->modifyNode($node, $properties);
-					return "Success";
+					return "{success :true}";
 					break;
 				case 'destroy':
 					$client->removeNodeProperty($node, $properties);
-					return "Success";
+					return "{success :true}";
 					break;
 				default:
 					throw new AgaviException("Unknown action: ".$parameters["action"]);

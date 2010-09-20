@@ -5,6 +5,7 @@ lconf.simpleSearchGrid = function(cfg) {
 	this.ds = new Ext.data.GroupingStore({
 		autoDestroy:true,
 		autoLoad: true,
+		root: 'result',
 		reader: new Ext.data.JsonReader(),
 		url: "<?php echo $ro->gen('lconf.data.simplesearch'); ?>",
 		baseParams: {

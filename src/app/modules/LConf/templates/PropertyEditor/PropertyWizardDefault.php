@@ -40,6 +40,7 @@ Ext.ns('lconf.wizards');
 						
 						eventDispatcher.fireCustomEvent("refreshTree");
 					}
+					return true;
 				},this);
 				this.getStore().removeListener("save");
 
@@ -64,7 +65,6 @@ Ext.ns('lconf.wizards');
 			},this);	
 		},
 		height: Ext.getBody().getHeight()*0.9 > 400 ? 400 : Ext.getBody().getHeight()*0.9,
-		autoScroll:true,
 		width:40
 		
 	});

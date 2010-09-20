@@ -74,6 +74,7 @@ Ext.onReady(function() {
 		this.dStore = new Ext.data.JsonStore({
 			autoLoad:true,
 			autoDestroy:false,
+			root:'result',
 			listeners: {
 				// Check for errors
 				exception : function(prox,type,action,options,response,arg) {

@@ -37,7 +37,7 @@ class LConf_Backend_modifyNodeErrorView extends IcingaLConfBaseView
 					break;
 
 			}
-			return "Success";
+			return "{success:true}";
 		} catch(Exception $e) {
 			$this->getResponse()->setHttpStatusCode('500');
 			return $e->getMessage();

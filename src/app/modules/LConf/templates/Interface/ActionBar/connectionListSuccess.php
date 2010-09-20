@@ -27,6 +27,7 @@
 			if(!this.dStore) {
 				this.dStore = new Ext.data.JsonStore({
 					autoLoad:true,
+					root: 'result',
 					listeners: {
 						// Check for errors
 						load: function() {
@@ -223,7 +224,6 @@
 				AppKit.notifyMessage(params.connName, 'No connectionID returned!');
 				return false;
 			}
-			AppKit.notifyMessage(params.connName, 'Connected!');
 
 			// Tell the dispatcher to spread that the connection is open
 			eventDispatcher.fireCustomEvent("ConnectionStarted",{

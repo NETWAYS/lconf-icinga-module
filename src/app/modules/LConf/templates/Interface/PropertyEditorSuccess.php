@@ -35,6 +35,7 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 			baseParams: {
 				'connectionId' : this.connId				
 			},
+			
 			idProperty: 'id',
 			fields: ['id','property','parent','value'],
 			writer: new Ext.data.JsonWriter({
@@ -44,7 +45,7 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 			}),
 			listeners: {
 				load: function(resp) {
-					resp.responseText.substr(0,200);
+					
 				}	
 			}
 		});
@@ -219,7 +220,7 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 		if(editor.store) {
 			editor.store.setBaseParam("connectionId",this.connId || this.store.baseParams.connectionId)
 		}
-		AppKit.log(editor,this);
+
 		column.setEditor(editor);
 	}
 	

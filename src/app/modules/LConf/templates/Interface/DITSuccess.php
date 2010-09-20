@@ -49,7 +49,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			//var aliasString = "ALIAS=Alias of:";
 			nodeAttr.text = this.getText(attr);
 			nodeAttr.qtip = _("<b>ObjectClass:</b> ")+objClass+
-							_("<br/><b>DN:</b> ")+attr["dn"]+
+							_("<br/><b>DN:</b> ")+Ext.util.Format.ellipsis(attr["dn"],45)+
 							_("<br/>Click to modify");
 			
 			
@@ -237,7 +237,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			return expanded;
 		},
 		
-		expandViaTreeObject: function(treeObj,finishFn) {
+		expandViaTreeObject: function(treeObj,finishFn,selected) {
 			Ext.each(treeObj.here,function(nodeId) {
 				var node = this.getNodeById(nodeId);
 				if(!node) {
@@ -245,11 +245,14 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 					return true;
 				}
 				var getNext = function() {
-					if(!Ext.isEmpty(treeObj.nextLevel.length))
+					if(!Ext.isEmpty(treeObj.nextLevel.length)) {
 						if(finishFn)
-							finishFn();	
+							finishFn();
+						if(selected)
+							this.selectPath(selected.getPath());
+					}
 					Ext.each(treeObj.nextLevel,function(next){
-						this.expandViaTreeObject(next,finishFn);						
+						this.expandViaTreeObject(next,finishFn);
 					},this,{single:true})
 				}
 				
@@ -265,6 +268,10 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 		},
 		
 		refreshNode: function(node,preserveStructure,callback) {
+			var selected = this.getSelectionModel().getSelectedNodes();
+			if(Ext.isArray(selected))
+				selected = selected[0];
+			
 			if(this.reloadFilters) {
 				this.loader.baseParams["filters"] = this.reloadFilters;
 				preserveStructure = false;
@@ -286,7 +293,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			node.reload();
 			if(preserveStructure) {
 				this.on("load", function(elem) {
-					this.expandViaTreeObject(expandTree,callback);
+					this.expandViaTreeObject(expandTree,callback,selected);
 				},this,{single:true});
 			}
 			
@@ -468,7 +475,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 		
 		jumpToRealNode : function(alias) {
 			var id = this.processDNForServer(alias.attributes.aliasedobjectname[0]);
-			AppKit.log(alias);
+
 			var node = this.getNodeById(id);
 		
 			if(!node)  {
@@ -524,7 +531,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 					centered:true,
 					stateful:false,
 					shadow:false,
-					autoScroll:true,
+	
 					constrain:true,
 					modal:true,
 					title: _('Create new entry'),
@@ -647,7 +654,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 		},
 		
 		nodeDropped: function(e) {
-			AppKit.log(e);
+
 			var containsAlias = false;
 			Ext.each(e.dropNode,function(node) {
 				if(node.attributes.isAlias)
@@ -739,7 +746,6 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 		copyNode: function(pos,fromArr,to,move) {
 
 			Ext.each(fromArr,function(from) {
-				AppKit.log(from);
 				var toDN = to.id;
 				if(pos != 'append')
 					toDN = to.parentNode.id;

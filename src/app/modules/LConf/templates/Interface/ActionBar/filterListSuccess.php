@@ -56,6 +56,7 @@
 			if(!this.dStore) {
 				this.dStore = new Ext.data.JsonStore({
 					autoLoad:true,
+					root: 'result',
 					autoSave:false,
 					proxy: new Ext.data.HttpProxy({
 						url: "<?php echo $ro->gen('lconf.data.modifyfilter'); ?>",
@@ -230,7 +231,7 @@
 			}
 			var filterObj = {"AND" : []}
 			filterObj = this.nodeToFilterObject(root);
-			AppKit.log(filterObj);
+
 			return filterObj;
 		},
 		
@@ -254,6 +255,7 @@
 		},
 		
 		treeFromFilterObject : function(presets) {
+			
 			var root = this.nodeFromFilterObject(presets);
 			return root;
 		},
@@ -327,10 +329,13 @@
 		showFilterManagerWindow: function(record) {
 			var presets = null;
 			var filter_name = null;
-			if(record) { 
+			
+			if(record) {
 				presets = Ext.decode(record.get('filter_json'));
 				filter_name = record.get('filter_name');
 			}
+
+				
 			var filterManagerWindow = new Ext.Window({
 				modal:true,
 				height: Ext.getBody().getHeight()*0.9 > 500 ? 500 : Ext.getBody().getHeight()*0.9,
@@ -418,6 +423,7 @@
 		hasCyclicRedundancies: function(record1,record2) {
 			var id1 = record1.get("filter_id");
 			var id2 = record2.get("filter_id");
+
 			var json1 = Ext.decode(record1.get('filter_json'));
 			var json2 = Ext.decode(record2.get('filter_json'));
 
@@ -523,7 +529,6 @@
 		        				text: _('Edit this node'),
 		        				iconCls: 'icinga-icon-page-edit',
 		        				handler: function(btn) {
-		        					AppKit.log(node);
 									this.addFilterTo(node,node.filterAttributes,true);
 		        				},
 		        				scope: this

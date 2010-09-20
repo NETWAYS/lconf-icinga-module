@@ -34,7 +34,7 @@ class LConf_Backend_modifyFilterSuccessView extends IcingaLConfBaseView
 					break;
 					
 			}
-			return 'success';
+			return '{success:true}';
 		} catch(Exception $e) {
 			$this->getResponse()->setHttpStatusCode('500');
 			return $e->getMessage();

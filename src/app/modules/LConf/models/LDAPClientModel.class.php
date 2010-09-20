@@ -327,7 +327,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 			$base = $this->getBaseDN();
 		$searchAttrs = array_merge(array("dn"),$addAttributes);
 	
-		$result = ldap_search($this->getConnection(),$base,$filterString,$searchAttrs);
+		$result = @ldap_search($this->getConnection(),$base,$filterString,$searchAttrs);
 		return $result ? ldap_get_entries($this->getConnection(),$result) : null;
 	} 
 	

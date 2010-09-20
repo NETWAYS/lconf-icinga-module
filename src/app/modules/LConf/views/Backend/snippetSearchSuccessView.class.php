@@ -24,6 +24,7 @@ class LConf_Backend_snippetSearchSuccessView extends IcingaLConfBaseView
 			
 			return json_encode(
 				array(
+					"success" => true,
 					"metaData" => array(
 						"idProperty" => 'id',
 						"root" => "result",
