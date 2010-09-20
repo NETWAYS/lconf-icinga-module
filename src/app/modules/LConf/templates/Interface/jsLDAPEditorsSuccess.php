@@ -51,8 +51,14 @@
 			    lazyRender:true,
 				displayField: 'entry',
 				valueField: 'entry',
+				enableKeyEvents: true,
 				mode:'remote',
-				store: propertyStore
+				store: propertyStore,
+				listeners: {
+					afterrender: function(cmp) {
+						cmp.keyNav.enter = function() {}
+					}
+				}
 			});
 		}
 	}

@@ -44,44 +44,58 @@
 				<setting name="customDialogs">
 					<ae:parameter>
 						<ae:parameter name="view">Command</ae:parameter>
-						<ae:parameter name="description">Create a Command entry</ae:parameter>
+						<ae:parameter name="description">Create a Command</ae:parameter>
 						<ae:parameter name="iconCls">icinga-icon-script</ae:parameter>
 					</ae:parameter>
-					<ae:parameter>
-						<ae:parameter name="view">Contactgroup</ae:parameter>
-						<ae:parameter name="description">Create a Contactgroup entry</ae:parameter>
-						<ae:parameter name="iconCls">icinga-icon-group</ae:parameter>
-					</ae:parameter>
-					<ae:parameter>
-						<ae:parameter name="view">Contact</ae:parameter>
-						<ae:parameter name="description">Create a Contact entry</ae:parameter>
-						<ae:parameter name="iconCls">icinga-icon-user</ae:parameter>
-					</ae:parameter>
-					<ae:parameter>
-						<ae:parameter name="view">Hostgroup</ae:parameter>
-						<ae:parameter name="description">Create a Hostgroup entry</ae:parameter>
-						<ae:parameter name="iconCls">icinga-object-hostgroup</ae:parameter>
-					</ae:parameter>
-					<ae:parameter>
-						<ae:parameter name="view">Host</ae:parameter>
-						<ae:parameter name="description">Create a Host entry</ae:parameter>
-						<ae:parameter name="iconCls">icinga-icon-server</ae:parameter>
-					</ae:parameter>
-					<ae:parameter>
-						<ae:parameter name="view">Service</ae:parameter>
-						<ae:parameter name="description">Create a Service entry</ae:parameter>
-						<ae:parameter name="iconCls">icinga-icon-cog</ae:parameter>
-					</ae:parameter>
+
 					<ae:parameter>
 						<ae:parameter name="view">Timeperiod</ae:parameter>
-						<ae:parameter name="description">Create a Timeperiods entry</ae:parameter>
+						<ae:parameter name="description">Create a Timeperiod</ae:parameter>
 						<ae:parameter name="iconCls">icinga-icon-clock-red</ae:parameter>
 					</ae:parameter>
+
 					<ae:parameter>
-						<ae:parameter name="view">Lconf Structural Object</ae:parameter>
-						<ae:parameter name="description">Create a structrual object</ae:parameter>
+						<ae:parameter name="view">Contact</ae:parameter>
+						<ae:parameter name="description">Create a Contact</ae:parameter>
+						<ae:parameter name="iconCls">icinga-icon-user</ae:parameter>
+					</ae:parameter>
+
+					<ae:parameter>
+						<ae:parameter name="view">Contactgroup</ae:parameter>
+						<ae:parameter name="description">Create a Contactgroup</ae:parameter>
+						<ae:parameter name="iconCls">icinga-icon-group</ae:parameter>
+					</ae:parameter>
+
+					<ae:parameter>
+						<ae:parameter name="view">Host</ae:parameter>
+						<ae:parameter name="description">Create a Host</ae:parameter>
+						<ae:parameter name="iconCls">icinga-icon-server</ae:parameter>
+					</ae:parameter>
+
+					<ae:parameter>
+						<ae:parameter name="view">Hostgroup</ae:parameter>
+						<ae:parameter name="description">Create a Hostgroup</ae:parameter>
+						<ae:parameter name="iconCls">icinga-icon-hostgroup</ae:parameter>
+					</ae:parameter>
+
+					<ae:parameter>
+						<ae:parameter name="view">Service</ae:parameter>
+						<ae:parameter name="description">Create a Service</ae:parameter>
+						<ae:parameter name="iconCls">icinga-icon-cog</ae:parameter>
+					</ae:parameter>
+
+					<ae:parameter>
+						<ae:parameter name="view">Servicegroup</ae:parameter>
+						<ae:parameter name="description">Create a Servicegroup</ae:parameter>
+						<ae:parameter name="iconCls">icinga-object-servicegroup</ae:parameter>
+					</ae:parameter>
+
+					<ae:parameter>
+						<ae:parameter name="view">StructuralObject</ae:parameter>
+						<ae:parameter name="description">Create a Structural Object</ae:parameter>
 						<ae:parameter name="iconCls">lconf-logo</ae:parameter>
 					</ae:parameter>
+
 					<ae:parameter>
 						<ae:parameter name="view">Default</ae:parameter>
 						<ae:parameter name="description">Custom entry</ae:parameter>
@@ -99,28 +113,56 @@
 						<ae:parameter name="factory">ComboBox</ae:parameter>
 						<ae:parameter name="parameter">"objectclass"</ae:parameter>
 					</ae:parameter>
-					
-					<ae:parameter name="@@SCHEMA_PREFIX@@checkcommand">
+
+					<ae:parameter name="@@SCHEMA_PREFIX@@ContactHostNotificationPeriod">
+						<ae:parameter name="factory">ComboBox</ae:parameter>
+						<ae:parameter name="parameter">{"LDAP":["objectclass=@@SCHEMA_PREFIX@@Timeperiod"],"Attr": "cn"}</ae:parameter>
+					</ae:parameter>
+
+					<ae:parameter name="@@SCHEMA_PREFIX@@ContactHostNotificationCommands">
 						<ae:parameter name="factory">ComboBox</ae:parameter>
 						<ae:parameter name="parameter">{"LDAP":["objectclass=@@SCHEMA_PREFIX@@Command"],"Attr": "cn"}</ae:parameter>
 					</ae:parameter>
-					
-<!--					<ae:parameter name="@@SCHEMA_PREFIX@@members">-->
-<!--						<ae:parameter name="factory">Set</ae:parameter>-->
-<!--						<ae:parameter name="parameter">{"LDAP":["objectclass=@@SCHEMA_PREFIX@@Host","objectclass=@@SCHEMA_PREFIX@@contact"],"Attr": "cn"}</ae:parameter>-->
-<!--					</ae:parameter>-->
-<!--					-->
-<!--					<ae:parameter name="@@SCHEMA_PREFIX@@hostgroups">-->
-<!--						<ae:parameter name="factory">Set</ae:parameter>-->
-<!--						<ae:parameter name="parameter">{"LDAP":["objectclass=@@SCHEMA_PREFIX@@Hostgroup"],"Attr": "cn"}</ae:parameter>-->
-<!--					</ae:parameter>-->
-<!---->
-<!--					<ae:parameter name="@@SCHEMA_PREFIX@@contactgroups">-->
-<!--						<ae:parameter name="factory">Set</ae:parameter>-->
-<!--						<ae:parameter name="parameter">{"LDAP":[objectclass=@@SCHEMA_PREFIX@@Contactgroup],"Attr": "cn"}</ae:parameter>-->
-<!--					</ae:parameter>					-->
-					
-					
+
+					<ae:parameter name="@@SCHEMA_PREFIX@@ContactServiceNotificationPeriod">
+						<ae:parameter name="factory">ComboBox</ae:parameter>
+						<ae:parameter name="parameter">{"LDAP":["objectclass=@@SCHEMA_PREFIX@@Timeperiod"],"Attr": "cn"}</ae:parameter>
+					</ae:parameter>
+
+					<ae:parameter name="@@SCHEMA_PREFIX@@ContactServiceNotificationCommands">
+						<ae:parameter name="factory">ComboBox</ae:parameter>
+						<ae:parameter name="parameter">{"LDAP":["objectclass=@@SCHEMA_PREFIX@@Command"],"Attr": "cn"}</ae:parameter>
+					</ae:parameter>
+
+					<ae:parameter name="@@SCHEMA_PREFIX@@HostNotificationPeriod">
+						<ae:parameter name="factory">ComboBox</ae:parameter>
+						<ae:parameter name="parameter">{"LDAP":["objectclass=@@SCHEMA_PREFIX@@Timeperiod"],"Attr": "cn"}</ae:parameter>
+					</ae:parameter>
+
+					<ae:parameter name="@@SCHEMA_PREFIX@@HostCheckPeriod">
+						<ae:parameter name="factory">ComboBox</ae:parameter>
+						<ae:parameter name="parameter">{"LDAP":["objectclass=@@SCHEMA_PREFIX@@Timeperiod"],"Attr": "cn"}</ae:parameter>
+					</ae:parameter>
+
+					<ae:parameter name="@@SCHEMA_PREFIX@@Checkcommand">
+						<ae:parameter name="factory">ComboBox</ae:parameter>
+						<ae:parameter name="parameter">{"LDAP":["objectclass=@@SCHEMA_PREFIX@@Command"],"Attr": "cn"}</ae:parameter>
+					</ae:parameter>
+
+					<ae:parameter name="@@SCHEMA_PREFIX@@HostDependency">
+						<ae:parameter name="factory">ComboBox</ae:parameter>
+						<ae:parameter name="parameter">{"LDAP":["objectclass=@@SCHEMA_PREFIX@@Host"],"Attr": "cn"}</ae:parameter>
+					</ae:parameter>
+
+					<ae:parameter name="@@SCHEMA_PREFIX@@ServiceNotificationPeriod">
+						<ae:parameter name="factory">ComboBox</ae:parameter>
+						<ae:parameter name="parameter">{"LDAP":["objectclass=@@SCHEMA_PREFIX@@Timeperiod"],"Attr": "cn"}</ae:parameter>
+					</ae:parameter>
+
+					<ae:parameter name="@@SCHEMA_PREFIX@@ServiceCheckPeriod">
+						<ae:parameter name="factory">ComboBox</ae:parameter>
+						<ae:parameter name="parameter">{"LDAP":["objectclass=@@SCHEMA_PREFIX@@Timeperiod"],"Attr": "cn"}</ae:parameter>
+					</ae:parameter>
 				</setting>
 				
 				<setting name="searchCategories">
@@ -165,6 +207,8 @@
 					<!-- 
 							Inheritance definition service
 					 -->
+
+				<!--
 					<ae:parameter name="@@SCHEMA_PREFIX@@Service">
 						<ae:parameter name="@@SCHEMA_PREFIX@@Service">
 							<ae:parameter name="attributes">
@@ -174,10 +218,12 @@
 							</ae:parameter>
 						</ae:parameter>
 					</ae:parameter>
+				-->
 
 					<!-- 
 							Inheritance definition host
 					 -->
+				<!--
 					<ae:parameter name="@@SCHEMA_PREFIX@@Host">
 					
 						<ae:parameter name="@@SCHEMA_PREFIX@@Host">
@@ -192,6 +238,7 @@
 						</ae:parameter>
 						
 					</ae:parameter>
+				-->
 				</setting>
 				
 				<setting name="ldap_definition_ini">%core.module_dir%/LConf/lib/ldapConfig/staticObjects.ini</setting>
