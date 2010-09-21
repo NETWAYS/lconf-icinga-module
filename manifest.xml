@@ -3,8 +3,8 @@
 	
 	<!--  Meta information about the module-->
 	<Meta>
-		<Name>LConf</Name>
-		<Version>0.1</Version>
+		<Name>LConf for icinga</Name>
+		<Version>1.0.0</Version>
 		<Description><![CDATA[Plugin to manage LDAP based configurations.]]></Description>
 		<Author>Jannis Moßhammer (Jannis.Mosshammer@netways.de)</Author>
 		<Company>NETWAYS GmbH</Company>	
