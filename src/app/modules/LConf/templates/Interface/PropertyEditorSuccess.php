@@ -28,12 +28,12 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 				url : this.url,
 				api: this.api
 			}),
-			
+		
 			autoSave: false,
 			storeId: Ext.id()+'_store',
 			root: this.root,
 			baseParams: {
-				'connectionId' : this.connId				
+			    'connectionId' : this.connId
 			},
 			
 			idProperty: 'id',
@@ -44,9 +44,16 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 				autoSave:true
 			}),
 			listeners: {
-				load: function(resp) {
-					
-				}	
+
+			    beforesave: function() {
+				lconf.loadingLayer.show();
+			    },
+			    save : function() {
+				lconf.loadingLayer.hide();
+			    },
+			    exception: function() {
+				lconf.loadingLayer.hide();
+			    }
 			}
 		});
 		

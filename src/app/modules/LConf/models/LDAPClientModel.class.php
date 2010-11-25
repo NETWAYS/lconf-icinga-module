@@ -741,6 +741,8 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 	
 	public function toStore() {
 		$clSerialized = serialize($this);
+		// 0 char  as used in serialisation caueses postgre to truncate the data
+		$clSerialized = base64_encode($clSerialized);
 		$storage = $this->getContext()->getStorage();
 		$storage->write("Icinga.ldap.client.".$this->getId(),$clSerialized);
 	
@@ -750,6 +752,8 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 		if(isset(self::$clientInstances[$id]))
 			return self::$clientInstances[$id];
 		$clSerialized = $storage->read("Icinga.ldap.client.".$id);
+		// recraete original representation of 0x00 char
+		$clSerialized = base64_decode($clSerialized);
 		$cl = unserialize($clSerialized);
 		self::$clientInstances[$id] = $cl;
 		return $cl;

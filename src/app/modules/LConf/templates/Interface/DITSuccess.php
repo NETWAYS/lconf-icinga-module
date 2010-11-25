@@ -228,12 +228,14 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 				here : [],
 				nextLevel: []
 			}
-			node.eachChild(function(subNode) {
-				if(subNode.isExpanded()) {
-					expanded.here.push(subNode.id);			
-					expanded.nextLevel.push(this.getExpandedSubnodes(subNode));
-				}
-			},this);
+			if(node) {
+			    node.eachChild(function(subNode) {
+				    if(subNode.isExpanded()) {
+						expanded.here.push(subNode.id);
+						expanded.nextLevel.push(this.getExpandedSubnodes(subNode));
+				    }
+			    },this);
+			}
 			return expanded;
 		},
 		
@@ -417,17 +419,20 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 					connectionId: this.connId
 				},
 				success: function(resp) {
+					lconf.loadingLayer.hide();
 					Ext.each(updateNodes,function(node) {
 						if(node)
 							this.refreshNode(node);				
 					},this)
 				},
 				failure: function(resp) {
+					lconf.loadingLayer.hide();
 					err = (resp.responseText.length<50) ? resp.responseText : 'Internal Exception, please check your logs';
 					Ext.Msg.alert(_("Error"),_("Couldn't remove Node:<br\>"+err));
 				},
 				scope: this
 			});
+			lconf.loadingLayer.show();
 		},
 		
 		/**
@@ -769,10 +774,12 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 						properties: Ext.encode(copyParams)
 					},
 					failure:function(resp) {
+						lconf.loadingLayer.hide();
 						err = (resp.responseText.length<1024) ? resp.responseText : 'Internal Exception, please check your logs';
 						Ext.Msg.alert(_("Error"),_("Couldn't copy node:<br\>"+err));
 					},
 					success: function() {
+						lconf.loadingLayer.hide();
 						if(to.getOwnerTree())
 							this.refreshNode(to.parentNode,true);
 						if(from.getOwnerTree())
@@ -780,28 +787,31 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 					},
 					scope:this
 				});
+				lconf.loadingLayer.show();
 			},this)
 		},
 		
 		initLoader: function() {
 			this.loader = new ditTreeLoader({
-								id:this.id,
-								baseParams:{
-									connectionId:this.id,
-									filters: lconf.getActiveFilters()
-								},
-								listeners: {
-									
-									beforeload: function(obj,node,cbk) {
-										if(node.id.match(/\*\d{4}\*/)) {
-											this.jumpToRealNode(node);
-											return false;
-										}
-									},
-									scope: this
-								}
-								
-							});
+			    id:this.id,
+			    baseParams:{
+			    connectionId:this.id,
+			    filters: lconf.getActiveFilters()
+			},
+			listeners: {
+			    beforeload: function(obj,node,cbk) {
+			        if(node.id.match(/\*\d{4}\*/)) {
+				    this.jumpToRealNode(node);
+				    return false;
+				}
+			    },
+
+			    exception: function() {
+
+			    },
+			    scope: this
+			}	
+		    });
 		},
 		
 		onClose: function() {

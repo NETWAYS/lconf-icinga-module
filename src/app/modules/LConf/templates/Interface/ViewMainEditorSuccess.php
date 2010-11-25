@@ -43,7 +43,8 @@ lconf.loader.lazyLoadEditors = function(cb) {
 }
 
 
-Ext.onReady(function() {	
+Ext.onReady(function() {
+	lconf.loadingLayer = new Ext.LoadMask(Ext.getBody(), {msg:_("Please wait...")}); ;
 	var container = new Ext.Panel({
 		layout:'border',
 		id: 'view-container',
