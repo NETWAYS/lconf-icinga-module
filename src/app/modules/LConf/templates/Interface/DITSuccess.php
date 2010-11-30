@@ -239,28 +239,37 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			return expanded;
 		},
 		
+		
 		expandViaTreeObject: function(treeObj,finishFn,selected) {
+			var expandBranchesLeft = 0;
 			Ext.each(treeObj.here,function(nodeId) {
 				var node = this.getNodeById(nodeId);
 				if(!node) {
-					AppKit.log("Node "+nodeId+" not found")
 					return true;
 				}
-				var getNext = function() {
-					if(!Ext.isEmpty(treeObj.nextLevel.length)) {
-						if(finishFn)
-							finishFn();
-						if(selected)
-							this.selectPath(selected.getPath());
-					}
-					Ext.each(treeObj.nextLevel,function(next){
-						this.expandViaTreeObject(next,finishFn);
-					},this,{single:true})
+				expandBranchesLeft++;
+				var getNext = function(exp) {
+						AppKit.log(selected,treeObj,exp,expandBranchesLeft);
+						
+						if(expandBranchesLeft == 1 && treeObj.nextLevel.length == 1 
+									&& treeObj.nextLevel[0].here.length == 0) {
+							AppKit.log("Selecting");
+							this.selectPath(exp.getPath());
+		 					if (finishFn) 
+								finishFn();
+						}
+						
+						for (var i = 0; i < treeObj.nextLevel.length; i++) {
+							var next = treeObj.nextLevel[i];
+							this.expandViaTreeObject(next, finishFn);
+								
+						}
+						expandBranchesLeft--;
 				}
 				
 				if(!node.isExpanded()) {
 					node.on("expand",function(_node) {
-						getNext.call(this);
+						getNext.call(this,_node);
 					},this,{single:true});
 					node.expand();
 				} else {				
@@ -271,6 +280,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 		
 		refreshNode: function(node,preserveStructure,callback) {
 			var selected = this.getSelectionModel().getSelectedNodes();
+			var	expandTree;
 			if(Ext.isArray(selected))
 				selected = selected[0];
 			
@@ -283,7 +293,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			if(!node)
 				node = this.getRootNode();
 			if(preserveStructure) {
-				var	expandTree = this.getExpandedSubnodes(node);
+				expandTree = this.getExpandedSubnodes(node);
 			}
 			if(node.attributes.isAlias) {
 				var aliased = this.getAliasedNode(node);
@@ -292,13 +302,14 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 					var aliasedExpandTree = this.getExpandedSubnodes(node);
 				}
 			}
-			node.reload();
+
+
 			if(preserveStructure) {
 				this.on("load", function(elem) {
 					this.expandViaTreeObject(expandTree,callback,selected);
 				},this,{single:true});
 			}
-			
+			node.reload();			
 		},
 		
 		searchReplaceMgr: function() {
