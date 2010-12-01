@@ -143,7 +143,7 @@ lconf.Admin.PrincipalEditor = function(connection_id) {
 			targetColumns:[
 				{header:_('Id'),name:'user_id',dataIndex:'user_id'},
 				{header:_('User'),name:'user_name',dataIndex:'user_name'}
-			],
+			]
 			
 		})
 		var groupTab = lconf.Admin.itemGranter({
