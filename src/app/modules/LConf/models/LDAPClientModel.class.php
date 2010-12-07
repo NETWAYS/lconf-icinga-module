@@ -234,8 +234,9 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 		$connId = $this->getConnection();
 		$properties = $this->getNodeProperties($dn);
 		$this->helper->cleanResult($properties);
+		
 		foreach($newParams as $parameter) {
-			$newProperty = $parameter["property"];
+			$newProperty = strtolower($parameter["property"]);
 			$newValue = $parameter["value"];
 			
 			if(!isset($properties[$newProperty])) { // property doesn't exist
@@ -479,6 +480,8 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 
 		$idRegexp = "/^(.*)_(\d*)$/";
 		$affectsDN = false;
+		print_r($dn);
+		 
 		foreach($newParams as $parameter) {
 			// ignore inherited params
 			if(isset($parameter["parent"]))
@@ -581,13 +584,13 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 			$curProperty = $idElems[1];
 			$curIndex = $idElems[2];
 			if(is_array($properties[$curProperty])) {
-				$properties[$curProperty][$curIndex] = array();
-				if(count($properties[$curProperty]) == 1)
+				unset($properties[$curProperty][$curIndex]);
+				if(count($properties[$curProperty]) == 0)
 					$properties[$curProperty] = array();
 			} else 
 				$properties[$curProperty] = array();
 		}
-
+	
 		if(!@ldap_modify($connId,$dn,$properties)) {
 			throw new AgaviException("Could not modify ".$dn. ":".$this->getError());
 		}
