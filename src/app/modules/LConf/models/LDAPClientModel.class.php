@@ -480,7 +480,6 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 
 		$idRegexp = "/^(.*)_(\d*)$/";
 		$affectsDN = false;
-		print_r($dn);
 		 
 		foreach($newParams as $parameter) {
 			// ignore inherited params
