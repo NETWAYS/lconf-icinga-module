@@ -74,10 +74,50 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			return (withDN) ? shortened : shortened.replace(txtRegExp,"");
 		}
 	});
-
-	var ditTree = Ext.extend(Ext.ux.MultiSelectTreePanel,{
 	
+	
+	var ditTreeClipboard = new function() {
+		var clipboard = [];
+		
+		this.addToClipboard = function(nodes,tree,cutted) {
+			this.clearClipboard();
+			clipboard = [nodes,tree,cutted];
+			if(cutted) {
+				Ext.each(nodes,function(node) {
+					node.setCls("italic");
+				});
+				
+			}
+		}
+		
+		this.clearClipboard = function(cutted) {
+			if (!cutted) {
+				try {
+					Ext.each(clipboard[0], function(node){
+						node.setCls("");
+					});
+				} catch(e) {}
+			}
+			clipboard = [];
+		}
+		
+		this.getClipboardNodes = function() {
+			if (!Ext.isEmpty(clipboard)) 
+				return {
+					clipboard: clipboard[0],
+					tree: clipboard[1],
+					cut: clipboard[2] || false
+				}
+			return {}
+		}
+	}
+	var ditTree = Ext.extend(Ext.ux.MultiSelectTreePanel,{
+
+		
 		initEvents: function() {
+			this.setupKeyMap();
+
+			
 			ditTree.superclass.initEvents.call(this);
 			this.on("beforeclose",this.onClose);
 			
@@ -86,8 +126,10 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 				this.refreshNode(this.getRootNode(),true);
 			},this)
 			
+
 			eventDispatcher.addCustomListener("refreshTree",function(node) {
-				this.refreshNode(this.getRootNode(),true);
+				
+			        this.refreshNode(this.getRootNode(),true);
 			},this);
 			
 			eventDispatcher.addCustomListener("searchDN",this.searchDN,this);
@@ -118,7 +160,6 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			},this);
 			
 			this.on("append",function(obj,parent,node) {
-				
 				if(node.attributes.match == "noMatch") {
 					(function() {node.getUI().addClass('noMatch');}).defer(100)
 					node.expand();
@@ -127,6 +168,83 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			
 		},
 		
+		setupKeyMap: function() {
+		    var map = new Ext.KeyMap(this.getEl(),[{
+				key: "c",
+				ctrl: true,
+				fn: function() {
+					ditTreeClipboard.addToClipboard(this.selModel.getSelectedNodes(),this.connId,false)
+				},
+				scope: this
+		    },{
+				key: "x",
+				ctrl: true,
+				fn: function() {
+					ditTreeClipboard.addToClipboard(this.selModel.getSelectedNodes(),this.connId,true)
+				},
+				scope: this
+		    },{
+				key: "v",
+				ctrl: true,
+				fn: function() {
+					var nodes = ditTreeClipboard.getClipboardNodes();
+					if(!nodes.clipboard)
+						return false;
+					nodes.clipboard.connId = nodes.tree;
+					var selected = this.getSelectionModel().getSelectedNodes();
+					if(selected.length == 0)
+					 	Ext.Msg.confirm(_("No node selected"), _("You haven't selected nodes to copy to"));
+					for(var i=0;i<selected.length;i++) {
+						var toNode = selected[i];
+						for(var i=0;i<nodes.clipboard.length;i++)  {
+							if (toNode.isAncestor(nodes.clipboard[i])) {
+								Ext.Msg.alert(_("Invalid operation"), _("Moving or Copying a node below itself is not supported."));
+								return false;
+							}
+						}	
+						
+					}
+					for(var i=0;i<selected.length;i++) {
+						
+						var toNode = selected[i];
+						toNode.connId = this.connId;
+						this.copyNode("below",nodes.clipboard,toNode,nodes.cut);
+					}
+					if(nodes.cut) {
+						ditTreeClipboard.clearClipboard(true)
+					}
+				},
+				scope: this
+		    },{
+				key: "n",
+				ctrl: true,
+				fn: function(key,ev) {
+					var selected = this.getSelectionModel().getSelectedNodes();
+					if(selected.length == 0)
+					 	Ext.Msg.confirm(_("No node selected"), _("You haven't selected a node"));
+					var lastSelect = selected[selected.length-1];
+					this.getSelectionModel().select(lastSelect);
+	
+					this.context(lastSelect,{preventDefault: function() {}, getXY: function() {return [25,Ext.getBody().getHeight()/2-25]}},true);
+					ev.preventDefault();
+				},
+				scope: this
+		    },{
+		    	key: 46, //delete
+				fn: function() {
+			    	Ext.Msg.confirm(_("Remove selected nodes"),_("Do you really want to delete the selected entries?<br/>")+
+													  _("Subentries will be deleted, too!"),
+						function(btn){
+							if(btn == 'yes') {
+								var toDelete = this.getSelectionModel().getSelectedNodes();
+								this.removeNodes(toDelete);
+							}
+					},this);
+				},
+				scope: this
+		    }]);
+
+		},
 
 		processDNForServer: function(dn) {
 			dn = dn.replace("ALIAS=Alias of:","");
@@ -134,7 +252,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			return dn;
 		},
 		
-		context: function(node,e) {
+		context: function(node,e,justCreate) {
 			e.preventDefault();
 			var ctx = new Ext.menu.Menu({
 				items: [{
@@ -142,7 +260,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 					iconCls: 'icinga-icon-arrow-refresh',
 					handler: this.refreshNode.createDelegate(this,[node,true]),
 					scope: this,
-					hidden: node.isLeaf()
+					hidden: node.isLeaf() || justCreate
 				},{
 					text: _('Create new node on same level'),
 					iconCls: 'icinga-icon-add',
@@ -166,6 +284,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 								}
 							},this);
 					},
+					hidden: justCreate,
 					scope: this
 				},{
 					text: _('Remove <b>all selected</b> nodes'),
@@ -181,19 +300,22 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 								}
 							},this);
 					},
+					hidden: justCreate,
 					scope: this		
 				},{
 					text: _('Jump to alias target'),
 					iconCls: 'icinga-icon-arrow-redo',
 					hidden: !node.attributes.isAlias && !node.id.match(/\*\d{4}\*/),
-					handler: this.jumpToRealNode.createDelegate(this,[node])	
+					handler: this.jumpToRealNode.createDelegate(this,[node]),
+					hidden: justCreate
 				},{
 					text: _('Display aliases to this node'),
 					iconCls: 'icinga-icon-wand',
 					hidden: node.attributes.isAlias || node.id.match(/\*\d{4}\*/),
 					handler: function(btn) {
 						eventDispatcher.fireCustomEvent("aliasMode",node);
-					}
+					},
+					hidden: justCreate
 				},{
 					text: _('Search/Replace'),
 					iconCls: 'icinga-icon-zoom',
@@ -249,11 +371,9 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 				}
 				expandBranchesLeft++;
 				var getNext = function(exp) {
-						AppKit.log(selected,treeObj,exp,expandBranchesLeft);
-						
+
 						if(expandBranchesLeft == 1 && treeObj.nextLevel.length == 1 
 									&& treeObj.nextLevel[0].here.length == 0) {
-							AppKit.log("Selecting");
 							this.selectPath(exp.getPath());
 		 					if (finishFn) 
 								finishFn();
@@ -760,7 +880,6 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 		},
 		
 		copyNode: function(pos,fromArr,to,move) {
-
 			Ext.each(fromArr,function(from) {
 				var toDN = to.id;
 				if(pos != 'append')

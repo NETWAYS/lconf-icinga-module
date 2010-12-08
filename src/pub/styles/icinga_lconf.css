@@ -146,6 +146,11 @@
 	width:32;
 	background-repeat: no-repeat;	
 }
+
+li div.italic * span {
+	color: #acacac;
+}
+
 .lconf-logo { background-image: url(../images/LConf/tree_small.png) !important; background-repeat: no-repeat;}
 .icinga-icon-arrow-divide { background-image: url(../images/famfamfam/arrow_divide.png) !important; background-repeat: no-repeat; }
 .icinga-icon-server {background-image: url(../images/famfamfam/server.png) !important; background-repeat: no-repeat; }

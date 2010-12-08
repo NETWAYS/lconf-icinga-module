@@ -43,12 +43,10 @@ class LConfMenuExtender extends AppKitEventHandler implements AppKitEventHandler
 				$icinga->addSubItem(AppKitNavItem::create('lconf.about')
 					->setCaption('About')
 					->addAttributes('extjs-iconcls', 'icinga-icon-help')
-					->setJsHandler("
-						AppKit.util.contentWindow.createDelegate(null, [{ url: '". AgaviContext::getInstance()->getRouting()->gen('lconf.about') ."' }, 
-						{ title: _('About Lconf')}])")
+					->setJsHandler("AppKit.util.contentWindow.createDelegate(null, [{ url: '". AgaviContext::getInstance()->getRouting()->gen('lconf.about') ."' },{ title: _('About Lconf'), id: 'icinga-window-lconf-about' }])")
 				);		
 		}
-		
+
 		return true;
 
 	}
