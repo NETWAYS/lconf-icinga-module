@@ -22,8 +22,8 @@
 		                		<parameter name="target">hostgroup</parameter>
 		                		<parameter name="target_field">SERVICEGROUP_OBJECT_ID</parameter>
 		                		<parameter name="base">icinga-web</parameter>
-		                		<parameter name="url">lconf/cronk/dns</parameter>
-		                		<parameter name="ldapRoute">lconf/main</parameter>
+		                		<parameter name="url">modules/lconf/cronk/dns</parameter>
+		                		<parameter name="ldapRoute">modules/lconf/main</parameter>
 		                	</parameter>	
 			            </parameter>
 					</parameter>

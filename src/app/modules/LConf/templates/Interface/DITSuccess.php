@@ -112,8 +112,6 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 		}
 	}
 	var ditTree = Ext.extend(Ext.ux.MultiSelectTreePanel,{
-
-		
 		initEvents: function() {
 			this.setupKeyMap();
 
@@ -364,6 +362,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 		
 		expandViaTreeObject: function(treeObj,finishFn,selected) {
 			var expandBranchesLeft = 0;
+
 			Ext.each(treeObj.here,function(nodeId) {
 				var node = this.getNodeById(nodeId);
 				if(!node) {
@@ -371,20 +370,16 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 				}
 				expandBranchesLeft++;
 				var getNext = function(exp) {
-
-						if(expandBranchesLeft == 1 && treeObj.nextLevel.length == 1 
-									&& treeObj.nextLevel[0].here.length == 0) {
-							this.selectPath(exp.getPath());
-		 					if (finishFn) 
-								finishFn();
-						}
+					if(expandBranchesLeft == 1 && treeObj.nextLevel.length == 0) {
+		 				if (finishFn) 
+							finishFn();
+					}
 						
-						for (var i = 0; i < treeObj.nextLevel.length; i++) {
-							var next = treeObj.nextLevel[i];
-							this.expandViaTreeObject(next, finishFn);
-								
-						}
-						expandBranchesLeft--;
+					for (var i = 0; i < treeObj.nextLevel.length; i++) {
+						var next = treeObj.nextLevel[i];
+						this.expandViaTreeObject(next, finishFn);							
+					}
+					expandBranchesLeft--;
 				}
 				
 				if(!node.isExpanded()) {
@@ -635,16 +630,17 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			var lastDN = baseDN;
 			while(splitted.length) {
 				lastDN =  splitted.pop()+","+lastDN
-				curPos.nextLevel = {
+				curPos.nextLevel = [{
 					here: lastDN,
 					nextLevel: []
-				}
-				curPos = curPos.nextLevel
+				}]
+				curPos = curPos.nextLevel[0]
 			}
 			var finishFN = function() {
 				var node = this.getNodeById(dn);
+		
 				this.selectPath(node.getPath());
-	
+			
 				eventDispatcher.fireCustomEvent("nodeSelected",node,this.id);
 				this.scrollIntoView(this,node.lastChild || node);
 				
@@ -931,9 +927,9 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			listeners: {
 			    beforeload: function(obj,node,cbk) {
 			        if(node.id.match(/\*\d{4}\*/)) {
-				    this.jumpToRealNode(node);
-				    return false;
-				}
+						this.jumpToRealNode(node);
+						return false;
+					}
 			    },
 
 			    exception: function() {

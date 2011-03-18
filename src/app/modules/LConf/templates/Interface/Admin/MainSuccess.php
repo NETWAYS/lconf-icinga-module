@@ -258,8 +258,7 @@ Ext.onReady(function() {
 						fieldLabel:_('Bind DN'),
 						name: 'connection_binddn',
 						value: defaults['connection_binddn'] || '',
-						anchor:'70%',
-						allowBlank:false
+						anchor:'70%'
 					},{
 						fieldLabel:_('Bind Pass'),	
 						name: 'connection_bindpass',

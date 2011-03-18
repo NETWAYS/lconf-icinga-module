@@ -408,8 +408,9 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 			if($inherited) {
 				$inh_keys =  array_keys($inherited);				
 				foreach($entries[0]["objectclass"] as $key=>$val) {
-					if(in_array($val,$inh_keys))
+					if(in_array($val,$inh_keys)) {
 						$this->addInheritedProperties($entries[0],$dn,$inherited[$val]);
+					}
 				}
 				
 			}
@@ -436,9 +437,9 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 					continue;		
 					
 				foreach($inheritance[$obj]["attributes"] as $inhAttributes=>$value) {				
-					if(isset($value["overwrite"]))
+				/*	if(isset($value["overwrite"]))
 						if($value["overwrite"] == true)
-							 continue;
+							 continue;*/
 					if(!isset($result[0][$inhAttributes]))
 						continue;	
 					$newAttrs = $result[0][$inhAttributes];

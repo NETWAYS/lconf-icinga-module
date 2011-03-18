@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ae:configurations xmlns:ae="http://agavi.org/agavi/config/global/envelope/1.0">
-  <ae:configuration context="web">
-    <routes xmlns="http://agavi.org/agavi/config/parts/routing/1.0">
-      <route pattern="^/lconf" name="lconf" module="LConf">
+<module_routes xmlns:ae="http://agavi.org/agavi/config/global/envelope/1.0" xmlns="http://agavi.org/agavi/config/parts/routing/1.0">
+	<configuration context="web">
+		<route pattern="^/lconf" name="lconf" module="LConf">
 			<route name=".about" pattern="^/about$" action="Interface.About" output_type="simple"/>
 			<route name="lconfDNs" output_type="json" pattern="^/cronk/dns" action="Backend.Cronks.CustomVarDNCollector"/>
 			<route name=".main" pattern="^/$" action="Interface.ViewMainEditor"></route>
@@ -44,6 +43,5 @@
 			</route>
 			
 		</route>
-    </routes>
-  </ae:configuration>
-</ae:configurations>
+  </configuration>
+</module_routes>
