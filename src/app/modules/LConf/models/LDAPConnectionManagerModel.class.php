@@ -70,7 +70,7 @@ class LConf_LDAPConnectionManagerModel extends IcingaLConfBaseModel
 			if(!ctype_digit($value))
 			    $value = htmlentities($value);
 			
-			if($value ||Êin_array($field,$alwaysUpdate))
+			if($value || in_array($field,$alwaysUpdate))
 				$entry->set($field,$value);
 		}
 		$entry->save();
