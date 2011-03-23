@@ -33,6 +33,7 @@
 					<error>No connection to add provided</error>
 				</errors>
 			</validator>
+			
 		</validators>
 	</ae:configuration>
 </ae:configurations>

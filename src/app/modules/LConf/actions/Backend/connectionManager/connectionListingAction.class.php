@@ -20,9 +20,15 @@ class LConf_Backend_connectionManager_connectionListingAction extends IcingaLCon
 	
 	public function executeRemove(AgaviRequestDataHolder $rd) {
 		try {
-			$id = $rd->getParameter("connection_id");
-			$connectionManager = $this->getContext()->getModel("LDAPConnectionManager","LConf");
-			$connectionManager->dropConnection($id);
+			$id = $rd->getParameter("connection_id",false);
+			
+			if(!is_array($id))
+				$id = array($id);
+				
+			foreach($id as $curId) {
+				$connectionManager = $this->getContext()->getModel("LDAPConnectionManager","LConf");
+				$connectionManager->dropConnection($curId);
+			}
 		} catch(Exception $e) {
 			$rd->setParameter("_error",$e->getMessage());
 		}
