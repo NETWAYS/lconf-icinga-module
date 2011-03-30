@@ -13,6 +13,21 @@
     cursor:pointer;
 }
 
+.ldap-connection.plus {
+	padding-top:30px;
+	background-color: #f3f3f3;
+	color: #acacac;
+	height:40px;
+	float:left;
+	font-size:10px;
+}
+
+.lconf-icon-plus {
+	background-image: url(../images/icons/plus.png) !important;
+	background-repeat: no-repeat;
+	float:left;
+}
+
 .ldap-connection.x-view-over {
     background-color:#dedede;
 }
