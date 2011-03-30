@@ -1,5 +1,5 @@
+<script type='text/javascript'>
 
-<script type='text/javascript'>  
 Ext.Msg.minWidth = 500;
 eventDispatcher = new (Ext.extend(Ext.util.Observable, {
 	customEvents : {},

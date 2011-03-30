@@ -4,12 +4,19 @@ Ext.ns('lconf');
 	$wizards =  AgaviConfig::get("modules.lconf.customDialogs",array());
 	echo "lconf.wizards = ".json_encode($wizards);
 ?>
+
 /***
  * TODO: Nearly 1000 lines of glorious code, split this class in smaller classes
  * e.g	 DitTreeNavigator
  * 		 DitTreeView
  * 		 DitTreeSearch
  */
+lconf.configExporter = new Ext.Window({
+	width: '60%',
+	height: 500,
+	title: _('Export tree to icinga')
+});
+
 lconf.ditTreeManager = function(parentId,loaderId) {	
 	var dataUrl = loaderId;
 	var ditPanelParent = Ext.getCmp(parentId);
@@ -984,6 +991,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 	});
 	var dnSearchField = new Ext.form.TextField({
 		xtype:'textfield',
+		iconCls: 'icinga-icon-zoom',
 		value: 'Search keyword',
 		enableKeyEvents: true,
 		connId: false,
@@ -1025,8 +1033,14 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 		autoDestroy: true,
 		resizeTabs:true,
 		
-		fbar: new Ext.Toolbar({
-			items:dnSearchField
+		bbar: new Ext.Toolbar({
+			items: [{
+				xtype:'button',
+				iconCls: 'icinga-icon-wrench-screwdriver',
+				text: 'Export config',
+				align: 'left',
+				handler: function() {lconf.configExporter.show();}
+			},'->',dnSearchField]
 		}),
 		defaults : {
 			closable: true

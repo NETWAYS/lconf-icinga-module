@@ -1,7 +1,10 @@
 Ext.ns("lconf.Admin");
 
-lconf.Admin.PrincipalEditor = function(connection_id) {
-	
+(function() {
+var __instance;
+lconf.Admin.getPrincipalEditor = function() {
+	if(__instance)
+		return __instance;
 	/**
 	 * Excludes records selected in store.sourceStore from this store
 	 * 
@@ -12,24 +15,36 @@ lconf.Admin.PrincipalEditor = function(connection_id) {
 		// sourcestore is an id
 		if(Ext.isString(store.sourceStore))
 			store.sourceStore = Ext.StoreMgr.lookup(store.sourceStore);
-
+        var toRemove = [];
 		store.each(function(record) {
 			var index = store.sourceStore.find(primary,record.get(primary));
 			if(index != -1)
-				store.sourceStore.removeAt(index);
-		})
+				if(!store.isStaticSource)
+					store.sourceStore.removeAt(index);
+				else
+					toRemove.push(record)
+		});
+		Ext.iterate(toRemove,function(i) {
+			store.remove(i);
+		});
 	}
-	
+
+	this.populate = function(connection_id) {
+		Ext.iterate(this.storeCollection,function(s) {
+			s.setBaseParam('connection_id',connection_id);
+			s.load();
+		});
+	}
+
 	/**
 	 * There are always to pairs of stores: Available users/groups and selected users/groups
 	 */
-	 
 	this.groupStore = new Ext.data.JsonStore({
 		autoDestroy: true,
+		isStaticSource: true,
 		storeId: 'groupListStore',
 		sourceStore: 'groupListSelectedStore',
 		idProperty: 'role_id',
-		autoLoad:true,
 		remoteSort: true,
 		root:'roles',
 		url: '<?php echo $ro->gen("appkit.data.groups")?>',
@@ -50,12 +65,10 @@ lconf.Admin.PrincipalEditor = function(connection_id) {
 		storeId: 'groupListSelectedStore',
 		idProperty: 'role_id',
 		sourceStore: this.groupStore,
-		autoLoad:true,
 		root:'groups',
 		url: '<?php echo $ro->gen("lconf.data.principals") ?>',
 		baseParams: {
-			target: 'groups',
-			connection_id: connection_id
+			target: 'groups'
 		},
 		fields: [
 			'role_id',
@@ -70,6 +83,7 @@ lconf.Admin.PrincipalEditor = function(connection_id) {
 		listeners: {
 			// function to filter out already selected values from the available view
 			load:this.excludeSelectedRecords,
+			save: function(s) {s.load()},
 			scope:this
 		}
 	})
@@ -77,10 +91,10 @@ lconf.Admin.PrincipalEditor = function(connection_id) {
 	
 	this.userStore = new Ext.data.JsonStore({
 		autoDestroy: true,
-		autoLoad:true,
 		storeId: 'userListStore',
 		sourceStore: 'userListSelectedStore',
 		totalProperty: 'totalCount',
+		isStaticSource: true,
 		root: 'users',
 		idProperty: 'user_id',
 		url: '<?php echo $ro->gen("appkit.data.users")?>',
@@ -106,12 +120,10 @@ lconf.Admin.PrincipalEditor = function(connection_id) {
 		storeId: 'userListSelectedStore',
 		sourceStore: this.userStore,
 		idProperty: 'user_id',
-		autoLoad:true,
 		root:'users',
 		url: '<?php echo $ro->gen("lconf.data.principals") ?>',
 		baseParams: {
-			target: 'users',
-			connection_id: connection_id
+			target: 'users'	
 		},
 		fields: [
 			'user_id',
@@ -125,17 +137,19 @@ lconf.Admin.PrincipalEditor = function(connection_id) {
 		}),
 		listeners: {
 			// function to filter out already selected values from the available view
-			load: this.excludeSelectedRecords
+			load: this.excludeSelectedRecords,
+			save: function(s) {s.load()}
 		}
 	})
 	
 	
-	this.getPrincipalTabbar = function(connection_id) {
+	this.getPrincipalTabbar = function() {
 		var usersTab = lconf.Admin.itemGranter({
 			targetStore: this.selectedUsersStore,
 			store: this.userStore,	
+			iconCls: 'icinga-icon-user',
 			title: _('Users'),
-			id: connection_id+"_userPanel",
+			id: "userPanel",
 			columns:[
 				{header:_('Id'),name:'user_id'},
 				{header:_('User'),name:'user_name'}
@@ -150,7 +164,8 @@ lconf.Admin.PrincipalEditor = function(connection_id) {
 			targetStore: this.selectedGroupsStore,
 			store: this.groupStore,	
 			title: _('Groups'),
-			id: connection_id+"_groupPanel",
+			iconCls: 'icinga-icon-users',
+			id: "groupPanel",
 			columns: [
 				{header:_('Id'),name:'role_id'},
 				{header:_('Group'),name:'role_name'}
@@ -172,20 +187,21 @@ lconf.Admin.PrincipalEditor = function(connection_id) {
 	}
 	var id = Ext.id;
 	
-	return new Ext.Window({
-		layout:'hbox',
-		width:700,
-		autoScroll:true,
-		height: Ext.getBody().getHeight()*0.9 > 500 ? 500 : Ext.getBody().getHeight()*0.9,
-		modal:true,
+	return new Ext.Panel({
+		layout:'fit',
+		autoScroll:true,	
 		id: "wnd_"+id,
 		items: this.getPrincipalTabbar(),
+		title: '<b>'+('Access')+'</b>',
+		iconCls: 'icinga-icon-user',
 		buttons: [{
 			text:_('Save changes'),
+			iconCls: 'icinga-icon-disk',
 			handler: function(btn) {
 				this.selectedUsersStore.save();
 				this.selectedGroupsStore.save();
-				(function() {Ext.getCmp("wnd_"+id).close()}).defer(200);
+				
+				
 			},
 			scope: this
 		}]
@@ -200,11 +216,12 @@ lconf.GridDropZone = function(grid, config) {
 
 Ext.extend(lconf.GridDropZone, Ext.dd.DropZone, {
 	onContainerOver:function(dd, e, data) {
-		return dd.grid !== this.grid ? this.dropAllowed : this.dropNotAllowed;
+		return (!this.grid.disabled && (dd.grid !== this.grid)) 
+					? this.dropAllowed : this.dropNotAllowed;
 	},
 	
 	onContainerDrop:function(dd, e, data) {
-		if(dd.grid !== this.grid) {
+		if(!this.grid.disabled && dd.grid !== this.grid) {
 			// Move the records between the stores on drop
 		
 			Ext.each(data.selections,function(r) {
@@ -237,8 +254,10 @@ lconf.Admin.itemGranter = function(config) {
 	}
 	
 	this.gridAvailable =  new Ext.grid.GridPanel({
-		title: _("Available"),
+		title: _("Available"),	
+		
 		store: this.store,
+		columnWidth: .5,
 		colModel: new Ext.grid.ColumnModel({
 			defaults: {
 				width:100,
@@ -246,24 +265,23 @@ lconf.Admin.itemGranter = function(config) {
 			},
 			columns: this.columns
 		}),
+		
 		bbar: new Ext.PagingToolbar({
 			pageSize: 25,
 			store: this.store,
 			displayInfo: true,
 			displayMsg: _('Showing ')+' {0} - {1} '+_('of')+' {2}',
 			emptyMsg: _('Nothing to display')
-		}),
-
-		width:325,
-		height:400,
+		}),	
+		layout: 'fit',
 		enableDragDrop: true,		
 		sm: new Ext.grid.RowSelectionModel({
 			singleSelect:false
 		}),
-		
 		listeners: {
 			render: function(grid) {
 				this.dz = new lconf.GridDropZone(grid,{ddGroup:grid.ddGroup || 'GridDD'});
+				grid.getStore().load();
 			}
 			
 		}
@@ -280,20 +298,16 @@ lconf.Admin.itemGranter = function(config) {
 			},
 			columns: this.targetColumns
 		}),
-		width:325,
-		
-		height:400,
+		columnWidth: .5,
+		layout: 'fit',
 		enableDragDrop: true,
 		sm: new Ext.grid.RowSelectionModel({
-			singleSelect:false
-			
+			singleSelect:false	
 		}),
-		
 		listeners: {
 			render: function(grid) {
 				this.dz = new lconf.GridDropZone(grid,{ddGroup:grid.ddGroup || 'GridDD'});
-			}
-			
+			}	
 		}
 	});	
 
@@ -306,27 +320,24 @@ lconf.Admin.itemGranter = function(config) {
 			Ext.data.Record.id(rec);
 			to.getStore().add(rec);
 			from.getStore().remove(r);
-		});
+			});
 	}
 
 	this.buildInterface = function() {
 		var available = this.gridAvailable;
 		var selected =  this.gridSelected;
 		this.interface = new Ext.Panel({
-			layout:'table',
-			height: Ext.getBody().getHeight()*0.9 > 500 ? 500 : Ext.getBody().getHeight()*0.9,
+			layout:'column',	
 			title:this.title,
-			width:700,
-			layoutConfig: {
-				columns:3
-			},
 			defaults: {
-				cellCls: 'middleAlign'
+				cellCls: 'middleAlign',	
 			},
-			items: [
+			items: [	
 				available,
 				{
-
+					width:50,
+					style: 'margin-top:50%',
+					cls: 'middleAlign',
 					items:[{
 						xtype:'button',
 						text: '<<',
@@ -341,13 +352,34 @@ lconf.Admin.itemGranter = function(config) {
 						scope: this
 					}]	
 					
-				},	
+				},
 				selected
-			]
+			],
+			listeners: {
+				resize: function(el) {
+					el.suspendEvents();
+					Ext.iterate(el.items.items,function(item) {
+						item.setHeight(el.getHeight());
+					});
+					el.resumeEvents();
+				}
+			}
 		})		
 
 	}
+
+	this.storeCollection = [
+		this.selectedGroupsStore,
+		this.selectedUsersStore
+	]
 	
+	this.selectedUsersStore.on("load",function() {this.sourceStore.load();},this.selectedUsersStore);	
+	this.selectedGroupsStore.on("load",function() {this.sourceStore.load();},this.selectedGroupsStore);
+	
+
 	this.buildInterface();
-	return this.interface;
+	this.interface.cmp = this;
+	__instance = this.interface;
+	return this.interface;	
 }
+})();

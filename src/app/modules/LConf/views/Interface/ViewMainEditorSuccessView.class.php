@@ -11,7 +11,7 @@ class LConf_Interface_ViewMainEditorSuccessView extends IcingaLConfBaseView
 		$actionBarContainer = $container->createExecutionContainer("LConf","Interface.ActionBar",$actionBarParameters,"simple");
 		
 		$DITParameters = new AgaviRequestDataHolder();
-		$DITParameters->setParameter("parentid","west-frame");
+		$DITParameters->setParameter("parentid","west-frame-lconf");
 		$DITContainer = $container->createExecutionContainer("LConf","Interface.DIT",$DITParameters,"simple");
 
 		$PropertyEditorParameters = new AgaviRequestDataHolder();
