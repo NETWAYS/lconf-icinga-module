@@ -65,6 +65,7 @@ class LConf_Backend_getPropertiesSuccessView extends IcingaLConfBaseView
 				}
 			} else { // only one property
 				// create a property record for the response
+				
 				$nodeList["properties"][] = $this->getResult($key,$key,$node);
 			}
 		}
@@ -72,15 +73,20 @@ class LConf_Backend_getPropertiesSuccessView extends IcingaLConfBaseView
 	}
 	
 	public function getResult($key,$nodeKey,$value) {
+		
 		$baseParams = array("property" => $key,
 					  "id" => $key."_".$nodeKey);
 		if(!is_array($value)) {
 			$baseParams["value"] = $value;	
 			return $baseParams;
 		}
-
-		$baseParams["value"] = $value[0]["value"];
-		$baseParams["parent"] = $value[0]["dn"];
+		if(!isset($value[0]))
+			$value = array($value);
+		
+		if(isset($value[0])) {
+			$baseParams["value"] = $value[0]["value"];
+			$baseParams["parent"] = $value[0]["dn"];
+		}
 		return $baseParams;
 	}
 	
