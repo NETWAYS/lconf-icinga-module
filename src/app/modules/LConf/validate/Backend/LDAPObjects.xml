@@ -13,6 +13,12 @@
 					<error>No field provided</error>
 				</errors>
 			</validator>
+			<validator class="set" name="asTree" required="false">
+				<argument>asTree</argument>
+				<errors>
+					<error>No field provided</error>
+				</errors>				
+			</validator>
 			<validator class="string" name="connectionId" required="false">
 				<argument>connectionId</argument>
 				<errors>

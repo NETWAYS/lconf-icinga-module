@@ -5,16 +5,20 @@ class LConf_Backend_LDAPObjectsSuccessView extends IcingaLConfBaseView
 
 	public function executeJson(AgaviRequestDataHolder $rd) {
 		$field = json_decode($rd->getParameter("field"),true);
+		$asTree = $rd->getParameter("asTree",false);
 		$ctx = $this->getContext();
 		$result = array();
 		
 		if(!is_array($field)) {
 			$definitions = null;//$ctx->getStorage()->read("lconf.ldap.entites");
 			if(!$definitions)
-				$definitions = $this->loadStaticLDAPDefinitions();			
-			$result = $definitions[$field];
-			foreach($result as &$entry)
-				$entry = array("entry"=>$entry);
+				$definitions = $this->loadStaticLDAPDefinitions();
+			$result = $definitions;			
+			if(!$asTree)  {
+				$result = $definitions["DEFINITIONS"][$field];
+				foreach($result as &$entry)
+					$entry = array("entry"=>$entry);
+			}
 		} else if(isset($field["LDAP"])) {
 			$connectionId = $rd->getParameter("connectionId");
 			$ctx->getModel("LDAPClient","LConf");
@@ -35,9 +39,38 @@ class LConf_Backend_LDAPObjectsSuccessView extends IcingaLConfBaseView
 					$result[] = array("entry"=>$entry["dn"]);
 			}
 		}
-		
-		$response = $this->buildResponse($field,$result);
+		$response = array();
+		if($asTree) {
+			$response = $this->buildTreeResponse($field,$result);
+		} else {
+			$response = $this->buildResponse($field,$result);
+		}
 		return json_encode($response);
+	}
+	
+	protected function buildTreeResponse($field, $result) {
+		$defs = $result["DEFINITIONS"][$field];
+		$cats = $result["CATEGORIES"];
+		$categoryListing = array();
+		foreach($cats as $name=>$currentCategory) {
+			$viewAndPattern = explode("|",$currentCategory);
+			$objClassDefault = count($viewAndPattern) > 1 ? explode(';',$viewAndPattern[0]) : array();
+			$patterns = explode(";",$viewAndPattern[count($viewAndPattern)-1]);
+			$matches = array();
+			foreach($patterns as $pattern) {
+				$matchingSet = preg_grep("/".$pattern."/",$defs);
+				$matches = array_merge($matches,$matchingSet);
+			}
+			$entry = array("text" => $name,"objclasses" => $objClassDefault, "leaf"=>false, "children" => array());
+			foreach($matches as $match) {
+				$entry["children"][] = array(
+					"text" => $match,
+					"leaf" => true
+				);
+			}
+			$categoryListing[] = $entry;
+		}
+		return $categoryListing;
 	}
 	
 	protected function buildResponse($field,$result) {
@@ -57,8 +90,8 @@ class LConf_Backend_LDAPObjectsSuccessView extends IcingaLConfBaseView
 	public function loadStaticLDAPDefinitions() {
 		$ctx = $this->getContext();
 		$cfg = AgaviConfig::get("modules.lconf.ldap_definition_ini");
-		$data = parse_ini_file($cfg);
-		$ctx->getStorage()->write("lconf.ldap.entites",$data);
+		$data = parse_ini_file($cfg,true);
+		//$ctx->getStorage()->write("lconf.ldap.entites",$data);
 		return $data;
 	}
 	

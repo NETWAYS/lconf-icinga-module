@@ -516,6 +516,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 						var error = Ext.decode(resp.responseText);
 						var msg = "<div class='lconf_infobox'><ul>";
 						Ext.each(error,function(err){
+							err = Ext.util.Format.ellipsis(err,200,true);
 							msg += "<li>"+err+"</li>";
 						});
 						msg += "</ul></div>";

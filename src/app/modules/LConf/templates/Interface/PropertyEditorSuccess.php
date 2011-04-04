@@ -1,11 +1,14 @@
 Ext.ns("lconf");
+var propertyCmpId = '<?php echo $t["parentId"];?>';
+var ldapMetaObjectsRoute = '<?php echo $ro->gen("lconf.data.ldapmetaprovider") ?>';
 
 lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 	activeDN :  null,
 	minHeight: 200,
 	forceFit:true,
 	ctCls: 'lconfGrid',
-	constructor: function(config) {
+
+	constructor: function (config) {
 		Ext.apply(this,config);
 		this.initializeGridSettings();		
 		Ext.grid.EditorGridPanel.prototype.constructor.call(this,config);
@@ -13,7 +16,7 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 	},
 	
 	viewConfig: {
-		getRowClass: function(record,index) {
+		getRowClass: function (record,index) {
 			if(record.get('parent') != "") {
 				return 'inherited';
 			}
@@ -21,7 +24,7 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 	},
 	
 	connId: null,
-	initializeGridSettings: function() {
+	initializeGridSettings: function () {
 
 		this.ds =  new Ext.data.JsonStore({
 			proxy: new Ext.data.HttpProxy({
@@ -45,14 +48,14 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 			}),
 			listeners: {
 
-			    beforesave: function() {
-				lconf.loadingLayer.show();
+			    beforesave: function () {
+					lconf.loadingLayer.show();
 			    },
-			    save : function() {
-				lconf.loadingLayer.hide();
+			    save : function () {
+					lconf.loadingLayer.hide();
 			    },
-			    exception: function() {
-				lconf.loadingLayer.hide();
+			    exception: function () {
+					lconf.loadingLayer.hide();
 			    }
 			}
 		});
@@ -60,7 +63,7 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 		
 		this.colModel = new Ext.grid.ColumnModel({
 			store:this.ds,
-			isCellEditable : function(col,row) {
+			isCellEditable : function (col,row) {
 				if(this.store.getAt(row).id == 'dn' || this.store.getAt(row).id == 'dn_dn' || this.store.getAt(row).get('parent'))
 					return false;
 				return  Ext.grid.ColumnModel.prototype.isCellEditable.call(this,col,row);	
@@ -77,7 +80,7 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 				xtype: 'button',
 				text: _('Add property'),
 				iconCls: 'icinga-icon-add',
-				handler: function() {
+				handler: function () {
 					var record = Ext.data.Record.create(['id','property','value']);
 					this.getStore().add(new record());				
 				},
@@ -94,7 +97,7 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 				xtype:'button',	
 				text: _('Save Changes'),
 				iconCls: 'icinga-icon-disk',
-				handler: function() {
+				handler: function () {
 					this.getStore().save();
 					eventDispatcher.fireCustomEvent("refreshTree");
 				},
@@ -106,7 +109,7 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 	},
 	
 	
-	inheritedMenu: function(grid,idx,event) {
+	inheritedMenu: function (grid,idx,event) {
 		var record = this.getStore().getAt(idx);
 		if(!record.get("parent"))
 			return true;
@@ -115,13 +118,14 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 			items: [{
 				iconCls: 'icinga-icon-arrow-redo',
 				text:_('Jump to inherited node'),
-				handler: function() {eventDispatcher.fireCustomEvent("searchDN",record.get("parent"))}
+				handler: function () {eventDispatcher.fireCustomEvent("searchDN",record.get("parent"))}
 			}]
 		});
 		ctx.showAt(event.getXY());
+		return true;
 	},
 	
-	initEvents: function(){
+	initEvents: function (){
 		Ext.grid.EditorGridPanel.prototype.initEvents.call(this)
 		
 		if(!this.noLoad) 
@@ -130,29 +134,29 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 		eventDispatcher.addCustomListener("invalidNode",this.disable,this);
 		if(!this.noLoad)
 			this.on("rowclick",this.inheritedMenu,this); 
-		this.getStore().on("add",function(store,rec,index) {this.getSelectionModel().selectLastRow();},this)
+		this.getStore().on("add",function (store,rec,index) {this.getSelectionModel().selectLastRow();},this)
 		this.getStore().on("load", this.getDNFromRecord,this);
 	
-		this.getStore().on("exception",function(proxy,type,action,opt,resp,arg) {
+		this.getStore().on("exception",function (proxy,type,action,opt,resp,arg) {
 			if(resp.status != '200')
-				Ext.Msg.alert('Process failed!',resp.responseText);
+				Ext.Msg.alert('Process failed!',Ext.util.Format.ellipsis(resp.responseText,700));
 		});
 		if(!this.noLoadOnSave)
-			this.getStore().on("save",function() {this.reload()},this.getStore());
+			this.getStore().on("save",function () {this.reload()},this.getStore());
 		this.on("beforeedit",this.setupEditor,this);
 		
 	},
 	
 	
-	clearSelected: function() {
+	clearSelected: function () {
 		this.getStore().remove(this.getSelectionModel().getSelections());
 	},
 			
-	disable: function() {
+	disable: function () {
 		this.fbar.setDisabled(true);
 		this.getStore().removeAll(false);
 	},
-	getDNFromRecord : function(store,records,options) {
+	getDNFromRecord : function (store,records,options) {
 		var activeRecord;
 		
 		for(var index in records) {
@@ -172,19 +176,19 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 		}
 	},
 	
-	setConnectionId: function(connId) {
+	setConnectionId: function (connId) {
 		this.getStore().setBaseParam('connectionId',connId);	
 	},
 	
-	viewProperties: function(selectedDN,connection,noAsk) {		
+	viewProperties: function (selectedDN,connection,noAsk) {		
 		var store = this.getStore();
 		if(!store)
 			return null;
 		if(store.modified[0] && !noAsk) {
-			Ext.Msg.confirm(_("Unsaved changes pending"),_("Save changes?"),function(btn) {
+			Ext.Msg.confirm(_("Unsaved changes pending"),_("Save changes?"),function (btn) {
 				if(btn == 'yes') {
 					store.save();
-					store.on("save",function() {this.viewProperties(selectedDN,connection,true);},this,{single:true});
+					store.on("save",function () {this.viewProperties(selectedDN,connection,true);},this,{single:true});
 				} else
 					this.viewProperties(selectedDN,connection,true);	
 			},this);
@@ -209,12 +213,15 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 	/**
 	 * Here's the magic: this function is triggered on beforeEdit and dynamically changes the Editor
 	 */
-	setupEditor: function(e) {
+	setupEditor: function (e) {
 		var column = e.grid.getColumnModel().columns[e.column];			
 		var editor = null;
 
 		if(e.field == "property") {
-			var editor = lconf.editors.editorFieldMgr.getEditorFieldForProperty("property");
+			var editor = new AppKit.GridTreeEditorField({
+				url: ldapMetaObjectsRoute,
+				grid: this
+			});
 		} else {
 			if(!e.record.get("property")) {
 				AppKit.notifyMessage(_("Please select the attribute type first"),"");
@@ -234,7 +241,6 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 });
 
 
-var propertyCmpId = '<?php echo $t["parentId"];?>';
 
 var propertyParent = Ext.getCmp(propertyCmpId);
 if(!propertyParent) 

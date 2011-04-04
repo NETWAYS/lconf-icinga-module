@@ -4,7 +4,7 @@
 	<!--  Meta information about the module-->
 	<Meta>
 		<Name>LConf</Name>
-		<Version>1.0.1</Version>
+		<Version>1.1</Version>
 		<Description><![CDATA[Plugin to manage LDAP based configurations.]]></Description>
 		<Author>Jannis Moßhammer (Jannis.Mosshammer@netways.de)</Author>
 		<Company>NETWAYS GmbH</Company>	
@@ -46,7 +46,6 @@
 			<file>**/cache/**/*.xml</file>
 			<file>**/cache/*.xml</file>
 			<folder>**/.git/</folder>
-			<folder>**/output/room*/**</folder>
 
 		</Excludes>
 		
@@ -63,8 +62,8 @@
 			</Nodes>
 		</Entry> 
 		<!--  Routing -->
-		<Entry file="%PATH_Icinga%app/config/routing.xml">
-			<Nodes fromConfig="true" base="//ae:configurations/ae:configuration[@context='web']/routes/route[@name='lconf']"/>
+		<Entry file="%PATH_Icinga%app/config/routing.modules.xml">
+			<Nodes fromConfig="true" base="//module_routes/configuration[@context='web']/route[@name='lconf']"/>
 		</Entry>
 		<!--  Default init (for cronk) -->
 		<Entry file="%PATH_Icinga%app/config/icinga.xml">

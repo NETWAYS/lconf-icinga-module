@@ -437,9 +437,9 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 					continue;		
 					
 				foreach($inheritance[$obj]["attributes"] as $inhAttributes=>$value) {				
-					if(isset($value["overwrite"]))
+				/*	if(isset($value["overwrite"]))
 						if($value["overwrite"] == true)
-							 continue;
+							 continue;*/
 					if(!isset($result[0][$inhAttributes]))
 						continue;	
 					$newAttrs = $result[0][$inhAttributes];
