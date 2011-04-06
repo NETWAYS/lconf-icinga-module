@@ -5,8 +5,17 @@ Ext.onReady(function() {
 		constructor: function(cfg) {
 			Ext.apply(this,cfg);
 			Ext.Component.prototype.constructor.call(this,cfg);
+			this.bindEditorEvents();
+
 		},
-		
+		reactivateGrid: function() {
+			if(this.grid)
+				this.grid.resumeEvents();
+		},
+		bindEditorEvents: function() {
+			this.on("hide",this.reactivateGrid,this);
+			this.on("destroy",this.reactivateGrid,this);
+		},
 		types: {},
 		editing: false,
 		ignoreNoChange: true,
@@ -34,12 +43,11 @@ Ext.onReady(function() {
 		searchStartValue: function () {
 		},
 		
-		
 		cancelEdit: function (remainVisible) {
 			if(Ext.EventObject.browserEvent.type == "mousewheel")
 				return false; //ignore cancel on scroll
 			this.hideEdit(remainVisible);
-			this.fireEvent("canceledit",this,this.getValue,this.startValue);
+			//this.fireEvent("canceledit",this,this.getValue,this.startValue);
 			return true;
 		},
 		
@@ -158,6 +166,7 @@ Ext.onReady(function() {
 			this.p.render(el.parentNode);
 			this.fireEvent("startedit",el.parentNode,this.startValue);
 		},
+		
 		stopEdit: function () {
 			if(this.p)
 				this.p.destroy();

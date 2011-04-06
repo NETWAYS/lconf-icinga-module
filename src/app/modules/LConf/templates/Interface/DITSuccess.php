@@ -11,12 +11,6 @@ Ext.ns('lconf');
  * 		 DitTreeView
  * 		 DitTreeSearch
  */
-lconf.configExporter = new Ext.Window({
-	width: '60%',
-	height: 500,
-	title: _('Export tree to icinga')
-});
-
 lconf.ditTreeManager = function(parentId,loaderId) {	
 	var dataUrl = loaderId;
 	var ditPanelParent = Ext.getCmp(parentId);
@@ -1035,13 +1029,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 		resizeTabs:true,
 		
 		bbar: new Ext.Toolbar({
-			items: [{
-				xtype:'button',
-				iconCls: 'icinga-icon-wrench-screwdriver',
-				text: 'Export config',
-				align: 'left',
-				handler: function() {lconf.configExporter.show();}
-			},'->',dnSearchField]
+			items: ['->',dnSearchField]
 		}),
 		defaults : {
 			closable: true

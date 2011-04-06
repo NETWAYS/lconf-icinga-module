@@ -126,10 +126,11 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 	},
 	
 	initEvents: function (){
-		Ext.grid.EditorGridPanel.prototype.initEvents.call(this)
+		Ext.grid.EditorGridPanel.prototype.initEvents.call(this);
 		
 		if(!this.noLoad) 
 			eventDispatcher.addCustomListener("nodeSelected",this.viewProperties,this,{buffer:true});
+		
 		eventDispatcher.addCustomListener("ConnectionClosed",this.disable,this);
 		eventDispatcher.addCustomListener("invalidNode",this.disable,this);
 		if(!this.noLoad)

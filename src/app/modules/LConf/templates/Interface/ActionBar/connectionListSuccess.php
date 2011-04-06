@@ -5,6 +5,13 @@
  */
 (function() {
 	Ext.ns("lconf.actionBar");
+	lconf.configExporter = new Ext.Window({
+		width: '60%',
+		height: 500,
+		title: _('Export tree to icinga')
+	});
+
+
 	lconf.actionBar.connectionManager = Ext.extend(Ext.util.Observable, { 
 		connections: {},
 		
@@ -141,6 +148,10 @@
 						iconCls: 'icinga-icon-database',
 						handler : function() {this.viewDetails(index,node);},
 						scope:this
+					},{
+						iconCls: 'icinga-icon-wrench-screwdriver',
+						text: 'Export config',
+						handler: function() {lconf.configExporter.show();}
 					}]
 				});
 			}	
