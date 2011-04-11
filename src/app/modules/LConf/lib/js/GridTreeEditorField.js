@@ -69,8 +69,8 @@ Ext.onReady(function() {
 		hideEdit: function (remainVisible) {
 			if(remainVisible !== true) {
 				this.editing = false;
-				if(this.p)		
-					this.p.destroy()
+				if(this.tree)		
+					this.tree.destroy()
 				this.grid.resumeEvents();
 			}
 		},
@@ -149,8 +149,8 @@ Ext.onReady(function() {
 			this.editing = true;
 			this.startValue = el.innerHTML;			
 			this.determineType();
-			this.p =  this.getTree();
-			this.p.setPosition(Ext.EventObject.getPageX(),Ext.EventObject.getPageY());
+			this.tree =  this.getTree();
+			this.tree.setPosition(Ext.EventObject.getPageX(),Ext.EventObject.getPageY());
 			this.grid.suspendEvents();
 			this.grid.el.addListener("click",function (ev,target) {
 				var el = Ext.get(target);
@@ -163,13 +163,13 @@ Ext.onReady(function() {
 				}
 			},this);
 	
-			this.p.render(el.parentNode);
+			this.tree.render(el.parentNode);
 			this.fireEvent("startedit",el.parentNode,this.startValue);
 		},
 		
 		stopEdit: function () {
-			if(this.p)
-				this.p.destroy();
+			if(this.tree)
+				this.tree.destroy();
 		},
 		onDestroy: function () {
 			this.hideEdit();

@@ -5,17 +5,12 @@
  */
 (function() {
 	Ext.ns("lconf.actionBar");
-	lconf.configExporter = new Ext.Window({
-		width: '60%',
-		height: 500,
-		title: _('Export tree to icinga')
-	});
-
-
 	lconf.actionBar.connectionManager = Ext.extend(Ext.util.Observable, { 
 		connections: {},
 		
 		constructor : function(config) {
+			config = config || {};
+			Ext.apply(this,config);
 			this.filter = ['global','own'];
 			this.eventId = config.eventId;
 			this.storeURL = config.storeURL;
@@ -151,7 +146,27 @@
 					},{
 						iconCls: 'icinga-icon-wrench-screwdriver',
 						text: 'Export config',
-						handler: function() {lconf.configExporter.show();}
+						handler: function() {
+							Ext.Msg.confirm(_("Export config"),_("Export configuration in this tree?"),function(btn){
+								AppKit.log(arguments,this);
+								if(btn != 'yes')
+									return false;
+								lconf.prog = Ext.Msg.wait(_("Exporting config"),_("Your icinga-web config is being exported"));
+								Ext.Ajax.request({
+									url: this.exportUrl,
+									success: function() {
+										lconf.prog.hide();	
+									},
+									exception: function() {
+										lconf.prog.hide();	
+									},
+									failure: function() {
+										lconf.prog.hide();		
+									}
+								});	
+							},this);
+						},
+						scope: this
 					}]
 				});
 			}	
@@ -271,7 +286,8 @@
 	new lconf.actionBar.connectionManager({
 			storeURL: '<?php echo $ro->gen("lconf.data.connectionlisting");?>',
 			eventId: '<?php echo $t["eventId"]; ?>',
-			parentid: '<?php echo $t["parentid"]; ?>'				
+			parentid: '<?php echo $t["parentid"]; ?>',
+			exportUrl: '<?php echo $ro->gen("lconf.export");?>' 
 	});
 }) ()
 </script>

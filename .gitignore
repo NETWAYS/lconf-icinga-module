@@ -1,2 +1,4 @@
-.backup.dat
+src/app/modules/LConf/lib/ldapConfig/staticObjects.ini
+.meta/*
 .DS_Store
+*.swp

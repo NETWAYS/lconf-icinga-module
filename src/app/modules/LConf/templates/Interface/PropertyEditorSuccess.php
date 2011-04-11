@@ -9,6 +9,7 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 	ctCls: 'lconfGrid',
 
 	constructor: function (config) {
+		config.sm = new Ext.grid.RowSelectionModel();
 		Ext.apply(this,config);
 		this.initializeGridSettings();		
 		Ext.grid.EditorGridPanel.prototype.constructor.call(this,config);
@@ -207,9 +208,7 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 		if(!lconf.editors)
 			lconf.loader.lazyLoadEditors();
 	},
-	
-	sm: new Ext.grid.RowSelectionModel(),
-	
+		
 	
 	/**
 	 * Here's the magic: this function is triggered on beforeEdit and dynamically changes the Editor

@@ -68,7 +68,7 @@ class LConf_LDAPFilterModel extends IcingaLConfBaseModel
 				break;
 			case "contains":
 
-				$value = "|(".$this->getKey()."=".$value."*)(".$this->getKey()."=*".$value.")(".$this->getKey()."=".$value.")";		
+				$value = "|(".$this->getKey()."=*".$value."*)(".$this->getKey()."=".$value."*)(".$this->getKey()."=*".$value.")(".$this->getKey()."=".$value.")";		
 				break;		
 			default:
 				$value = $this->getKey()."=".$value;

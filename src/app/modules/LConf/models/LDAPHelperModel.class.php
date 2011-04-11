@@ -132,7 +132,8 @@ class LConf_LDAPHelperModel extends IcingaLConfBaseModel
 				$resultDn = $result["dn"];
 				// respect da alias!
 				if(isset($currentElement["aliasedobjectname"])) {
-					$dnToCheck = $currentElement["aliasdn"];
+					if(isset($currentElement["aliasdn"]))
+						$dnToCheck = $currentElement["aliasdn"];
 				}
 						
 				// its a simple check whether the returned dn is part of a searchdn result
