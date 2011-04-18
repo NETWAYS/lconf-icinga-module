@@ -7,6 +7,12 @@
 	<ae:configuration>
 		
 		<validators>
+			<validator class="string" name="connection_id" required="true">
+				<argument>connection_id</argument>
+				<errors>
+					<error>No connection id provided</error>
+				</errors>
+			</validator>
 		</validators>
 		
 	</ae:configuration>

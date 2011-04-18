@@ -7,7 +7,7 @@ class LConf_Backend_LConfExportTaskErrorView extends IcingaLConfBaseView
 		$this->getResponse()->setHttpStatusCode('500');
 		$json = array(
 			"success" => false,
-			"error" => $rd->getAttribute("error_msg","An error occured")
+			"error" => $this->getAttribute("error_msg","An error occured")
 		);
 		return json_encode($json);
 	}

@@ -147,24 +147,7 @@
 						iconCls: 'icinga-icon-wrench-screwdriver',
 						text: 'Export config',
 						handler: function() {
-							Ext.Msg.confirm(_("Export config"),_("Export configuration in this tree?"),function(btn){
-								AppKit.log(arguments,this);
-								if(btn != 'yes')
-									return false;
-								lconf.prog = Ext.Msg.wait(_("Exporting config"),_("Your icinga-web config is being exported"));
-								Ext.Ajax.request({
-									url: this.exportUrl,
-									success: function() {
-										lconf.prog.hide();	
-									},
-									exception: function() {
-										lconf.prog.hide();	
-									},
-									failure: function() {
-										lconf.prog.hide();		
-									}
-								});	
-							},this);
+							this.exportConfiguration(index,node);
 						},
 						scope: this
 					}]
@@ -243,7 +226,127 @@
 			});
 		
 		},
+		showExportSuccessWindow: function(result) {
+
+			var infoWnd = new Ext.Window({
+				title: _('Export result'),
+				width: 330,
+				height: 350,
+				layout: 'fit',
+				autoScroll: true,
+				modal:true,
+				items: new Ext.grid.GridPanel({
+					autoHeight: true,
+					autoWidth: true,
+					border: false,
+					store: new Ext.data.JsonStore({
+						root: 'config',
+						fields: ['count','type'],
+						data: result
+					}),
+					colModel: new Ext.grid.ColumnModel({
+						columns: [{
+							width:50,
+							dataIndex: 'type',
+							renderer: function(v) {
+								var icon = "";
+								switch(v) {
+									case 'services':
+										icon = 'service';
+										break;
+									case 'hosts':
+										icon = 'host';
+										break;
+									case 'host groups':
+										icon = 'hostgroup';
+										break;
+									case 'service groups':
+										icon = 'servicegroup';
+										break;
+									case 'contacts':
+										icon = 'user';
+										break;
+									case 'contact groups':
+										icon = 'group';
+										break;
+									case 'commands':
+										icon = 'script';
+										break;
+									case 'time periods':
+										icon = 'clock-red';
+										break;	
+								}
+								if(icon)
+									icon = "icinga-icon-"+icon;
+								return '<div class="icon-16 '+icon+'"></div>';
+							}
+						},{
+							header: _('Type'),
+							dataIndex: 'type',
+							renderer: function(v) {
+								
+								return Ext.util.Format.capitalize(v);
+							},
+							width: 200
+						},{
+							header: _('Nr of objects'),
+							dataIndex: 'count',
+							width:100
+						}]	
+					}),
+					sm: null
+				})
+			});
 		
+			infoWnd.show();
+		},
+
+		exportConfiguration: function(index, node) {		
+			var record = this.dStore.getAt(index);
+			Ext.Msg.confirm(_("Export config"),_("Export configuration in this tree?"),function(btn){
+				if(btn != 'yes')
+					return false;
+				lconf.prog = Ext.Msg.wait(_("Exporting config"),_("Your icinga-web config is being exported"));
+				Ext.Ajax.request({
+					url: this.exportUrl,
+					params: {connection_id : record.get('connection_id')},
+					success: function(r) {
+						try {
+							var result = Ext.decode(r.responseText);
+							if(!result)
+								result = {};
+							lconf.prog.hide();	
+							this.showExportSuccessWindow(result);
+						} catch(e) {
+							lconf.prog.hide();		
+							Ext.Msg.alert(_("Warning"),_("Exporting succeeded, but there was an error parsing the server's result <br/>"+e));
+						}
+						
+					},
+					exception: function() {
+						lconf.prog.hide();	
+					},
+					failure: function(r) {
+						try {	
+							var result = Ext.decode(r.responseText);
+						
+							if(!result)
+								result = {}
+							result.error = result.error || _("Unknown error");
+	
+							result.error = "<div style='border:1px solid black;overflow:scroll;height:200px;width:400px;background-color:white;font-family:monospace;font-size:10;'><pre>"+Ext.util.Format.ellipsis(result.error,200)+"</pre></div>";
+							lconf.prog.hide();	
+							Ext.Msg.alert(_("Could not export config: "),result.error);	
+						} catch(e) {
+							lconf.prog.hide();		
+							Ext.Msg.alert(_("Could not export config: "),_("Unknown error"));	
+						}
+					},
+					scope: this
+				});	
+			},this);
+		},
+
 		onConnectionSuccess: function(response,params) {		
 			var responseJSON = Ext.decode(response.responseText);
 			if(!responseJSON["ConnectionID"]) {

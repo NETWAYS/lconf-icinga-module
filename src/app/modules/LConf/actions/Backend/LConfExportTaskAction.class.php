@@ -14,12 +14,22 @@ class LConf_Backend_LConfExportTaskAction extends IcingaLConfBaseAction
 	 *                     executed.</li>
 	 *                   </ul>
 	 */
-	public function executeRead(AgaviRequestDataHolder $rd) {
+	public function execute(AgaviRequestDataHolder $rd) {
 		$connManager = AgaviContext::getInstance()->getModel('LDAPConnectionManager','LConf');
+	
+		$connectionId = $rd->getParameter("connection_id");
 		$connManager->getConnectionsFromDB();
+		
 		$conn = $connManager->getConnectionById(1);
 		$confExporter = AgaviContext::getInstance()->getModel('LConfExporter','LConf');
-		$confExporter->exportConfig($conn);
+		try {
+			$result = $confExporter->exportConfig($conn);
+			$this->setAttribute("config",$result);
+		} catch(Exception $e) {
+			$this->setAttribute("error_msg",$e->getMessage());
+			return "Error";
+		}
+		return $this->getDefaultViewName();
 	}
 	
 	public function getDefaultViewName()
