@@ -26,11 +26,13 @@ Ext.onReady(function() {
 			focus: function () {}
 		},
 	
-		setValue: function (v) {
-			this.value = value;
+		setValue: function (v) {	
+			this.value = v; 
 		},
 		
 		getValue: function () {
+			if(this.value == "")
+				this.value = this.startValue;
 			return this.value;
 		},
 	
@@ -46,9 +48,13 @@ Ext.onReady(function() {
 		cancelEdit: function (remainVisible) {
 			if(Ext.EventObject.browserEvent.type == "mousewheel")
 				return false; //ignore cancel on scroll
-			this.hideEdit(remainVisible);
+		
+	
 			//this.fireEvent("canceledit",this,this.getValue,this.startValue);
-			return true;
+			this.hideEdit(remainVisible);	
+			this.targetNode.update(this.getValue());	
+			this.fireEvent("complete",this,this.getValue(),this.startValue);	
+			return true	;
 		},
 		
 		completeEdit: function (remainVisible) {
@@ -56,12 +62,13 @@ Ext.onReady(function() {
 				return;
 			}
 			if(this.startValue == this.getValue() && this.ignoreNoChange) {
-				this.hideEdit(remainVisible)
+				this.hideEdit(remainVisible);	
 				return;
 			}
 			if(this.fireEvent("beforeComplete",this,this.getValue(),this.startValue) !== false) {
 				var value = this.getValue();
 				this.hideEdit(remainVisible);
+
 				this.fireEvent("complete",this,value,this.startValue);
 			}
 		},
@@ -71,6 +78,8 @@ Ext.onReady(function() {
 				this.editing = false;
 				if(this.tree)		
 					this.tree.destroy()
+				if(this.tree.editorTxt)
+					this.tree.editorTxt.destroy();
 				this.grid.resumeEvents();
 			}
 		},
@@ -103,16 +112,42 @@ Ext.onReady(function() {
 					})
 				},
 				listeners: {
+					click: function(node,e) {
+						if(!node.isLeaf())
+							return true;
+						this.tree.editorTxt.setValue(node.text);
+						this.setValue(node.text);
+						return false;
+					},
 					dblclick: function (node, e) {
 						if(!node.isLeaf())
 							return true;
-						this.value = node.text;
+
+						this.setValue(node.text);
 						this.completeEdit();
 						return false;	
 					},
 					scope:this
 				}
 			});
+			tree.filterByProperty = function(p) {
+				var root = this.getRootNode();
+				var r = new RegExp('.*'+p+'.*');
+				r.ignoreCase = true;
+				root.cascade(function(node) {
+					if(!node.isLeaf())
+						return true;
+					if(r.test(node.text)) {
+						if(node.hidden) {
+							node.getUI().show();	
+						}
+					} else {
+						if(!node.hidden) {
+							node.getUI().hide();	
+						}	
+					}
+				},this);
+			}
 			tree.getRootNode().addListener("expand",function (root) {
 				var toExpand = null;
 				root.eachChild(function (child) {
@@ -162,14 +197,41 @@ Ext.onReady(function() {
 					return true;
 				}
 			},this);
+			
+			this.tree.editorTxt = new Ext.form.TextField({
+				cls: 'x-tree-root-ct',
+				value: this.startValue,
+				enableKeyEvents: true
+			});
+			
+			this.tree.editorTxt.addListener("focus",function(me) {
+				me.setValue("");
+			},this,{single:true});
+
+			this.tree.editorTxt.addListener("keyup",function(e) {		
+				var intermediateValue = this.tree.editorTxt.getRawValue();
+				this.tree.filterByProperty(intermediateValue);
+			},this,{buffer:true});
+			
+			this.tree.editorTxt.addListener("change",function(e) {
+				var intermediateValue = this.tree.editorTxt.getRawValue();
+				this.tree.filterByProperty(intermediateValue);
 	
+				this.setValue(e.getValue());
+			
+			},this);
+
+			var propertyTextNode = Ext.get(Ext.get(el.parentNode).child('.x-grid3-col-property'));
+			propertyTextNode.update("");
+			this.targetNode = propertyTextNode;
+			this.tree.editorTxt.render(propertyTextNode);
 			this.tree.render(el.parentNode);
+			this.on("complete",function() {AppKit.log(this,arguments)},this);	
 			this.fireEvent("startedit",el.parentNode,this.startValue);
 		},
 		
 		stopEdit: function () {
-			if(this.tree)
-				this.tree.destroy();
+			this.hideEdit();
 		},
 		onDestroy: function () {
 			this.hideEdit();

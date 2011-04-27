@@ -7,6 +7,13 @@
 	<ae:configuration>
 		
 		<validators>
+			<validator class="string" name="satellites" required="false">
+				<argument>satellites</argument>
+			</validator>
+			<validator class="string" name="preflight" required="false" >
+				<argument>preflight</argument>
+			</validator>
+			
 			<validator class="string" name="connection_id" required="true">
 				<argument>connection_id</argument>
 				<errors>

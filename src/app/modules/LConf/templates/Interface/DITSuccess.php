@@ -47,21 +47,22 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 						break;
 				} 
 			} while(noIcon && attr.objectclass[++i])
+
 			//var aliasString = "ALIAS=Alias of:";
 			nodeAttr.text = this.getText(attr);
 			nodeAttr.qtip = _("<b>ObjectClass:</b> ")+objClass+
 							_("<br/><b>DN:</b> ")+Ext.util.Format.ellipsis(attr["dn"],45)+
 							_("<br/>Click to modify");
 			
-			
+				
 			nodeAttr.id = attr["dn"];
 			nodeAttr.leaf = attr["isLeaf"] ? true :false;
 			
-			
-			
 			return Ext.tree.TreeLoader.prototype.createNode.call(this,nodeAttr);
 		},
-		
+
+
+
 		constructor: function(config) {
 			Ext.tree.TreeLoader.prototype.constructor.call(this,config);
 		},
@@ -150,6 +151,10 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			this.on("beforeNodeDrop",function(e) {e.dropStatus = true;this.nodeDropped(e);return false},this)
 			this.on("contextmenu",function(node,e) {this.context(node,e)},this);
 			this.on("beforeappend",function(tree,parent,node) {
+				
+				if(!this.checkIfNodeIsSynced(node,parent)) {
+					(function() {node.getUI().addClass("x-node-lconf-unsynced")}).defer(200);	
+				}
 				if(this.getNodeById(node.attributes.dn)) {
 					var rnd = ((Math.floor((Math.random()*10000))+1000)%10000);
 					node.attributes.dn = "*"+rnd+"*"+node.attributes.dn;
@@ -167,6 +172,61 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			
 		},
 		
+		getLastExport: function(parent) {
+			try {
+				var r = /LCONF->EXPORT->CLUSTER = /i
+				for(var i in (parent.attributes.description || {})) {
+					if(!parent.attributes.description[i].match) 
+						continue;
+					return parent.attributes.modifytimestamp[0];
+				}
+			
+				return -1;
+			} catch(e) {	
+				AppKit.log(e);	
+			}
+		},
+		convertLDAPTimestamp: function(ts) {
+			
+			var y = parseInt(ts.substr(0,4),10);
+			var m = parseInt(ts.substr(4,2),10);
+			var d = parseInt(ts.substr(6,2),10);
+			var u = ts.substr(8);
+			u = u.substr(0,u.length-1);
+			var modDate = new Date();
+				modDate.setFullYear(y);
+				modDate.setMonth(m-1);
+				modDate.setDate(d);
+			var t = modDate.getTime();
+			
+			t /= 1000;
+			return parseInt(u,10)+parseInt(t,10);		
+		},	
+		checkIfNodeIsSynced: function(node,parent) {
+			var r = /.*structuralobject/i
+			var lastExport = -1;
+			while(parent) {	
+			
+				for(var i in (parent.attributes.objectclass || {})) {	
+					if(r.test(parent.attributes.objectclass[i])) {
+						lastExport = this.getLastExport(parent);
+					} else {
+						continue;
+					}
+					var modified = this.getLastExport(node);	
+			
+					if(modified == -1)
+						return true;
+				
+					AppKit.log(lastExport, modified);
+					if(lastExport < modified)
+						return false;
+				}
+				parent = parent.parentNode;
+			}
+			return true;
+		},
+
 		setupKeyMap: function() {
 		    var map = new Ext.KeyMap(this.getEl(),[{
 				key: "c",

@@ -147,7 +147,7 @@
 						iconCls: 'icinga-icon-wrench-screwdriver',
 						text: 'Export config',
 						handler: function() {
-							this.exportConfiguration(index,node);
+							this.exportPreflight(index,node);
 						},
 						scope: this
 					}]
@@ -300,16 +300,129 @@
 		
 			infoWnd.show();
 		},
-
-		exportConfiguration: function(index, node) {		
+		
+		exportPreflight: function(index,node) {
 			var record = this.dStore.getAt(index);
+			lconf.prog = Ext.Msg.wait(_("Exporting config"),_("Your icinga-web config is being exported"));
+			Ext.Ajax.request({
+				url: this.exportUrl,
+				params: {preflight:true,connection_id : record.get('connection_id')},
+				success: function(r) {
+					try {
+						var result = Ext.decode(r.responseText);
+						if(!result)
+							result = {};
+						lconf.prog.hide();	
+						this.showExportTargets(result,record);
+					} catch(e) {
+						lconf.prog.hide();		
+						Ext.Msg.alert(_("Warning"),_("Export preflight succeeded, but there was an error parsing the server's result <br/>"+e));
+					}
+					
+				},
+				exception: function() {
+					lconf.prog.hide();	
+				},
+				failure: function(r) {
+					try {	
+						var result = Ext.decode(r.responseText);
+					
+						if(!result)
+							result = {}
+						result.error = result.error || _("Unknown error");
+
+						result.error = "<div style='border:1px solid black;overflow:scroll;height:200px;width:400px;background-color:white;font-family:monospace;font-size:10;'><pre>"+Ext.util.Format.ellipsis(result.error,200)+"</pre></div>";
+						lconf.prog.hide();	
+						Ext.Msg.alert(_("Could not export config: "),result.error);	
+					} catch(e) {
+						lconf.prog.hide();		
+						Ext.Msg.alert(_("Could not export config: "),_("Unknown error"));	
+					}
+				},
+				scope: this
+			});		
+		},
+
+		showExportTargets: function(results,record) {
+			var items = [{
+				html: _('Choose targets to export to<br/>'),	
+				xtype: 'label',
+				style : 'font-weight: bold;margin-bottom:15px'
+			},{
+				xtype: 'spacer',
+				height: 10
+			},{
+				fieldLabel: _('Master instance'),
+				checked: true,
+				disabled: true
+			}]
+			
+			for(var i=0;i<results.config.Available.length;i++) {
+				var itemName = results.config.Available[i];
+				items.push({
+					fieldLabel: Ext.util.Format.htmlEncode(itemName),
+					checked: results.config.Updated.indexOf(itemName) > -1,
+					name: itemName
+				});	
+			}
+			var formId = Ext.id();
+			var wnd = new Ext.Window({
+				title : _('Exporter'),
+				layout: 'fit',
+				width: 300,
+				height: 200,	
+				autoScroll:true,
+				
+				items: {
+					padding: 5,
+					layout: 'form',
+					xtype: 'form',
+					id: formId,
+					defaults: {
+						xtype: 'checkbox',
+						width: 200
+					},
+					items: items
+				},
+				buttons: [{
+					text: _('Deploy selected configs'),	
+					iconCls: 'icinga-icon-wrench',
+					handler: function(e) {
+						var selected = Ext.getCmp(formId);
+						var items = (selected.getForm().getValues());
+						var toExport = []
+						for(var i in items) {
+							toExport.push(i);
+						}
+						this.exportConfiguration(record,toExport);
+						e.ownerCt.ownerCt.close();
+					},
+					scope: this
+
+				}, {
+					text: _('Cancel'),	
+					iconCls: 'icinga-icon-cancel',
+					handler: function(e) {
+						e.ownerCt.ownerCt.close();	
+					}
+				}]
+			});
+			wnd.show();
+		},
+
+		exportConfiguration: function(record, toExport) {		
+			var toExport = Ext.encode(toExport);			
+			
 			Ext.Msg.confirm(_("Export config"),_("Export configuration in this tree?"),function(btn){
 				if(btn != 'yes')
 					return false;
 				lconf.prog = Ext.Msg.wait(_("Exporting config"),_("Your icinga-web config is being exported"));
 				Ext.Ajax.request({
 					url: this.exportUrl,
-					params: {connection_id : record.get('connection_id')},
+					params: {
+						satellites: toExport,
+						connection_id : record.get('connection_id')
+					},
 					success: function(r) {
 						try {
 							var result = Ext.decode(r.responseText);

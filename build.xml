@@ -90,16 +90,6 @@ Available targets:
  			</then>
 		</if>
 		
-		<!--  Run SQL -->
-		<taskdef name="sqlRunner" classname="bin.sqlRunnerTask" />
-		<input propertyname="confirm" promptChar="?" defaultValue="y" validargs="y,n">Process sql queries?</input>
-		<if>
-			<equals arg1="${confirm}" arg2="y" />
-			<then>
-				<sqlRunner files="etc/sql" ini="db.ini"/>
- 			</then>
-		</if>		
-	
 		<echo>Setting up config files</echo>
 		<input propertyName="schemaPrefix" promptChar="?" defaultValue="lconf">Prefix for config schema (in most cases lconf)</input>
 		<reflexive>
@@ -113,6 +103,27 @@ Available targets:
 				</replacetokens>
 			</filterchain>
 		</reflexive>	
+		
+		<!--  Run SQL -->
+		<taskdef name="sqlRunner" classname="bin.sqlRunnerTask" />
+		
+		<copy tofile="etc/sql/credentials.sql" file="etc/sql/credentials.sql.in" overwrite="true">	
+			<filterchain>
+				<replacetokens beginToken="@@" endToken="@@">
+					<token key="SCHEMA_PREFIX" value="${schemaPrefix}"/>
+				</replacetokens>
+			</filterchain>
+		</copy>	
+		
+		
+		<input propertyname="confirm" promptChar="?" defaultValue="y" validargs="y,n">Process sql queries?</input>
+		<if>
+			<equals arg1="${confirm}" arg2="y" />
+			<then>
+				<sqlRunner files="etc/sql" ini="db.ini"/>
+ 			</then>
+		</if>		
+	
 		<property name="buildAdditional" value="false" />
 		<available file="additional.xml" property="buildAdditional" value="true" />
 		<if>

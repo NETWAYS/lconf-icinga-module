@@ -41,7 +41,7 @@
 					<ae:parameter name="lconfServicegroup">icinga-object-servicegroup</ae:parameter>
 					<ae:parameter name="alias">icinga-icon-attach</ae:parameter>
 				</setting>
-				
+				<setting name="prefix">lconf</setting>		
 				<setting name="customDialogs">
 					<ae:parameter>
 						<ae:parameter name="view">Command</ae:parameter>

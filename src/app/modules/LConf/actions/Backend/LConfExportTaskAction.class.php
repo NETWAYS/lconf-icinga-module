@@ -16,6 +16,8 @@ class LConf_Backend_LConfExportTaskAction extends IcingaLConfBaseAction
 	 */
 	public function execute(AgaviRequestDataHolder $rd) {
 		$connManager = AgaviContext::getInstance()->getModel('LDAPConnectionManager','LConf');
+		$preflight = $rd->getParameter("preflight",false);
+		$satellites = json_decode($rd->getParameter("satellites","[]"),true);
 	
 		$connectionId = $rd->getParameter("connection_id");
 		$connManager->getConnectionsFromDB();
@@ -23,8 +25,12 @@ class LConf_Backend_LConfExportTaskAction extends IcingaLConfBaseAction
 		$conn = $connManager->getConnectionById(1);
 		$confExporter = AgaviContext::getInstance()->getModel('LConfExporter','LConf');
 		try {
-			$result = $confExporter->exportConfig($conn);
-			$this->setAttribute("config",$result);
+			if(!$preflight) {
+				$result = $confExporter->exportConfig($conn,$satellites);
+				$this->setAttribute("config",$result);
+			} else {
+				$this->setAttribute("config",$confExporter->getChangedSatellites($conn));
+			}
 		} catch(Exception $e) {
 			$this->setAttribute("error_msg",$e->getMessage());
 			return "Error";

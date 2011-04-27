@@ -376,7 +376,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 	public function listDN($dn,$resolveAlias = true,$ignoreFilter = false) {
 		$filter = "objectClass=*";
 		
-		$result = @ldap_list($this->getConnection(),$dn,$filter,array("dn","objectclass","aliasedobjectname"));
+		$result = @ldap_list($this->getConnection(),$dn,$filter,array("dn","objectclass","aliasedobjectname","modifyTimestamp","description"));
 		if(!$result)
 			return null;
 		$entries = @ldap_get_entries($this->getConnection(),$result);
@@ -384,7 +384,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 			$entries = $this->helper->resolveAliases($entries);
 		if($this->getFilter() && !$ignoreFilter) {
 
-			$searchResult = $this->searchEntries($this->getFilter(),null,array("dn","objectclass","aliasedobjectname"));			
+			$searchResult = $this->searchEntries($this->getFilter(),null,array("dn","objectclass","aliasedobjectname","modifyTimestamp","description"));			
 			$entries = $this->helper->filterTree($entries,$searchResult);
 		}
 
@@ -481,13 +481,14 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 
 		$idRegexp = "/^(.*)_(\d*)$/";
 		$affectsDN = false;
-		 
+	
 		foreach($newParams as $parameter) {
+			
 			// ignore inherited params
 			if(isset($parameter["parent"]))
-				if($parameter["parent"] != "")
+				if($parameter["parent"] != "")	
 					continue;
-			
+	
 			$idElems = array();
 			preg_match($idRegexp,$parameter["id"],$idElems);
 			if(count($idElems) != 3) {
@@ -496,6 +497,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 			$curProperty = $idElems[1];
 			$curIndex = $idElems[2];
 			if(is_array($properties[$curProperty])) {
+				
 				$properties[$curProperty][$curIndex] = $parameter["value"];
 				if(in_array($curProperty,self::$dnDescriptors))
 					$affectsDN = $curProperty."=".$parameter["value"];
@@ -528,7 +530,8 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 			}
 			$this->removeNodes($dn);
 		} else {
-			if(!@ldap_modify($connId,$dn,$properties)) {
+			
+			if(!ldap_modify($connId,$dn,$properties)) {
 				throw new AgaviException("Could not modify ".$dn. ":".$this->getError());
 			}
 		}
@@ -584,13 +587,16 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 			$curProperty = $idElems[1];
 			$curIndex = $idElems[2];
 			if(is_array($properties[$curProperty])) {
-				unset($properties[$curProperty][$curIndex]);
+				unset($properties[$curProperty][$curIndex]);	
 				if(count($properties[$curProperty]) == 0)
 					$properties[$curProperty] = array();
 			} else 
 				$properties[$curProperty] = array();
 		}
-	
+		foreach($properties as &$arr) {
+			if(is_array($arr))
+				$arr = 	 array_values($arr);
+		}		
 		if(!@ldap_modify($connId,$dn,$properties)) {
 			throw new AgaviException("Could not modify ".$dn. ":".$this->getError());
 		}

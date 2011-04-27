@@ -12,7 +12,9 @@ class LConf_LConfExporterModel extends IcingaLConfBaseModel
 	protected $lconfConsole = null;
 	protected $instanceConsole = null;
 	protected $statusCounter = 0;
-
+	protected $ldapClient = null;
+	protected $filterSatellites = false;
+	protected $prefix = "";
 	public function getStatus() {
 		return $this->status[$statusCounter];
 	}
@@ -23,12 +25,14 @@ class LConf_LConfExporterModel extends IcingaLConfBaseModel
 		return $this->lconfConsole;
 	}
 	
-	public function exportConfig(LConf_LDAPConnectionModel $ldap_config) {	
-		$satellites = $this->fetchExportSatellites($ldap_config);
+	public function exportConfig(LConf_LDAPConnectionModel $ldap_config,$satellites = array()) {
+		//$satellites = $this->fetchExportSatellites($ldap_config);	
+		$ctx = $this->getContext();
 		$lconfExportInstance = AgaviConfig::get('modules.lconf.lconfExport.lconfConsoleInstance');
+		$this->prefix = AgaviConfig::get('modules.lconf.prefix');
 		$console = $this->getConsole($lconfExportInstance);
-		$this->tm = AgaviContext::getInstance()->getTranslationManager();
-		$exportCmd =  AgaviContext::getInstance()->getModel(
+		$this->tm = $ctx->getTranslationManager();
+		$exportCmd =  $ctx->getModel(
 			'Console.ConsoleCommand',
 			"Api",
 			array(
@@ -43,10 +47,60 @@ class LConf_LConfExporterModel extends IcingaLConfBaseModel
 		if($exportCmd->getReturnCode() != 0) { 
 			throw new LConfExporterErrorException($this->getCommandError($exportCmd));	
 		} else {
+			$this->updateExportTime($ldap_config,$satellites);
+	
 			return $this->parseSuccessfulOutput($exportCmd);
 		}
 	}
 	
+	public function getChangedSatellites(LConf_LDAPConnectionModel $ldap_config) {	
+		$satellites = $this->fetchExportSatellites($ldap_config);
+		$this->filterSatellites = true;
+		$satellites_new = $this->fetchExportSatellites($ldap_config);
+		return array("Available"=>$satellites, "Updated" => $satellites_new);
+	}
+	
+	protected function updateExportTime($conn,$satellites = array()) {
+		
+		if(empty($satellites))
+			return true;
+
+		$ctx = $this->getContext();
+		$elem = $this->fetchExportSatellites($conn,true);
+		
+		foreach($elem as $key=>$strucObj)  {  		
+			if(!is_numeric($key) || !isset($strucObj["satellite_name"]))
+				continue;
+			// only update exported satellite times
+			if(count(array_intersect($strucObj["satellite_name"],$satellites)) <= 0)
+				continue;
+			
+			if(!isset($strucObj["description"])) {
+				$strucObj["description"] = array();
+			}
+		
+			$toDelete = array();
+			
+			foreach($strucObj["description"] as $descKey => $desc)  {	
+				if(!is_numeric($descKey))
+					continue;
+						
+				if(preg_match('/Last export by lconf for icinga-web: /',$desc) > 0) {		
+					$toDelete[] = "description_".$descKey;	
+				}	
+			}	
+			
+			$this->ldapClient->removeNodeProperty($strucObj["dn"],$toDelete);
+			$this->ldapClient->addNodeProperty($strucObj["dn"],
+				array(
+					"property"=>"description",
+					"value" => 'Last export by lconf for icinga-web: '.date('c')
+				)
+			);
+		}
+	}
+
+
 	protected function getCommandError(Api_Console_ConsoleCommandModel $exportCmd) {
 
 		switch($exportCmd->getReturnCode()) {
@@ -104,7 +158,8 @@ class LConf_LConfExporterModel extends IcingaLConfBaseModel
 		return false;
 	}
 
-	protected function fetchExportSatellites(LConf_LDAPConnectionModel $ldap_config) {
+	protected function fetchExportSatellites(LConf_LDAPConnectionModel $ldap_config,$asObject = false) {
+
 		$ctx = $this->getContext();
 		$filterGroup = $ctx->getModel('LDAPFilterGroup','LConf');
 		$objectClassFilter =  $ctx->getModel("LDAPFilter","LConf",array("objectclass","*",false,"exact"));
@@ -115,10 +170,13 @@ class LConf_LConfExporterModel extends IcingaLConfBaseModel
 		$filterGroup->addFilter($filter);
 		$client = $ctx->getModel('LDAPClient','LConf',array($ldap_config));
 		$client->connect();
-		$entries = $client->searchEntries($filterGroup,null,array('description','objectclass'));
+		$this->ldapClient = $client;
+		$entries = $client->searchEntries($filterGroup,null,array('dn','description','objectclass','modifytimestamp'));
 		$satellites = array();
-	
-		foreach($entries as $val=>$cluster) {
+		if($this->filterSatellites) {
+			$entries = $this->removeUnchangedSatellites($entries);	
+		} 
+		foreach($entries as $val=>&$cluster) {
 			if(!is_numeric($val))
 				continue;	
 			if(!$this->isStructuralObject($cluster))
@@ -128,12 +186,73 @@ class LConf_LConfExporterModel extends IcingaLConfBaseModel
 				if(!is_numeric($key))
 					continue;
 				$matches = array();
-				preg_match_all('/^LCONF->EXPORT->CLUSTER[\t ]*?=[\t ]*?(?P<satellite>\w+?[ \t]*?$)/i',$val,$matches);
-				if(is_array($matches['satellite']))
+	
+				preg_match_all('/^LCONF->EXPORT->CLUSTER[\t ]*?=[\t ]*?(?P<satellite>[\w ]+?[ \t]*?$)/i',$val,$matches);
+			
+				if(is_array($matches['satellite'])) {
+					foreach($matches['satellite'] as &$s) {
+						$s = trim($s);	
+					}
 					$satellites = array_merge($satellites,$matches['satellite']);
+					
+					if($asObject) {
+						if(!isset($cluster["satellite_name"]))
+							$cluster["satellite_name"] = array();
+
+						$cluster["satellite_name"] = array_merge($cluster["satellite_name"],$matches['satellite']);
+					}
+				}
+			}
+		}
+		
+		if($asObject)
+			return $entries;
+		
+		return $satellites;
+	}
+
+	protected function removeUnchangedSatellites(array $entries) {
+		$satellites = array();
+
+		foreach($entries as $val=>$cluster) {
+		
+			$ts = $cluster["modifytimestamp"][0];
+			if(!is_numeric($val))
+				continue;
+
+			if(!$this->isStructuralObject($cluster))
+				continue;
+		
+			$client = $this->ldapClient;
+			$curDir = ($client->listDN($cluster["dn"],true,true));;
+	
+			foreach($curDir as $nr=>$dir) {		
+				if($this->recursiveTimestampCheck($dir,$ts)) {
+					$satellites[] =$cluster; 
+					break;
+				}
 			}
 		}
 		return $satellites;
+	}
+
+	protected function recursiveTimestampCheck($dir,$ts) {
+		
+		if($dir["modifytimestamp"][0] > $ts) {
+		
+			return true;
+		}
+		$subDir = ($this->ldapClient->listDN($dir["dn"],true,true));;
+	
+		if(!is_array($subDir))
+			return false;
+		foreach($subDir as $val=>$sD) {
+			if(!is_numeric($val))
+				continue;
+			if($this->recursiveTimestampCheck($sD,$ts))
+				return true;
+		}
+		return false;
 	}
 
 	protected function isStructuralObject($cluster) { 
