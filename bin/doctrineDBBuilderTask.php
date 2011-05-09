@@ -42,7 +42,7 @@ class doctrineDBBuilderTask extends Task {
 		// setup autoloader
 		require_once($doctrinePath."/Doctrine.php");
 		spl_autoload_register("Doctrine::autoload");
-		
+		spl_autoload_register("doctrineDBBuilderTask::loadModel");
 		$iniData = parse_ini_file($this->ini);
 		if(empty($iniData))
 			throw new BuildException("Couldn't read db.ini");
@@ -62,6 +62,16 @@ class doctrineDBBuilderTask extends Task {
 			 ");
 		echo "\n Dropping tables $tablesToDelete \n";
 	}
+
+	protected static $APPKIT_LIB_DB = "";
+
+	public static function loadModel($name) {
+		if(preg_match("/^Base/",$name)) {
+			include(self::$APPKIT_LIB_DB."/database/models/generated/".$name.".php");		
+		} else {
+			include(self::$APPKIT_LIB_DB."/database/models/".$name.".php");		
+		}
+	}
 	
 	/**
 	 * Rebuilds a db as described by the doctrine models
@@ -70,12 +80,11 @@ class doctrineDBBuilderTask extends Task {
 	public function buildDBFromModels() {	
 
 		$icinga = $this->project->getUserProperty("PATH_Icinga");
-		$modelPath = $icinga."/app/modules/".$this->project->getUserProperty("MODULE_Name")."/lib/";
-		
+
+		$modelPath = $icinga."/app/modules/".$this->project->getUserProperty("MODULE_Name")."/lib/";	
 		$appKitPath = $this->project->getUserProperty("PATH_AppKit");
 
-		Doctrine::loadModels($icinga."/".$appKitPath."database/models/generated/");
-		Doctrine::loadModel($icinga."/".$appKitPath."database/models/");
+		self::$APPKIT_LIB_DB = $icinga."/".$appKitPath;	
 
 		$tables = Doctrine::getLoadedModels();
 		$tableList = array();
