@@ -34,6 +34,7 @@
 				<!-- LDAP objects -->
 				<route name=".ldapmetaprovider" pattern="^/ldapmeta$" action="Backend.LDAPObjects"/>
 			</route>
+			<route name=".export" pattern="^/export" action="Backend.LConfExportTask" output_type="json"/>
 			<route name=".admin" pattern="^/admin" action="Interface.Admin.Main">
 				<route name=".principals" pattern="^/principals" action="Interface.Admin.Principals" output_type="simple"/>
 			</route>
