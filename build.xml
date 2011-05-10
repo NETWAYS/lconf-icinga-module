@@ -285,6 +285,7 @@ Available targets:
 		
 		<echo>Clearing cache</echo>
 		<delete dir="${PATH_Icinga}/app/cache/config" />
+		<delete dir="${PATH_Icinga}/app/cache/content" />
 	</target>
 
 	<target name="export-cronk">
