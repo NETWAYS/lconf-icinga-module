@@ -228,7 +228,14 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 				return false;
 			}
 			var type = e.record.get("property").split("_")[0];
-			var editor = lconf.editors.editorFieldMgr.getEditorFieldForProperty(type);
+			var objClasses = [];
+			for(var i=0;i<e.grid.store.data.items.length;i++) {
+				var dataItem = e.grid.store.data.items[i];
+				if(dataItem.data.property.toLowerCase() == "objectclass")
+					objClasses.push(dataItem.data.value);
+			}
+			
+			var editor = lconf.editors.editorFieldMgr.getEditorFieldForProperty(type,null,objClasses);
 		}
 		
 		if(editor.store) {

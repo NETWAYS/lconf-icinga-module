@@ -5,6 +5,8 @@ class LConf_Backend_LDAPObjectsSuccessView extends IcingaLConfBaseView
 
 	public function executeJson(AgaviRequestDataHolder $rd) {
 		$field = json_decode($rd->getParameter("field"),true);
+		$limit = $rd->getParameter("limit",0);
+		$offset = $rd->getParameter("start",0);
 		$asTree = $rd->getParameter("asTree",false);
 		$ctx = $this->getContext();
 		$result = array();
@@ -42,8 +44,8 @@ class LConf_Backend_LDAPObjectsSuccessView extends IcingaLConfBaseView
 		$response = array();
 		if($asTree) {
 			$response = $this->buildTreeResponse($field,$result);
-		} else {
-			$response = $this->buildResponse($field,$result);
+		} else {	
+			$response = $this->buildResponse($field,$result,$limit,$offset);
 		}
 		return json_encode($response);
 	}
@@ -73,17 +75,21 @@ class LConf_Backend_LDAPObjectsSuccessView extends IcingaLConfBaseView
 		return $categoryListing;
 	}
 	
-	protected function buildResponse($field,$result) {
+	protected function buildResponse($field,$result,$limit=0,$offset=0) {
+
 		$response = array(
 			"metaData" => array(
 				"idProperty" => "entry",
 				"root" => "result",
 				"fields" => array(
 					"entry"  
-				)
+				),
+				"totalProperty" => "total"
 			),
-			"result" => $result
+			"result" => array_slice($result,$offset,$limit > 0 ? $limit : null),
+			"total" => count($result)
 		);
+		
 		return $response;
 	}
 	

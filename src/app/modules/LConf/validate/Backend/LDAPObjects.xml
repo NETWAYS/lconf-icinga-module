@@ -25,6 +25,18 @@
 					<error>No connectionId provided</error>
 				</errors>
 			</validator>
+			<validator class="number" name="start" required="false">
+				<argument>start</argument>
+				<errors>
+					<error>No start provided</error>
+				</errors>
+			</validator>
+			<validator class="number" name="limit" required="false">
+				<argument>limit</argument>
+				<errors>
+					<error>No limit provided </error>
+				</errors>
+			</validator>
 		</validators>
 		
 		<validators method="write">
