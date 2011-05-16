@@ -107,6 +107,28 @@ Ext.onReady(function() {
 				});	
 		},this,{single:true})
 	}
+	var loginUrl = '<?php echo $ro->gen("appkit.login"); ?>';
+	var killCheck = false;
+	var checkLoginTask = Ext.TaskMgr.start({
+		run: function() {
+			if(killCheck)
+				return false;
+			Ext.Ajax.request({
+				url: loginUrl,
+				failure: function(r) {
+					if(r.status == 403) {
+						Ext.Msg.confirm(_("Session expired"),_("Your login session expired. <br/>By clicking 'yes' you will be redirected to the login page, press 'no' in order to stay in LConf. <span style='color:red'>You won't be able to perform any actions</span>"),function(btn) {
+							if(btn == 'yes')
+								AppKit.changeLocation(loginUrl);
+					
+						})
+						killCheck = true;		
+					}	
+				}
+			});	
+		},
+		interval: 5000
+	});
 })
 
 </script>

@@ -166,6 +166,15 @@ li div.italic * span {
 	color: #acacac;
 }
 
+/**
+* Disable text-selection supression in grid
+**/
+.x-grid3-col-value .dnSelectable  {
+	-moz-user-select:inherit;
+	-khtml-user-select:text;
+}
+
+
 .lconf-logo { background-image: url(../images/LConf/tree_small.png) !important; background-repeat: no-repeat;}
 .icinga-icon-arrow-divide { background-image: url(../images/famfamfam/arrow_divide.png) !important; background-repeat: no-repeat; }
 .icinga-icon-server {background-image: url(../images/famfamfam/server.png) !important; background-repeat: no-repeat; }

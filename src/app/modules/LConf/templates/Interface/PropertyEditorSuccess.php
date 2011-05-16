@@ -14,8 +14,27 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 		this.initializeGridSettings();		
 		Ext.grid.EditorGridPanel.prototype.constructor.call(this,config);
 			
+		
 	},
-	
+
+	/**
+	* http://extjs.com/forum/showthread.php?t=22218
+	* For non-IE browsers, this is fixed with a CSS addition.
+	*/
+	reenableTextSelection : function(){
+		var grid = this;
+		if(Ext.isIE){
+			grid.store.on("load", function(){
+				var elems=Ext.DomQuery.select("div.dnSelectable", parentCmp.el.dom);
+				for(var i=0, len=elems.length; i<len; i++){
+					elems[i].unselectable = "off";
+					elems[i].parentNode.unselectable = "off";
+				}
+			});
+		}
+	},
+
+
 	viewConfig: {
 		getRowClass: function (record,index) {
 			if(record.get('parent') != "") {
@@ -70,8 +89,27 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 				return  Ext.grid.ColumnModel.prototype.isCellEditable.call(this,col,row);	
 			}, 
 			columns: [	
-				{id:'property',header:'Property',width:300,sortable:true,dataIndex:'property',editor:Ext.form.TextField},
-				{id:'value',header:'Value',width:400,sortable:false,dataIndex:'value',editor:Ext.form.TextField}
+				{
+					id:'property',
+					header:'Property',
+					width:300,
+					sortable:true,
+					dataIndex:'property',
+					editor:Ext.form.TextField
+				},{
+					id:'value',
+					header:'Value',
+					width:400,
+					sortable:false,
+					dataIndex:'value',
+					editor:Ext.form.TextField,
+					renderer:function(value,metaData,record) {
+						if(record.get('property') == "dn")
+							value = "<div class='dnSelectable'>"+value+"</div>";
+
+						return value;
+					}
+				}
 			]
 		});
 
@@ -107,6 +145,7 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 		});
 		if(this.parentNode)
 			this.ds.setBaseParam("parentNode",this.parentNode);
+		this.reenableTextSelection();	
 	},
 	
 	

@@ -182,7 +182,7 @@ Ext.onReady(function() {
 		
 		startEdit: function (el) {
 			this.editing = true;
-			this.startValue = el.innerHTML;			
+			this.startValue = el.innerHTML != '&nbsp;' ? el.innerHTML : '';			
 			this.determineType();
 			this.tree =  this.getTree();
 			this.tree.setPosition(Ext.EventObject.getPageX(),Ext.EventObject.getPageY());
@@ -200,7 +200,7 @@ Ext.onReady(function() {
 			
 			this.tree.editorTxt = new Ext.form.TextField({
 				cls: 'x-tree-root-ct',
-				value: this.startValue,
+				value: this.startValue || '',
 				enableKeyEvents: true
 			});
 			
