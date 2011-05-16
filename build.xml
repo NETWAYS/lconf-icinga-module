@@ -137,6 +137,7 @@ Available targets:
 	
 		<echo>Clearing cache</echo>
 		<delete dir="${PATH_Icinga}/app/cache/config" />	
+		<delete dir="${PATH_Icinga}/app/cache/content" />	
 		
 		<property name="buildAdditional" value="false" />
 		<available file="additional.xml" property="buildAdditional" value="true" />

@@ -51,7 +51,10 @@ class sqlRunnerTask extends Task {
 		foreach($files as $filename) {
 			if(substr($filename,-3) == 'sql') {
 				$sql = file_get_contents($this->files."/".$filename);
-				$doctrine->query($sql);
+				$sql = preg_split("/\n/",$sql);
+				foreach($sql as $line) 
+					if($line)
+						$doctrine->query($line);
 			}
 		}
 		Doctrine_Manager::getInstance()->getCurrentConnection()->commit();
