@@ -69,7 +69,8 @@ class LConf_LDAPConnectionManagerModel extends IcingaLConfBaseModel
 		foreach($details as $field=>$value) {
 			if(!ctype_digit($value))
 			    $value = htmlentities($value);
-		;	
+			if(($field == "connection_ldaps" || $field == "connection_tls") && $value == "")
+				$value = 0;
 			if($value  || in_array($field,$alwaysUpdate))
 				$entry->set($field,$value);
 		}
