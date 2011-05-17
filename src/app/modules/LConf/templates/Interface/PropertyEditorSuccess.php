@@ -137,6 +137,8 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 				text: _('Save Changes'),
 				iconCls: 'icinga-icon-disk',
 				handler: function () {
+					if(!this.validate())
+						return false;
 					this.getStore().save();
 					eventDispatcher.fireCustomEvent("refreshTree");
 				},
@@ -148,7 +150,23 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 		this.reenableTextSelection();	
 	},
 	
-	
+	validate: function () {
+		var store = this.getStore();
+		var valid = true;
+		store.each(function(rec) {
+			var prop = rec.get("property");
+			
+			if(!rec.data.value) {
+				Ext.Msg.alert(_("Invalid property set"), 
+					_("Please submit a value for ")+prop);
+				valid = false;
+				return false;
+			}
+			return true;
+		})
+		return valid;
+	},
+		
 	inheritedMenu: function (grid,idx,event) {
 		var record = this.getStore().getAt(idx);
 		if(!record.get("parent"))

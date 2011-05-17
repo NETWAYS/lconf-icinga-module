@@ -90,7 +90,7 @@ class LConf_LDAPFilterManagerModel extends IcingaBaseModel {
 		else if(isset($subFilter["OR"]))
 			$filterGrp->addFilter($this->buildFilterGroup("OR",$subFilter["OR"],$negated));
 		else if(isset($subFilter["NOT"]))
-			$this->addNegatedFilters($subFilter["NOT"],$filterGrp,$negated);
+			$filterGrp->addFilter($this->buildFilterGroup("NOT",$subFilter["NOT"],$negated));
 		else if(isset($subFilter["REFERENCE"]))
 			$filterGrp->addFilter($this->resolveReference($subFilter["REFERENCE"],$negated));
 		else if(isset($subFilter["filter_attribute"]))

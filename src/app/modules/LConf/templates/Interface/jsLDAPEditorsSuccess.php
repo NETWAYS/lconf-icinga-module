@@ -23,7 +23,8 @@
 			 	objectclass = [objectclass]; 
 	
 			for(var i=0;i<objectclass.length;i++) {
-				
+				if(!objectclass[i])
+					continue; // skip empty fields
 				field = registeredEditorFields[objectclass[i].toLowerCase()+"."+property.toLowerCase()];		
 				if(Ext.isDefined(field))
 					break;
@@ -99,7 +100,7 @@
 				valueField: 'entry',
 				mode:'remote',
 				store: propertyStore,
-				pageSize: 2,
+				pageSize: 25,
 				tpl: '<tpl for="."><div style="padding-left:25px" class="icinga-icon-{cl} x-combo-list-item">{entry}</div></tpl>',
 				enableKeyEvents: true,
 				initList: function() {

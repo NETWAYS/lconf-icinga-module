@@ -57,7 +57,7 @@ class LConf_Backend_Cronks_CustomVarDNCollectorSuccessView extends IcingaLConfBa
 			$connDN = explode(",",$connDN);
 
 			$break = false;
-			for($i=count($connDN)-1,$x = count($dn)-1;$i>=0 && $x>=0;
+		/*	for($i=count($connDN)-1,$x = count($dn)-1;$i>=0 && $x>=0;
 				$i--,$x--
 			) {
 				if(!substr($connDN[$i],0,2) == 'dc')
@@ -66,7 +66,7 @@ class LConf_Backend_Cronks_CustomVarDNCollectorSuccessView extends IcingaLConfBa
 					$break = true;
 					break;
 				}
-			}				
+			}				*/
 			if(!$break)
 				$foundConnections[] = array(
 					"id"	=>	$connection->getConnectionId(),

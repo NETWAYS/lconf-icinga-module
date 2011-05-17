@@ -17,7 +17,6 @@ class LConf_LDAPFilterGroupModel extends IcingaLConfBaseModel
 	public function setFilterType($type) {
 		if(!in_array($type,self::$allowedTypes))
 			throw new filterGroupException("Invalid FilterGroup connection :".$type);
-		
 		// Format string filter to boolean operator
 		switch($type) {
 			case "AND":

@@ -58,7 +58,7 @@ class LConf_LDAPConnectionManagerModel extends IcingaLConfBaseModel
 	 */
 	public function addConnection(array $details) {
 		$id = $details["connection_id"];
-		$alwaysUpdate = array("connection_binddn","connection_bindpass","connection_ldaps","connection_tls");
+		$alwaysUpdate = array("connection_binddn","connection_ldaps","connection_tls");
 		$entry = new LconfConnection();
 		if($id > -1) 
 			$entry = Doctrine::getTable("LconfConnection")->findBy("connection_id",$id)->getFirst();
@@ -69,9 +69,8 @@ class LConf_LDAPConnectionManagerModel extends IcingaLConfBaseModel
 		foreach($details as $field=>$value) {
 			if(!ctype_digit($value))
 			    $value = htmlentities($value);
-			if(($field == "connection_ldaps" || $field == "connection_tls") && $value == "")
-				$value = 0;
-			if($value || in_array($field,$alwaysUpdate))
+		;	
+			if($value  || in_array($field,$alwaysUpdate))
 				$entry->set($field,$value);
 		}
 		$entry->save();

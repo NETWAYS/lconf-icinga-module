@@ -51,8 +51,6 @@ class LConf_Backend_LDAPObjectsSuccessView extends IcingaLConfBaseView
 	}
 	
 	protected function buildTreeResponse($field, $result) {
-		if($field == "")
-			$field = "properties";
 		$defs = $result["DEFINITIONS"][$field];
 		$cats = $result["CATEGORIES"];
 		$categoryListing = array();

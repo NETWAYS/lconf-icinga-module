@@ -226,7 +226,7 @@ Ext.onReady(function() {
 			this.targetNode = propertyTextNode;
 			this.tree.editorTxt.render(propertyTextNode);
 			this.tree.render(el.parentNode);
-			this.on("complete",function() {AppKit.log(this,arguments)},this);	
+			
 			this.fireEvent("startedit",el.parentNode,this.startValue);
 		},
 		

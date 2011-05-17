@@ -165,6 +165,8 @@
 				autoDestroy: true,
 				closable: true,
 				modal: true,
+				width:400,
+				height:300,
 				defaultType: 'field'
 				
 			});
@@ -179,12 +181,12 @@
 		getDetailTemplate: function() {
 			if(!this.detailTpl) {
 				this.detailTpl = new Ext.XTemplate(
-					'<table style="margin:10px" cellpadding="0" cellspacing="0">',
+					'<table style="margin:10px;width:100%" cellpadding="0" cellspacing="0">',
 						'<tr><td>ID</td><td>{connection_id}</td></tr>',
 						'<tr><td>Name</td><td>{connection_name}</td></tr>',
 						'<tr><td colspan="2">Description</td></tr>',
 						'<tr><td colspan="2">',
-							'<div style="background-color:white;border:1px solid black;height:75px;width:100%;overflow:auto">',
+							'<div style="background-color:white;border:1px solid black;border-radius:5px;height:75px;width:70%;overflow:auto">',
 								'{connection_description}',
 							'</div>',
 						'</td></tr>',

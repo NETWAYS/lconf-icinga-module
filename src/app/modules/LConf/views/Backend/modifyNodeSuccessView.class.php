@@ -29,7 +29,7 @@ class LConf_Backend_modifyNodeSuccessView extends IcingaLConfBaseView
 				case 'destroy':
 					$client->removeNodes($properties);
 					break;
-				case 'move':
+				case 'move':	
 					$client->moveNode($properties["sourceDN"],$properties["targetDN"],$sourceConn);
 					break;
 				case 'clone':

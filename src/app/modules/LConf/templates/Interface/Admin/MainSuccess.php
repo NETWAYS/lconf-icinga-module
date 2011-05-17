@@ -87,10 +87,10 @@ Ext.onReady(function() {
 					Ext.Msg.alert("Error", response.error);
 				},
 				load: function() {
-					AppKit.log(this,arguments);
+					
 				},
 				beforeLoad: function() {
-					AppKit.log(this,arguments);
+					
 				},
 				save: function(store) {
 					if(this.ld_mask)
@@ -129,15 +129,15 @@ Ext.onReady(function() {
 		
 		this.tpl =new Ext.XTemplate(
 			'<tpl for=".">',
+		
 				'<div class="ldap-connection {icon}" ext:qtip="{connection_description}" id="conn_{connection_id}">',
 					'<div class="thumb lconf-icon-{icon}"></div>',
 					'<span class="X-editable"><b>{connection_name}</b></span><br/>',					
 					'<span class="X-editable">',
 					'<tpl if="connection_ldaps == true">ldaps://</tpl>',
-					'{connection_host} {connection_port}</span><br/>',
-				
+					'{connection_host} {connection_port}</span><br/>',	
 				'</div>',
-
+	
 			'</tpl>'
 		);
 		
@@ -152,7 +152,8 @@ Ext.onReady(function() {
 			listeners: {
 				click : function(dview,index,htmlNode,event) {
 					var record = dview.getStore().getAt(index);
-					lconf.Admin.container.layout.east.panel.setDisabled(false);
+					lconf.Admin.container.layout.east.panel.setDisabled(false);	
+					lconf.Admin.getPrincipalEditor().ownerCt.ownerCt.show();
 					lconf.Admin.getPrincipalEditor().cmp.populate(record.get("connection_id"));
 					Ext.getCmp('form_lconfUserPanel').items.items[0].getForm().setValues(record.data);
 				},
@@ -167,6 +168,9 @@ Ext.onReady(function() {
 			added.on("click",function() {
 				lconf.Admin.getPrincipalEditor().cmp.populate(-1);
 				lconf.Admin.container.layout.east.panel.setDisabled(false);
+				
+				lconf.Admin.getPrincipalEditor().ownerCt.ownerCt.hide();
+				
 				Ext.getCmp('form_lconfUserPanel').items.items[0].getForm().reset();
 				Ext.getCmp('form_lconfUserPanel').items.items[0].getForm().setValues({connection_id: -1,connection_name:_('New connection')});
 			})
@@ -269,12 +273,14 @@ Ext.onReady(function() {
 			
 						xtype:'textfield',
 						fieldLabel:_('Host'),
+						allowBlank: false,
 						name: 'connection_host',
 						layout:'form',
 						anchor:'70%'
 					},{
 						xtype:'numberfield',
-						fieldLabel:_('Port'),		
+						fieldLabel:_('Port'),
+						allowBlank:false,
 						name: 'connection_port',
 						defaultValue: 389,				
 						layout:'form',
@@ -354,7 +360,7 @@ Ext.onReady(function() {
 			items: {
 				xtype: 'panel',
 				layout: 'accordion',
-
+				
 				items: [
 					lconf.Admin.getUserPanel(), 
 					lconf.Admin.getPrincipalEditor()

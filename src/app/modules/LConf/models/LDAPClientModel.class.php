@@ -262,7 +262,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 		$dn = $parentDN;
 		//always wrap to array
 		if(isset($parameters["property"])) 
-			$parameters = array($newParams);
+			$parameters = array($parameters);
 		$params = array();
 		foreach($parameters as $parameter) {
 			if(!isset($params[$parameter["property"]]) )
@@ -324,6 +324,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 	
 	public function searchEntries($filter,$base = null,array $addAttributes = array()) {
 		$filterString = $filter->buildFilterString();
+		
 		if(!$base)
 			$base = $this->getBaseDN();
 		$searchAttrs = array_merge(array("dn"),$addAttributes);
@@ -383,7 +384,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 		if($resolveAlias)
 			$entries = $this->helper->resolveAliases($entries);
 		if($this->getFilter() && !$ignoreFilter) {
-
+			
 			$searchResult = $this->searchEntries($this->getFilter(),null,array("dn","objectclass","aliasedobjectname","modifyTimestamp","description"));			
 			$entries = $this->helper->filterTree($entries,$searchResult);
 		}
@@ -496,6 +497,8 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 			}
 			$curProperty = $idElems[1];
 			$curIndex = $idElems[2];
+			if(!isset($properties[$curProperty]))
+				continue;
 			if(is_array($properties[$curProperty])) {
 				
 				$properties[$curProperty][$curIndex] = $parameter["value"];
@@ -531,7 +534,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 			$this->removeNodes($dn);
 		} else {
 			
-			if(!ldap_modify($connId,$dn,$properties)) {
+			if(!@ldap_modify($connId,$dn,$properties)) {
 				throw new AgaviException("Could not modify ".$dn. ":".$this->getError());
 			}
 		}
@@ -637,7 +640,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 				throw new AgaviException("Could not add ".$newDN. ":".$this->getError());
 			}
 		} else {
-			//don't worry, the __fromStore function checks if it has been instanciated yet ;)
+			
 			$client = LConf_LDAPClientModel::__fromStore($sourceConnId,$this->getContext()->getStorage());
 			if(!$client)
 				throw new AgaviException("Target connection not found!");
@@ -660,9 +663,11 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 		}
 	}
 	
-	public function moveNode($sourceDN, $targetDN) {
-		$this->cloneNode($sourceDN,$targetDN);
-		$this->rechainAliasesForNode($sourceDN,$targetDN);
+	public function moveNode($sourceDN, $targetDN,$sourceConnId = null) {
+		$this->cloneNode($sourceDN,$targetDN,$sourceConnId);	
+		if(!$sourceConnId || $sourceConnId == $this->getId()) {
+			$this->rechainAliasesForNode($sourceDN,$targetDN);
+		}
 		$this->removeNodes(array($sourceDN));	
 	}
 	

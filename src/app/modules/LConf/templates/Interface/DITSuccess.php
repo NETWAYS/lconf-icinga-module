@@ -186,22 +186,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 				AppKit.log(e);	
 			}
 		},
-		convertLDAPTimestamp: function(ts) {
-			
-			var y = parseInt(ts.substr(0,4),10);
-			var m = parseInt(ts.substr(4,2),10);
-			var d = parseInt(ts.substr(6,2),10);
-			var u = ts.substr(8);
-			u = u.substr(0,u.length-1);
-			var modDate = new Date();
-				modDate.setFullYear(y);
-				modDate.setMonth(m-1);
-				modDate.setDate(d);
-			var t = modDate.getTime();
-			
-			t /= 1000;
-			return parseInt(u,10)+parseInt(t,10);		
-		},	
+		
 		checkIfNodeIsSynced: function(node,parent) {
 			var r = /.*structuralobject/i
 			var lastExport = -1;
@@ -218,7 +203,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 					if(modified == -1)
 						return true;
 				
-					AppKit.log(lastExport, modified);
+					
 					if(lastExport < modified)
 						return false;
 				}
@@ -256,7 +241,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 					for(var i=0;i<selected.length;i++) {
 						var toNode = selected[i];
 						for(var i=0;i<nodes.clipboard.length;i++)  {
-							if (toNode.isAncestor(nodes.clipboard[i])) {
+							if (toNode == nodes.clipboard[i] || toNode.isAncestor(nodes.clipboard[i])) {
 								Ext.Msg.alert(_("Invalid operation"), _("Moving or Copying a node below itself is not supported."));
 								return false;
 							}
@@ -267,7 +252,7 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 						
 						var toNode = selected[i];
 						toNode.connId = this.connId;
-						this.copyNode("below",nodes.clipboard,toNode,nodes.cut);
+						this.copyNode("append",nodes.clipboard,toNode,nodes.cut);
 					}
 					if(nodes.cut) {
 						ditTreeClipboard.clearClipboard(true)
@@ -580,10 +565,11 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 					}
 					this.refreshNode();
 				},
-				failure: function() {
+				failure: function(resp) {
 					mask.hide();
-					err = (resp.responseText.length<50) ? resp.responseText : 'Internal Exception, please check your logs';
-					Ext.Msg.alert(_("Error"),err);
+					error = Ext.util.Format.ellipsis(resp.responseText,400);
+					
+					Ext.Msg.alert(_("Error"),error);
 				},
 				scope:this
 			});
@@ -863,18 +849,18 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 					iconCls: 'icinga-icon-arrow-divide'
 				},{
 					text: _('Move node here'),
-					handler: this.copyNode.createDelegate(this,[e.point,e.dropNode,e.target,true]),
+					handler: this.copyNode.createDelegate(ditTreeTabPanel.getActiveTab(),[e.point,e.dropNode,e.target,true]),
 					scope:this,
 					iconCls: 'icinga-icon-arrow-turn-left'
 				},{
 					text: _('Clone node <b>as subnode</b>'),
-					handler: this.copyNode.createDelegate(this,["append",e.dropNode,e.target]),
+					handler: this.copyNode.createDelegate(ditTreeTabPanel.getActiveTab(),["append",e.dropNode,e.target]),
 					scope:this,
 					hidden: !e.target.isLeaf(),
 					iconCls: 'icinga-icon-arrow-divide'
 				},{
 					text: _('Move node  <b>as subnode</b>'),
-					handler: this.copyNode.createDelegate(this,["append",e.dropNode,e.target,true]),
+					handler: this.copyNode.createDelegate(ditTreeTabPanel.getActiveTab(),["append",e.dropNode,e.target,true]),
 					scope:this,
 					hidden: !e.target.isLeaf(),
 					iconCls: 'icinga-icon-arrow-turn-left'

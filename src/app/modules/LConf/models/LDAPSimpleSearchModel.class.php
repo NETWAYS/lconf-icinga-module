@@ -22,7 +22,7 @@ class LConf_LDAPSimpleSearchModel {
 
 		$client = $this->getClient();
 		$connection = $client->getConnection();
-		$entries = ldap_search($connection,$client->getBaseDN(),"objectclass=*");
+		$entries = @ldap_search($connection,$client->getBaseDN(),"objectclass=*");
 		$entries = ldap_get_entries($connection,$entries);
 		$found = array();
 		foreach($entries as $e_key=>$entry) {
