@@ -27,7 +27,14 @@ abstract class BaseLconfConnection extends Doctrine_Record
              'primary' => false,
              'notnull' => false,
           ));
-        $this->hasColumn('connection_binddn', 'string', 64, array(
+        $this->hasColumn('owner', 'integer',4, array(
+             'type' => 'integer',
+             'length' => 4, 
+             'primary' => false,
+             'notnull' => false,
+          ));
+
+		$this->hasColumn('connection_binddn', 'string', 64, array(
              'type' => 'string',
              'length' => 64,
 			 'fixed' => false,
@@ -86,6 +93,10 @@ abstract class BaseLconfConnection extends Doctrine_Record
 
     public function setUp()
     {
+		$this->hasOne('NsmUser as user_owner', array(
+			'local' => 'owner',
+			'foreign' => 'user_id'
+		));
     	$this->hasMany('LconfPrincipal as principals', array(
              'local' => 'connection_id',
              'foreign' => 'connection_id'

@@ -12,6 +12,7 @@ class LConf_LDAPConnectionModel extends IcingaLConfBaseModel
 	protected $baseDN;
 	protected $host;
 	protected $port;
+	protected $ownerid;
 	protected $default = false;
 	protected $authType = "simple";
 	protected $TLS = false;
@@ -49,6 +50,10 @@ class LConf_LDAPConnectionModel extends IcingaLConfBaseModel
 		return $this->host;
 	}
 	
+	public function getOwnerId() {
+		return $this->ownerid;
+	}
+
 	public function getPort()	{
 		return $this->port;
 	}
@@ -57,6 +62,13 @@ class LConf_LDAPConnectionModel extends IcingaLConfBaseModel
 		return $this->default;
 	}
 	
+	public function isOwner() {
+		if($this->getContext()->getUser()->hasCredentials("lconf.admin"))
+			return true;
+		$id = $this->getContext()->getUser()->getNsmUser()->get("user_id");
+		return $this->getOwnerId() == $id;
+	}
+
 	public function getAuthType()	{
 		return $this->authType;
 	}
@@ -103,6 +115,10 @@ class LConf_LDAPConnectionModel extends IcingaLConfBaseModel
 	public function setDefault($bool) {
 		$this->default = (boolean) $bool;
 	}
+
+	public function setOwnerId($id) {
+		$this->ownerid = $id;
+	}	
 	
 	public function setAuthType($authType) {
 		if(in_array($authType,self::$supportedAuthTypes)) {
@@ -147,6 +163,9 @@ class LConf_LDAPConnectionModel extends IcingaLConfBaseModel
 				$this->setTLS($parameter["connection_tls"]);	
 			if(isset($parameter["connection_ldaps"]))
 				$this->setLDAPS($parameter["connection_ldaps"]);	
+			if(isset($parameter["owner"])) {
+				$this->setOwnerId($parameter["owner"]);
+			}
 		}
 		
 	}
@@ -168,7 +187,9 @@ class LConf_LDAPConnectionModel extends IcingaLConfBaseModel
 			"connection_default" => $this->isDefault(),
 	//		"authType" =>$this->getAuthType(),
 			"connection_tls" => $this->usesTLS(),
-			"connection_ldaps" => $this->isLDAPS()
+			"connection_ldaps" => $this->isLDAPS(),
+			"owner" => $this->getOwnerId(),
+			"is_owner" => $this->isOwner()
 		);
 		return $arr;
 	}

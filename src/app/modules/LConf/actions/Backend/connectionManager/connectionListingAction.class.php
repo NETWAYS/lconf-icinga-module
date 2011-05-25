@@ -58,6 +58,7 @@ class LConf_Backend_connectionManager_connectionListingAction extends IcingaLCon
 			$userId = $this->getContext()->getUser()->getNsmUser()->get("user_id");
 			$connectionManager = $this->getContext()->getModel("LDAPConnectionManager","LConf");
 			$mgr = $this->getContext()->getModel("Admin.LConfPrincipalAdmin","LConf");
+
 			foreach($alteredConnection as $connection) { 
 				$id = $connectionManager->addConnection($connection);
 				$mgr->addPrincipals($id,"users",'{"user_id":"'.$userId.'"}');

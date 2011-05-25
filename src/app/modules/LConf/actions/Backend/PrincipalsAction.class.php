@@ -52,7 +52,7 @@ class LConf_Backend_PrincipalsAction extends IcingaLConfBaseAction
 	}
 	
 	public function getCredentials() {
-		return 'lconf.admin';
+		return 'lconf.user';
 	}
 	
 	public function isSecure() {

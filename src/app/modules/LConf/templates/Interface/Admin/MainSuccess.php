@@ -112,7 +112,7 @@ Ext.onReady(function() {
 			fields: [
 				'connection_id','connection_name','connection_description','connection_binddn',
 				'connection_bindpass','connection_host','connection_port','connection_basedn','connection_tls',
-				'connection_ldaps','connection_default'
+				'connection_ldaps','connection_default','is_owner'
 			],
 			writer:new Ext.data.JsonWriter({encode: true}),
 			idProperty:'connection_id',
@@ -129,7 +129,7 @@ Ext.onReady(function() {
 		
 		this.tpl =new Ext.XTemplate(
 			'<tpl for=".">',
-		
+				'<tpl if="is_owner == true">',
 				'<div class="ldap-connection {icon}" ext:qtip="{connection_description}" id="conn_{connection_id}">',
 					'<div class="thumb lconf-icon-{icon}"></div>',
 					'<span class="X-editable"><b>{connection_name}</b></span><br/>',					
@@ -137,7 +137,7 @@ Ext.onReady(function() {
 					'<tpl if="connection_ldaps == true">ldaps://</tpl>',
 					'{connection_host} {connection_port}</span><br/>',	
 				'</div>',
-	
+				'</tpl>',
 			'</tpl>'
 		);
 		
@@ -153,8 +153,11 @@ Ext.onReady(function() {
 				click : function(dview,index,htmlNode,event) {
 					var record = dview.getStore().getAt(index);
 					lconf.Admin.container.layout.east.panel.setDisabled(false);	
-					lconf.Admin.getPrincipalEditor().ownerCt.ownerCt.show();
-					lconf.Admin.getPrincipalEditor().cmp.populate(record.get("connection_id"));
+					if(lconf.Admin.getPrincipalEditor()) {
+						lconf.Admin.getPrincipalEditor().ownerCt.ownerCt.show();
+						if(record.get("connection_id") > -1)
+							lconf.Admin.getPrincipalEditor().cmp.populate(record.get("connection_id"));
+					}
 					Ext.getCmp('form_lconfUserPanel').items.items[0].getForm().setValues(record.data);
 				},
 				scope: this
@@ -164,15 +167,16 @@ Ext.onReady(function() {
 		this.dStore.on("load",function() {
 			// prepend "Add Connection"
 			var el = this.dView.getTemplateTarget();
-			var added = this.dView.tpl.insertBefore(el, {connection_id: -1, connection_name: _('Add new connection'), icon: 'plus', connection_ldaps: false  },true);
+			var added = this.dView.tpl.insertBefore(el, {connection_id: -1, connection_name: _('Add new connection'), icon: 'plus', connection_ldaps: false, is_owner:true  },true);
 			added.on("click",function() {
-				lconf.Admin.getPrincipalEditor().cmp.populate(-1);
+				//lconf.Admin.getPrincipalEditor().cmp.populate(-1);
 				lconf.Admin.container.layout.east.panel.setDisabled(false);
-				
-				lconf.Admin.getPrincipalEditor().ownerCt.ownerCt.hide();
+				if(lconf.Admin.getPrincipalEditor())
+					lconf.Admin.getPrincipalEditor().ownerCt.ownerCt.hide();
 				
 				Ext.getCmp('form_lconfUserPanel').items.items[0].getForm().reset();
-				Ext.getCmp('form_lconfUserPanel').items.items[0].getForm().setValues({connection_id: -1,connection_name:_('New connection')});
+				Ext.getCmp('form_lconfUserPanel').items.items[0].getForm().setValues({connection_id: -1,connection_name:_('New connection'),is_owner:true});
+				return false;
 			})
 		}, this, {single:true});
 	}
@@ -311,6 +315,7 @@ Ext.onReady(function() {
 					if(!form.getForm().isValid()) 
 						return false;
 					var values = form.getForm().getValues();
+					values.is_owner = true;
 					lconf.Admin.connectionList.testConnection(values);
 					
 				}
@@ -324,6 +329,7 @@ Ext.onReady(function() {
 					if(!form.getForm().isValid()) 
 						return false;
 					var values = form.getForm().getValues();
+					values.is_owner = true;
 					lconf.Admin.connectionList.addConnection(values);
 			
 				}
@@ -334,6 +340,10 @@ Ext.onReady(function() {
 	
 	
 
+	var modItems =  [
+		lconf.Admin.getUserPanel(), 
+		lconf.Admin.getPrincipalEditor()
+	]
 	lconf.Admin.container = new Ext.Panel({
 		layout:'border',
 		id: 'view-container',
@@ -360,11 +370,7 @@ Ext.onReady(function() {
 			items: {
 				xtype: 'panel',
 				layout: 'accordion',
-				
-				items: [
-					lconf.Admin.getUserPanel(), 
-					lconf.Admin.getPrincipalEditor()
-				]
+				items: modItems.remove(null)			
 			},
 			width:"50%"
 		}]

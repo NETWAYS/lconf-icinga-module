@@ -3,6 +3,8 @@ Ext.ns("lconf.Admin");
 (function() {
 var __instance;
 lconf.Admin.getPrincipalEditor = function() {
+	if(<?php echo ($us->hasCredential('lconf.admin') ? 'false' : 'true') ?>)
+		return null;
 	if(__instance)
 		return __instance;
 	/**

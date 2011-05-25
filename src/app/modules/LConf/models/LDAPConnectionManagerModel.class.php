@@ -74,9 +74,23 @@ class LConf_LDAPConnectionManagerModel extends IcingaLConfBaseModel
 			if($value  || in_array($field,$alwaysUpdate))
 				$entry->set($field,$value);
 		}
+		$user = $this->getContext()->getUser()->getNsmUser();
+		if($details["connection_id"] == null)
+			$entry->set("owner",$user->get('user_id'));	
+		if(!$this->isOwner($entry))
+			throw new AppKitException("Not allowed to modify this connection");
 		$entry->save();
 		return $entry->getIncremented();	
 	}
+	
+	protected function isOwner(LconfConnection $l) {
+		$user = $this->getContext()->getUser()->getNsmUser();
+		if(!$this->getContext()->getUser()->hasCredentials("lconf.admin")) {
+			if($l->get("owner") != $user->get('user_id'))
+				return 	false;
+		}
+		return true;
+	}	
 	
 	/**
 	 * Deletes an connection
@@ -87,6 +101,10 @@ class LConf_LDAPConnectionManagerModel extends IcingaLConfBaseModel
 		$entry = Doctrine::getTable("LconfConnection")->findBy("connection_id",$id)->getFirst();
 		if(!$entry)
 			throw new AppKitException("Connection does not exist!");
+		$user = $this->getContext()->getUser()->getNsmUser();
+		if(!$this->isOwner($entry))
+			throw new AppKitException("Not allowed to drop this connection");
+		
 		$entry->delete();
 	}
 	
@@ -114,11 +132,13 @@ class LConf_LDAPConnectionManagerModel extends IcingaLConfBaseModel
 	*/
 	public function getConnectionsFromDB() {
 		$connections = Doctrine_Query::create()->
-							select("lc.*,def.*")	
+							select("lc.*, def.*")	
 							->from("LconfConnection lc")->fetchArray();
 		$ctx = $this->getContext();
 		foreach($connections as $connection) {
-			$this->addToConnectionArray($ctx->getModel("LDAPConnection","LConf",array($connection)));	
+			$this->addToConnectionArray(
+				$ctx->getModel("LDAPConnection","LConf",array($connection))
+			);	
 		}
 //		$this->markDefaultConnection();
 		return $connections;
@@ -127,7 +147,7 @@ class LConf_LDAPConnectionManagerModel extends IcingaLConfBaseModel
 	public function userIsGranted($connectionId) {
 		$this->connectionArray = array();
 		$connections = $this->getConnectionsForUser();
-
+		
 		if(!array_key_exists($connectionId,$this->connectionArray))
 			return false;
 		$this->connectionArray = array();
@@ -157,7 +177,9 @@ class LConf_LDAPConnectionManagerModel extends IcingaLConfBaseModel
 				->from("LconfConnection conn")
 				->innerJoin("conn.principals lp")
 		//		->leftJoin("conn.default def WITH def.user_id = ".$user->get("user_id"))				
-				->where("lp.principal_user_id = ?",$user->get("user_id"));
+				->where("lp.principal_user_id = ?",$user->get("user_id"))
+				->orWhere('conn.owner = ?',$user->get("user_id"));
+
 		
 		$connections = $query->execute()->toArray();
 
