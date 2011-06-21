@@ -5,7 +5,7 @@ You need a running mysql and php (with PEAR and CLI) environment w/ icinga-web a
 Phing is required for installation - as it comes with icinga-web, you can find it under "/path-to-icinga-web/bin/phing" if
 you don't have installed it seperately.
  
-You also need the php5-gd extension and the imagemagick libraries. 
+
 
 
 2) Installing the plugin
