@@ -6,6 +6,9 @@ class LConf_Backend_modifyNodeSuccessView extends IcingaLConfBaseView
 		try {
 			$action = $rd->getParameter("xaction");
 			$properties = json_decode($rd->getParameter("properties"),true);
+			if($properties == null)
+				$properties = $rd->getParameter("properties");
+
 			$parentDN = $rd->getParameter("parentNode");
 			$connectionId = $rd->getParameter("connectionId");
 			$context = $this->getContext();
@@ -35,7 +38,8 @@ class LConf_Backend_modifyNodeSuccessView extends IcingaLConfBaseView
 				case 'clone':
 					$client->cloneNode($properties["sourceDN"],$properties["targetDN"],$sourceConn);
 					break;
-
+				case 'expandAlias':
+					$client->expandAlias($properties);
 			}
 			return "{success : true}";
 		} catch(Exception $e) {

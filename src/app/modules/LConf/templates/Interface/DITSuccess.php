@@ -349,9 +349,13 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 				},{
 					text: _('Jump to alias target'),
 					iconCls: 'icinga-icon-arrow-redo',
-					hidden: !node.attributes.isAlias && !node.id.match(/\*\d{4}\*/),
-					handler: this.jumpToRealNode.createDelegate(this,[node]),
-					hidden: justCreate
+					hidden: justCreate || !node.attributes.isAlias && !node.id.match(/\*\d{4}\*/),
+					handler: this.jumpToRealNode.createDelegate(this,[node])	
+				},{
+					text: _('Resolve alias to nodes'),
+					iconCls: 'icinga-icon-arrow-application-expand',
+					hidden: justCreate || !node.attributes.isAlias && !node.id.match(/\*\d{4}\*/),
+					handler: this.callExpandAlias.createDelegate(this,[node])	
 				},{
 					text: _('Display aliases to this node'),
 					iconCls: 'icinga-icon-wand',
@@ -696,7 +700,35 @@ lconf.ditTreeManager = function(parentId,loaderId) {
 			
 			this.expandViaTreeObject(expandDescriptor,finishFN.createDelegate(this));
 		},
+		callExpandAlias: function(nodeCfg) {
+			if(!nodeCfg.attributes.isAlias)
+				Ext.Msg.alert(_("Invalid operation"),_("Only aliases can be expanded"));
+			var dn = nodeCfg.attributes.dn;
+			Ext.Ajax.request({
+				url: '<?php echo $ro->gen("lconf.data.modifynode");?>',
+				params: {
+					properties: dn, 
+					xaction:'expandAlias',
+					connectionId: this.connId
+				},
+				success: function(resp) {
+					lconf.loadingLayer.hide();
+					this.refreshNode(nodeCfg.parentNode);				
+				
+				},
+				failure: function(resp) {
+					lconf.loadingLayer.hide();
+					err = (resp.responseText.length<50) ? resp.responseText : 'Internal Exception, please check your logs';
+					Ext.Msg.alert(_("Error"),_("Couldn't expand Alias:<br\>"+err));
+				},
+				scope: this
+			});
+			lconf.loadingLayer.show();
+	
+
+		},
 		
+
 		callNodeCreationWizard : function(cfg) {
 			var _parent = cfg.node;
 			if(!cfg.isChild)

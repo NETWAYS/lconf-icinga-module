@@ -605,6 +605,19 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 		}
 		return null;
 	}
+
+	public function expandAlias($nodeDN) {
+		$connId = $this->getConnection();
+
+		$sourceProperties = $this->getNodeProperties($nodeDN);
+		if(!is_array($sourceProperties))
+			throw new AppKitException("Could not find alias $nodeDN");
+	
+		$targetDN = $sourceProperties["aliasedobjectname"][0];	
+		$paramToPreserve = explode(",",$nodeDN,2);
+		$name = explode("=",$paramToPreserve[0]);
+		$this->cloneNode($targetDN,$paramToPreserve[1],null,"cn=".$name[1]."_resolved");
+	}
 	
 	public function cloneNode($sourceDN, $targetDN,$sourceConnId = null,$newName = null) {
 		$connId = $this->getConnection();

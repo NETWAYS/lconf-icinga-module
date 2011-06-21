@@ -40,6 +40,7 @@
 						<ae:parameter>read</ae:parameter>
 						<ae:parameter>update</ae:parameter>
 						<ae:parameter>clone</ae:parameter>
+						<ae:parameter>expandAlias</ae:parameter>
 						<ae:parameter>move</ae:parameter>
 					</ae:parameter>
 				</ae:parameters>
