@@ -616,7 +616,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 		$targetDN = $sourceProperties["aliasedobjectname"][0];	
 		$paramToPreserve = explode(",",$nodeDN,2);
 		$name = explode("=",$paramToPreserve[0]);
-		$this->cloneNode($targetDN,$paramToPreserve[1],null,"cn=".$name[1]."_resolved");
+		$this->cloneNode($targetDN,$paramToPreserve[1]);
 	}
 	
 	public function cloneNode($sourceDN, $targetDN,$sourceConnId = null,$newName = null) {
