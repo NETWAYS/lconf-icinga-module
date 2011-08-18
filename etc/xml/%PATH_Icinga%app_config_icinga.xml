@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<settings xmlns:ae="http://agavi.org/agavi/config/global/envelope/1.0" xmlns="http://agavi.org/agavi/1.0/config"  prefix="org.icinga.">
-  <setting name="appkit.init_modules">
-    <parameter>LConf</parameter>
-  </setting>
-</settings>
