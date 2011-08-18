@@ -49,7 +49,7 @@ Ext.onReady(function() {
 			if(Ext.EventObject.browserEvent.type == "mousewheel")
 				return false; //ignore cancel on scroll
 		
-	
+			
 			//this.fireEvent("canceledit",this,this.getValue,this.startValue);
 			this.hideEdit(remainVisible);	
 			this.targetNode.update(this.getValue());	
@@ -86,6 +86,7 @@ Ext.onReady(function() {
 		
 		getTree: function () {
 			var tree = new Ext.tree.TreePanel({
+				autoDestroy: true,
 				animate: true,
 				rootVisible: false,
 				enableDD: false,
@@ -167,6 +168,7 @@ Ext.onReady(function() {
 					toExpand.ensureVisible();
 				}
 			},this);
+		
 			tree.getRootNode().expand();
 			return tree;
 		},
@@ -179,7 +181,19 @@ Ext.onReady(function() {
 				}
 			},this)
 		},
-		
+		cancelEditEv: function (ev,target) {
+			if(!this.editing)
+				return true;
+			var el = Ext.get(target);
+			if(el.hasClass('x-tree-root-ct') || el.parent('.x-tree-root-ct')) {
+				ev.stopEvent();
+				return false;
+			} else {	
+				this.cancelEdit();
+				return true;
+			}
+		},
+
 		startEdit: function (el) {
 			this.editing = true;
 			this.startValue = el.innerHTML != '&nbsp;' ? el.innerHTML : '';			
@@ -187,16 +201,7 @@ Ext.onReady(function() {
 			this.tree =  this.getTree();
 			this.tree.setPosition(Ext.EventObject.getPageX(),Ext.EventObject.getPageY());
 			this.grid.suspendEvents();
-			this.grid.el.addListener("click",function (ev,target) {
-				var el = Ext.get(target);
-				if(el.hasClass('x-tree-root-ct') || el.parent('.x-tree-root-ct')) {
-					ev.stopEvent();
-					return false;
-				} else {
-					this.cancelEdit();
-					return true;
-				}
-			},this);
+			this.grid.el.addListener("click",this.cancelEditEv,this);
 			
 			this.tree.editorTxt = new Ext.form.TextField({
 				cls: 'x-tree-root-ct',

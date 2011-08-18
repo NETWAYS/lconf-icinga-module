@@ -72,9 +72,7 @@ abstract class BaseLconfFilter extends Doctrine_Record
         parent::setUp();
         $this->hasOne('NsmUser', array(
              'local' => 'user_id',
-             'foreign' => 'user_id',
-        	 'onDelete' => 'CASCADE',
-        	 'onUpdate' => 'CASCADE'
+             'foreign' => 'user_id' 
 	        )
         );
     }

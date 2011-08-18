@@ -102,8 +102,8 @@ class LConf_LConfExporterModel extends IcingaLConfBaseModel
 
 
 	protected function getCommandError(Api_Console_ConsoleCommandModel $exportCmd) {
-
-		switch($exportCmd->getReturnCode()) {
+        
+		switch(intval($exportCmd->getReturnCode())) {
 			case 126: //execution error
 				return $this->tm->_("Cannot execute exporter, please check your permissions");
 				break;

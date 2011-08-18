@@ -1,0 +1,15 @@
+--- doctrineDBBuilderTask.php	2010-12-08 16:30:13.000000000 +0100
++++ doctrineDBBuilderTask.php.new	2011-08-02 10:26:19.549872638 +0200
+@@ -72,10 +72,9 @@
+ 		$icinga = $this->project->getUserProperty("PATH_Icinga");
+ 		$modelPath = $icinga."/app/modules/".$this->project->getUserProperty("MODULE_Name")."/lib/";
+ 		
+-		$appKitPath = $this->project->getUserProperty("PATH_AppKit");
+ 
+-		Doctrine::loadModels($icinga."/".$appKitPath."database/models/generated");
+-		Doctrine::loadModels($icinga."/".$appKitPath."database/models");
++		Doctrine::loadModels("etc/doctrine/generated");
++		Doctrine::loadModels("etc/doctrine");
+ 
+ 		$tables = Doctrine::getLoadedModels();
+ 		$tableList = array();

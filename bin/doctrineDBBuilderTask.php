@@ -47,7 +47,7 @@ class doctrineDBBuilderTask extends Task {
 		if(empty($iniData))
 			throw new BuildException("Couldn't read db.ini");
 		$dsn = $iniData["dbtype"]."://".$iniData["dbuser"].":".$iniData["dbpass"]."@".$iniData["host"].":".$iniData["port"]."/".$iniData["dbname"];
-		Doctrine_Manager::connection($dsn);
+		Doctrine_Manager::connection($dsn,'icinga_web');
 	}
 	
 	/**

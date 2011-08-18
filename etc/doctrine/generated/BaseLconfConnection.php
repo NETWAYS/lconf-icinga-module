@@ -34,21 +34,21 @@ abstract class BaseLconfConnection extends Doctrine_Record
              'notnull' => false,
           ));
 
-		$this->hasColumn('connection_binddn', 'string', 64, array(
+		$this->hasColumn('connection_binddn', 'string', 1024, array(
              'type' => 'string',
-             'length' => 64,
+             'length' => 1024,
 			 'fixed' => false,
              'primary' => false,
              'notnull' => true,
           ));
-        $this->hasColumn('connection_bindpass', 'string', 64, array(
+        $this->hasColumn('connection_bindpass', 'string', 256, array(
              'type' => 'string',
              'length' => 256,
 			 'fixed' => false,
              'primary' => false,
              'notnull' => false,
         ));
-        $this->hasColumn('connection_host', 'string', 64, array(
+        $this->hasColumn('connection_host', 'string', 128, array(
              'type' => 'string',
              'length' => 128,
 			 'fixed' => false,

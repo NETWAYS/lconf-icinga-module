@@ -49,14 +49,12 @@ abstract class BaseLconfPrincipal extends Doctrine_Record
         $this->hasOne('NsmUser', array(
              'local' => 'principal_user_id',
              'foreign' => 'user_id',
-           	 'onDelete' => 'CASCADE',
-        	 'onUpdate' => 'CASCADE'));
+        ));
 
         $this->hasOne('NsmRole', array(
              'local' => 'principal_role_id',
-             'foreign' => 'role_id',
-           	 'onDelete' => 'CASCADE',
-        	 'onUpdate' => 'CASCADE'));
+             'foreign' => 'role_id'
+        ));
 
         $this->hasOne('LconfConnection', array(
              'local' => 'connection_id',
