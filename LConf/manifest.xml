@@ -4,7 +4,7 @@
 	<!--  Meta information about the module-->
 	<Meta>
 		<Name>LConf</Name>
-		<Version>1.1</Version>
+		<Version>1.2</Version>
 		<Description><![CDATA[Plugin to manage LDAP based configurations.]]></Description>
 		<Author>Jannis Moßhammer (Jannis.Mosshammer@netways.de)</Author>
 		<Company>NETWAYS GmbH</Company>	
@@ -12,87 +12,17 @@
 	
 	<Dependencies>
 		<Icinga-Web>
-			<Version>1.3.0</Version>
+			<Version>1.5.0</Version>
 		</Icinga-Web>
 		<PHP>
 			<Version>5.2</Version>
 			<Extensions>
-				<!-- Check if the gd lib is installed-->
+				<!-- Check if the ldap lib is installed-->
 				<Extension>ldap</Extension>
 			</Extensions>
 		</PHP>
 		
 	</Dependencies>
-	
-	<!-- Filesystem information -->
-	<Files>		
 
-		<Paths>
-			<Icinga>/usr/local/icinga-web/</Icinga>
-			<AppKit>/app/modules/AppKit/lib/</AppKit>
-			<Module>/app/modules/%MODULE_Name%/</Module>
-			<Doctrine>lib/doctrine/lib/</Doctrine>
-			<Api>lib/icinga-api/</Api>
-		</Paths>
-		
-		<Additional>
-			<File>%PATH_Icinga%app/modules/Web/lib/menu/%MODULE_Name%MenuExtender.class.php</File>
-			<Folder>pub/images/LConf/</Folder>
-			<Folder>pub/styles/icinga_lconf.css</Folder>
-			<Folder to="doc/$1" noInstall="true">%PATH_Module%meta/**</Folder>
-		</Additional>
-		
-		<Excludes>
-			<file>**/cache/**/*.xml</file>
-			<file>**/cache/*.xml</file>
-			<folder>**/.git/</folder>
-
-		</Excludes>
-		
-		<!--  Check icnga.css for MODULE[name] Entries -->
-		<Extractor>
-		
-		</Extractor>
-	</Files>
-	
-	<Config>
-		<Entry file="%PATH_Icinga%app/modules/AppKit/config/module.xml" default="http://agavi.org/agavi/config/parts/module/1.0" ae="http://agavi.org/agavi/config/global/envelope/1.0">
-			<Nodes base="/ae:configurations/ae:configuration/module[@enabled='true']/settings/">
-				<Node path="setting[@name='menu_extender']" nodeName='ae:parameter'>LConfMenuExtender</Node>
-			</Nodes>
-		</Entry> 
-		<!--  Routing -->
-		<Entry file="%PATH_Icinga%app/config/routing.modules.xml">
-			<Nodes fromConfig="true" base="//module_routes/configuration[@context='web']/route[@name='lconf']"/>
-		</Entry>
-		<!--  Default init (for cronk) -->
-		<Entry file="%PATH_Icinga%app/config/icinga.xml">
-			<Nodes base="settings[@prefix='org.icinga.']/" ae="http://agavi.org/agavi/config/global/envelope/1.0" default="http://agavi.org/agavi/1.0/config">
-				<Node path="setting[@name='appkit.init_modules']" nodeName="parameter">LConf</Node>
-			</Nodes>
-		</Entry>
-		
-			<!--  Autoloader settings -->
-		<Entry file="%PATH_Icinga%app/modules/Web/config/autoload.xml" 	default="http://agavi.org/agavi/config/parts/autoload/1.0" 
-				ae="http://agavi.org/agavi/config/global/envelope/1.0" >
-			<Nodes base="/ae:configurations/ae:configuration/">
-				<Node path="autoload[@name='%MODULE_Name%MenuExtender']" >%core.module_dir%/Web/lib/menu/%MODULE_Name%MenuExtender.class.php</Node>
-			</Nodes>
-		</Entry>
-	</Config>
-	
-	<!--  Database information -->
-	<Database>
-		<Doctrine>
-			<Models>
-				<Prefix>Lconf</Prefix>
-			</Models>
-		</Doctrine>
-		<!-- Register Models -->
-		
-		<!-- Custom .sql files containing specific routings (to create default data, etc.)-->
-	
-	</Database>
-	
 	
 </IcingaPlugin>
