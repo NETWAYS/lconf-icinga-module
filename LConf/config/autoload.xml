@@ -11,7 +11,7 @@
 		<autoload name="LconfDefaultconnection">%core.module_dir%/LConf/lib/database/LconfDefaultconnection.php</autoload>
 		<autoload name="LconfFilter">%core.module_dir%/LConf/lib/database/LconfFilter.php</autoload>
 		<autoload name="LconfPrincipal">%core.module_dir%/LConf/lib/database/LconfPrincipal.php</autoload>
-		<autoload name="LconfFilterTable">%core.module_dir%/LConf/lib/database/LconfFilterTable.php</autoload>
+
         
         		
 	</ae:configuration>
