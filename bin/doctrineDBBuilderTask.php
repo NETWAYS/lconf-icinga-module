@@ -36,11 +36,12 @@ class doctrineDBBuilderTask extends Task {
 	 */
 	protected function checkForDoctrine() {
 		$icinga = $this->project->getUserProperty("PATH_Icinga");
-		$doctrinePath = $icinga."/".$this->project->getUserProperty("PATH_Doctrine");
-		if(!file_exists($doctrinePath."/Doctrine.php"))
-			throw new BuildException("Doctrine.php not found at ".$doctrinePath."Doctrine.php");
+        self::$APPKIT_LIB_DB = $icinga."/app/modules/AppKit/lib/database/models/";
+		$doctrinePath = $icinga."/lib/doctrine/";
+		if(!file_exists($doctrinePath."/Doctrine.compiled.php"))
+			throw new BuildException("Doctrine.php not found at ".$doctrinePath."Doctrine.compiled.php");
 		// setup autoloader
-		require_once($doctrinePath."/Doctrine.php");
+		require_once($doctrinePath."/Doctrine.compiled.php");
 		spl_autoload_register("Doctrine::autoload");
 		spl_autoload_register("doctrineDBBuilderTask::loadModel");
 		$iniData = parse_ini_file($this->ini);
@@ -66,10 +67,11 @@ class doctrineDBBuilderTask extends Task {
 	protected static $APPKIT_LIB_DB = "";
 
 	public static function loadModel($name) {
+    
 		if(preg_match("/^Base/",$name)) {
-			include(self::$APPKIT_LIB_DB."/database/models/generated/".$name.".php");		
+			include(self::$APPKIT_LIB_DB."/generated/".$name.".php");		
 		} else {
-			include(self::$APPKIT_LIB_DB."/database/models/".$name.".php");		
+			include(self::$APPKIT_LIB_DB."/".$name.".php");		
 		}
 	}
 	
@@ -80,11 +82,7 @@ class doctrineDBBuilderTask extends Task {
 	public function buildDBFromModels() {	
 
 		$icinga = $this->project->getUserProperty("PATH_Icinga");
-
-		$modelPath = $icinga."/app/modules/".$this->project->getUserProperty("MODULE_Name")."/lib/";	
-		$appKitPath = $this->project->getUserProperty("PATH_AppKit");
-
-		self::$APPKIT_LIB_DB = $icinga."/".$appKitPath;	
+		$modelPath = $icinga."/app/modules/".$this->project->getUserProperty("MODULE_Name")."/lib/database/";	
 
 		$tables = Doctrine::getLoadedModels();
 		$tableList = array();
@@ -92,10 +90,7 @@ class doctrineDBBuilderTask extends Task {
 			$tableList[] = Doctrine::getTable($table)->getTableName();	
 		}
 
-		Doctrine::createTablesFromModels(array($this->models.'/generated',$this->models));
-	
-		file_put_contents($modelPath."/.models.cfg",implode(",",$tableList));
-	
+		Doctrine::createTablesFromModels(array($this->models.'/generated',$this->models));	
 	}
 	
 	/**
