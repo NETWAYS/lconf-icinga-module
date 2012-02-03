@@ -241,7 +241,7 @@ Ext.extend(lconf.GridDropZone, Ext.dd.DropZone, {
 });
 
 lconf.Admin.itemGranter = function(config) {
-	this.interface = null;
+	this._interface = null;
 	Ext.apply(this,config);
 	
 	this.notifySelected = function(where) {
@@ -328,11 +328,11 @@ lconf.Admin.itemGranter = function(config) {
 	this.buildInterface = function() {
 		var available = this.gridAvailable;
 		var selected =  this.gridSelected;
-		this.interface = new Ext.Panel({
+		this._interface = new Ext.Panel({
 			layout:'column',	
 			title:this.title,
 			defaults: {
-				cellCls: 'middleAlign',	
+				cellCls: 'middleAlign'
 			},
 			items: [	
 				available,
@@ -380,8 +380,8 @@ lconf.Admin.itemGranter = function(config) {
 	
 
 	this.buildInterface();
-	this.interface.cmp = this;
-	__instance = this.interface;
-	return this.interface;	
+	this._interface.cmp = this;
+	__instance = this._interface;
+	return this._interface;
 }
 })();
