@@ -555,7 +555,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel
 				$this->addNode($splittedAlias[1],array(
 					array("property"=>"objectclass","value"=>"extensibleObject"),
 					array("property"=>"objectclass","value"=>"alias"),
-					array("property"=>"aliasedObjectName","value"=>$newDN)
+					array("property"=>"aliasedobjectname","value"=>$newDN)
 				));
 				/**
 				 *  It doesn't matter if the new alias creation has completed or not, as the old alias
