@@ -24,11 +24,21 @@ class LConf_LConfExporterModel extends IcingaLConfBaseModel
 			$this->lconfConsole = AgaviContext::getInstance()->getModel('Console.ConsoleInterface',"Api",array("host"=>$instance));
 		return $this->lconfConsole;
 	}
-	
+
+    public function getExportBase(LConf_LDAPConnectionModel $ldap_config) {
+        $cfg = AgaviConfig::get('modules.lconf.lconfExport');
+        if(isset($cfg['exportDN'])) {
+            return $cfg['exportDN'].",".$ldap_config->getBaseDN();
+        } return null;
+        
+    }
+
 	public function exportConfig(LConf_LDAPConnectionModel $ldap_config,$satellites = array()) {
 		//$satellites = $this->fetchExportSatellites($ldap_config);	
-		$ctx = $this->getContext();
-		$lconfExportInstance = AgaviConfig::get('modules.lconf.lconfExport.lconfConsoleInstance');
+
+        $ctx = $this->getContext();
+		
+        $lconfExportInstance = AgaviConfig::get('modules.lconf.lconfExport.lconfConsoleInstance');
 		$this->prefix = AgaviConfig::get('modules.lconf.prefix');
 		$console = $this->getConsole($lconfExportInstance);
 		$this->tm = $ctx->getTranslationManager();
@@ -53,7 +63,8 @@ class LConf_LConfExporterModel extends IcingaLConfBaseModel
 		}
 	}
 	
-	public function getChangedSatellites(LConf_LDAPConnectionModel $ldap_config) {	
+	public function getChangedSatellites(LConf_LDAPConnectionModel $ldap_config) {
+        
 		$satellites = $this->fetchExportSatellites($ldap_config);
 		$this->filterSatellites = true;
 		$satellites_new = $this->fetchExportSatellites($ldap_config);
@@ -171,11 +182,15 @@ class LConf_LConfExporterModel extends IcingaLConfBaseModel
 		$client = $ctx->getModel('LDAPClient','LConf',array($ldap_config));
 		$client->connect();
 		$this->ldapClient = $client;
-		$entries = $client->searchEntries($filterGroup,null,array('dn','description','objectclass','modifytimestamp'));
+
+		$entries = $client->searchEntries($filterGroup,$this->getExportBase($ldap_config),array('dn','description','objectclass','modifytimestamp'));
 		$satellites = array();
-		if($this->filterSatellites) {
+        if($entries == null)
+            $entries = array();
+        if($this->filterSatellites) {
 			$entries = $this->removeUnchangedSatellites($entries);	
-		} 
+		}
+
 		foreach($entries as $val=>&$cluster) {
 			if(!is_numeric($val))
 				continue;	

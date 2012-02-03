@@ -422,6 +422,18 @@
 				<setting name="ldap_object_presets_ini">%core.module_dir%/LConf/lib/ldapConfig/objectDefaultAttributes.ini</setting>
 				<setting name="lconfExport">
 					<ae:parameter name="lconfConsoleInstance">localhost</ae:parameter>
+					<!-- DN which should be used for exporting
+                         Will be prepended to the connections base dn. For example:
+
+                         exportDN: cn=IcingaLConf,ou=Monitoring
+                         Connections BaseDN: dc=my,dc=server,dc=org
+                         The export will only scan folders below
+                         cn=IcingaLConf,ou=Monitoring,dc=my,dc=server,dc=org
+                    -->
+                    <!--
+                        <ae:parameter name="exportDN"></ae:parameter>
+                    -->
+
 				</setting>
                 <setting name="agavi.include.menu">
                     <ae:parameter>%core.module_dir%/LConf/config/menu.xml</ae:parameter>
