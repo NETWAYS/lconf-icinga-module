@@ -99,14 +99,27 @@ lconf.Admin.getPrincipalEditor = function() {
 		isStaticSource: true,
 		root: 'users',
 		idProperty: 'user_id',
-		url: '<?php echo $ro->gen("modules.appkit.data.users")?>',
+		url: '<?php echo $ro->gen("modules.appkit.data.users")?>?hideDisabled=false',
 		remoteSort: true,
-		baseParams: {
-			hideDisabled: false
-		},
+		
 		fields: [
-			'user_id',
-			'user_name',
+			{
+                name: 'user_id',
+                convert: function(v,record) {
+                    if(typeof record.user_id !== "undefined")
+                        return record.user_id;
+                    else
+                        return record.id;
+                }
+            },{
+                name: 'user_name',
+                convert: function(v,record) {
+                    if(typeof record.user_name !== "undefined")
+                        return record.user_name;
+                    else 
+                        return record.name;
+                }
+            }
 		],
 		listeners: {
 			// function to filter out already selected values from the available view

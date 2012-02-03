@@ -23,7 +23,7 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 		if(!Ext.isArray(ids))
 			return false;
 		Ext.Ajax.request({
-			url: window.location.protocol+"//"+window.window.location.host+"/"+cfg.base+"/"+cfg.url,
+			url: window.location.protocol+"//"+window.window.location.host+AppKit.c.path+"/"+cfg.url,
 			params: {
 				ids: Ext.encode(ids),
 				target: cfg.target,
