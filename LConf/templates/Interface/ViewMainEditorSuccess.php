@@ -56,6 +56,7 @@ Ext.onReady(function() {
 		items: [{
 			title: 'DIT',
 			region: 'west',
+			collapsible: false,
 			id: 'west-frame-lconf',
 			layout: 'fit',
 			margins:'5 0 0 0',
