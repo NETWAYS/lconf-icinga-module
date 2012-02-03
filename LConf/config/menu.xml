@@ -17,6 +17,7 @@
                 <item id="menu_lconf_connectionmgr">
                     <icon>icinga-icon-user</icon>
                     <caption>LConf Connection Manager</caption>
+                    <credential>lconf.admin</credential>
                     <route target="new">
                         modules.lconf.admin
                     </route>
