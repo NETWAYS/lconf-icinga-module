@@ -2,11 +2,28 @@ Ext.ns("lconf.Admin");
 
 (function() {
 var __instance;
+
+var getCompatibilityFieldMapping = function(legacyField, newField) {
+    return {
+        name: legacyField,
+        convert: function(v,record) {
+            if(typeof record[legacyField] !== "undefined") {
+                return record[legacyField];
+            } else {
+                return record[newField];
+            }
+        }
+    }
+}
+
 lconf.Admin.getPrincipalEditor = function() {
 	if(<?php echo ($us->hasCredential('lconf.admin') ? 'false' : 'true') ?>)
 		return null;
 	if(__instance)
 		return __instance;
+
+
+
 	/**
 	 * Excludes records selected in store.sourceStore from this store
 	 * 
@@ -51,8 +68,8 @@ lconf.Admin.getPrincipalEditor = function() {
 		root:'roles',
 		url: '<?php echo $ro->gen("modules.appkit.data.groups")?>',
 		fields: [
-			'role_id',
-			'role_name'
+			getCompatibilityFieldMapping('role_id','id'),
+			getCompatibilityFieldMapping('role_name','name')
 		],
 		listeners: {
 			// function to filter out already selected values from the available view
@@ -73,8 +90,8 @@ lconf.Admin.getPrincipalEditor = function() {
 			target: 'groups'
 		},
 		fields: [
-			'role_id',
-			'role_name'
+			getCompatibilityFieldMapping('role_id','id'),
+			getCompatibilityFieldMapping('role_name','name')
 		],
 		writer: new Ext.data.JsonWriter({
 			encode:true
@@ -103,23 +120,8 @@ lconf.Admin.getPrincipalEditor = function() {
 		remoteSort: true,
 		
 		fields: [
-			{
-                name: 'user_id',
-                convert: function(v,record) {
-                    if(typeof record.user_id !== "undefined")
-                        return record.user_id;
-                    else
-                        return record.id;
-                }
-            },{
-                name: 'user_name',
-                convert: function(v,record) {
-                    if(typeof record.user_name !== "undefined")
-                        return record.user_name;
-                    else 
-                        return record.name;
-                }
-            }
+			getCompatibilityFieldMapping('user_id','id'),
+            getCompatibilityFieldMapping('user_name','name')
 		],
 		listeners: {
 			// function to filter out already selected values from the available view
@@ -141,8 +143,8 @@ lconf.Admin.getPrincipalEditor = function() {
 			target: 'users'	
 		},
 		fields: [
-			'user_id',
-			'user_name'
+			getCompatibilityFieldMapping('user_id','id'),
+			getCompatibilityFieldMapping('user_name','name')
 		],
 		writer: new Ext.data.JsonWriter({
 			encode:true

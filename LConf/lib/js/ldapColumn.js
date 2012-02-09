@@ -74,7 +74,9 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 			menuItems.push({
 				text: _('Use ')+connection.name,
 				handler: function() {
-					var url = window.location.protocol+"//"+window.window.location.host+"/"+cfg.base+"/"+cfg.ldapRoute;
+
+                    var url = AppKit.c.path+"/"+cfg.ldapRoute;
+                    
 					window.location.href = url+"/"+connection.id+"/"+dnInfo.DN;				
 				}
 			});

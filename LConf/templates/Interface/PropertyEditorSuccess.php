@@ -22,15 +22,25 @@ lconf.propertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 	* For non-IE browsers, this is fixed with a CSS addition.
 	*/
 	reenableTextSelection : function(){
-		var grid = this;
 		if(Ext.isIE){
-			grid.store.on("load", function(){
-				var elems=Ext.DomQuery.select("div.dnSelectable", parentCmp.el.dom);
-				for(var i=0, len=elems.length; i<len; i++){
-					elems[i].unselectable = "off";
-					elems[i].parentNode.unselectable = "off";
-				}
-			});
+            try {
+                this.colModel.store.on("load", function(){
+                    try {
+                        var elems=Ext.DomQuery.select("div.dnSelectable", parentCmp.el.dom);
+                        for(var i=0, len=elems.length; i<len; i++){
+                            elems[i].unselectable = "off";
+                            elems[i].parentNode.unselectable = "off";
+                 
+                        }
+                    }catch(e) {}
+                 });
+                 
+            } catch(e) {
+                // ignore any errors, it's better to have no text selection in this case
+                // than crashing the whole UI
+                AppKit.log(e);
+
+            }
 		}
 	},
 
