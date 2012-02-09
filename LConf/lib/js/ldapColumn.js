@@ -64,8 +64,21 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 		}
 		var dnInfo = data.dn[id];
 		elem.replaceClass("unfinished","available");
+        registerQTip(elem);
 		elem.on("click",function(e) {showDNMenu(e,dnInfo,cfg)},this);
 	}
+
+    var registerQTip = function(elem) {
+        
+        var qtipAttr = elem.getAttribute("qtip","ext");
+        AppKit.log("Qtip",qtipAttr);
+        if(qtipAttr !== '') {
+           new Ext.ToolTip({
+                target: Ext.get(elem.findParentNode('td')),
+                html: _(qtipAttr)
+            }).doLayout();
+        }
+    }
 	
 	var showDNMenu = function(e,dnInfo,cfg) {
 		var menuItems = [];
@@ -88,9 +101,15 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 	
 	Cronk.grid.ColumnRenderer.ldapColumn = 	function(cfg) {
 		
-		return function(value, garbage, record, rowIndex, colIndex, store) {
-			ldapColumnSelector.delay(500,null,null,[cfg]);
-			return '<div class="lconf_cronk_sel unfinished" lconf_val="'+value+'"><div style="width:25px;height:25px;display:block"></div></div>'
+		return function(value, metaData, record, rowIndex, colIndex, store) {
+			ldapColumnSelector.delay(200,null,null,[cfg]);
+            
+
+            var flat_attr = "";
+            for(var attr in cfg.attr) {
+                flat_attr = attr+'="'+cfg.attr[attr]+'"';
+            }
+			return '<div class="lconf_cronk_sel unfinished" '+flat_attr+' lconf_val="'+value+'"><div style="width:25px;height:25px;display:block;" ></div></div>';
 		}
 	}
 		
