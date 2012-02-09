@@ -4,6 +4,7 @@
 	<ae:configuration context="web">
 		<routes>
     		<route pattern="^/lconf" name=".lconf" module="LConf">
+                <route name=".ping" pattern="^/ping$" action="Backend.Ping" output_type="json" />
                 <route name=".about" pattern="^/about$" action="Interface.About" output_type="simple"/>
                 <route name="lconfDNs" output_type="json" pattern="^/cronk/dns" action="Backend.Cronks.CustomVarDNCollector"/>
                 <route name=".main" pattern="^/$" action="Interface.ViewMainEditor"></route>
