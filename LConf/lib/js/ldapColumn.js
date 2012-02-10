@@ -1,4 +1,5 @@
 Ext.ns('Cronk.grid.ColumnRenderer');
+
 (function() {
 
 	var ldapColumnSelector = new Ext.util.DelayedTask(function(cfg) {
