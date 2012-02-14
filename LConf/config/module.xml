@@ -36,10 +36,10 @@
 					<ae:parameter name="@@SCHEMA_PREFIX@@Contact">icinga-icon-user</ae:parameter>
 					<ae:parameter name="@@SCHEMA_PREFIX@@Contactgroup">icinga-icon-group</ae:parameter>
 					<ae:parameter name="@@SCHEMA_PREFIX@@Host">icinga-icon-server</ae:parameter>
-					<ae:parameter name="@@SCHEMA_PREFIX@@HostEscalation">icinga-icon-server-lightning</ae:parameter>
+					<ae:parameter name="@@SCHEMA_PREFIX@@HostEscalation">lconf-application-lightning</ae:parameter>
 					<ae:parameter name="@@SCHEMA_PREFIX@@Hostgroup">icinga-icon-hostgroup</ae:parameter>
 					<ae:parameter name="@@SCHEMA_PREFIX@@Service">icinga-icon-cog</ae:parameter>
-					<ae:parameter name="@@SCHEMA_PREFIX@@ServiceEscalation">icinga-icon-application-lightning</ae:parameter>
+					<ae:parameter name="@@SCHEMA_PREFIX@@ServiceEscalation">lconf-application-lightning</ae:parameter>
 					<ae:parameter name="@@SCHEMA_PREFIX@@Servicegroup">icinga-icon-servicegroup</ae:parameter>
 					
 					<ae:parameter name="alias">icinga-icon-attach</ae:parameter>
@@ -79,7 +79,7 @@
 					<ae:parameter>
 						<ae:parameter name="view">Hostescalation</ae:parameter>
 						<ae:parameter name="description">Create a hostescalation</ae:parameter>
-						<ae:parameter name="iconCls"></ae:parameter>
+						<ae:parameter name="iconCls">lconf-application-lightning</ae:parameter>
 					</ae:parameter>
 
 					<ae:parameter>
@@ -97,7 +97,7 @@
 					<ae:parameter>
 						<ae:parameter name="view">Serviceescalation</ae:parameter>
 						<ae:parameter name="description">Create a serviceescalation</ae:parameter>
-						<ae:parameter name="iconCls"></ae:parameter>
+						<ae:parameter name="iconCls">lconf-application-lightning</ae:parameter>
 					</ae:parameter>
 
 					<ae:parameter>

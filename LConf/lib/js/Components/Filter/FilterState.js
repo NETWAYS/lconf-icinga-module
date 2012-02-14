@@ -20,6 +20,7 @@ Ext.ns("LConf.Filter").FilterState = function() {
     this.removeBypass = function() {
         this.activateFilter(this.bypassed);
         this.bypassed = false;
+        this.active = true;
     }
 
     this.getActiveFilters = function() {
