@@ -56,11 +56,11 @@ Ext.ns("LConf.DIT.Helper").NodeWizardManager = function(tree) {
             autoDestroy:false,
             margins: "3 3 3 3",
             height: Ext.getBody().getHeight()*0.9 > 400 ? 400 : Ext.getBody().getHeight()*0.9,
-            autoScroll:true,
             constrain:true,
+            layout: 'fit',
             items: [{
-                height:Ext.getBody().getHeight()*0.9 > 400 ? 400 : Ext.getBody().getHeight()*0.9,
                 autoScroll:true,
+                
                 singleSelect:true,
 
                 xtype:'listview',

@@ -53,7 +53,36 @@ Ext.ns("LConf.View").PropertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
 	},
 
 	connId: null,
-    
+
+    getColumnDefinitions: function() {
+        var columns = [
+            {
+                id:'property',
+                header:'Property',
+                width:300,
+                sortable:true,
+                dataIndex:'property',
+                editor:Ext.form.TextField
+            },{
+                id:'value',
+                header:'Value',
+                width:400,
+                sortable:false,
+                dataIndex:'value',
+                editor:Ext.form.TextField,
+                renderer:function(value,metaData,record) {
+                    if(record.get('property') == "dn")
+                        value = "<div class='dnSelectable'>"+value+"</div>";
+
+                    return value;
+                }
+            }
+        ];
+        var extender = new LConf.PropertyGrid.PropertyGridExtender(columns);
+        extender.extendColumns();
+        return columns;
+    },
+
 	initializeGridSettings: function () {
         LConf.Helper.Debug.d("Setting up PropertyManager \w",this,arguments);
 		this.ds =  new Ext.data.JsonStore({
@@ -103,29 +132,7 @@ Ext.ns("LConf.View").PropertyManager = Ext.extend(Ext.grid.EditorGridPanel,{
                 }
 				return  Ext.grid.ColumnModel.prototype.isCellEditable.call(this,col,row);
 			},
-			columns: [
-				{
-					id:'property',
-					header:'Property',
-					width:300,
-					sortable:true,
-					dataIndex:'property',
-					editor:Ext.form.TextField
-				},{
-					id:'value',
-					header:'Value',
-					width:400,
-					sortable:false,
-					dataIndex:'value',
-					editor:Ext.form.TextField,
-					renderer:function(value,metaData,record) {
-						if(record.get('property') == "dn")
-							value = "<div class='dnSelectable'>"+value+"</div>";
-
-						return value;
-					}
-				}
-			]
+			columns: this.getColumnDefinitions()
 		});
 
 		this.fbar = new Ext.Toolbar({

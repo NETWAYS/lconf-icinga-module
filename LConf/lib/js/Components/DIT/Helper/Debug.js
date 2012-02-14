@@ -1,13 +1,13 @@
 Ext.ns("LConf.Helper").Debug = (function() {
     var LOGLEVEL = {
-        DEBUG:  true,
+        DEBUG:  false,
         INFO:   true,
         ERROR:  true
     }
     
     var log = function(tag,args) {
         
-        if(LOGLEVEL[tag] === true)
+        if(LOGLEVEL[tag] == true)
             AppKit.log.apply(AppKit.log,args);
     }
 
