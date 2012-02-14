@@ -1,5 +1,4 @@
 Ext.ns('Cronk.grid.ColumnRenderer');
-
 (function() {
 
 	var ldapColumnSelector = new Ext.util.DelayedTask(function(cfg) {
@@ -70,9 +69,8 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 	}
 
     var registerQTip = function(elem) {
-        
         var qtipAttr = elem.getAttribute("qtip","ext");
-        AppKit.log("Qtip",qtipAttr);
+       
         if(qtipAttr !== '') {
            new Ext.ToolTip({
                 target: Ext.get(elem.findParentNode('td')),

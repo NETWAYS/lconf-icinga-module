@@ -34,7 +34,7 @@ abstract class BaseLconfConnection extends Doctrine_Record
              'notnull' => false,
           ));
 
-	$this->hasColumn('connection_binddn', 'string', 1024, array(
+		$this->hasColumn('connection_binddn', 'string', 1024, array(
              'type' => 'string',
              'length' => 1024,
 			 'fixed' => false,

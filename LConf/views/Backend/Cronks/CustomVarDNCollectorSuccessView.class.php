@@ -12,6 +12,7 @@ class LConf_Backend_Cronks_CustomVarDNCollectorSuccessView extends IcingaLConfBa
 			$target_field = $rd->getParameter('target_field');
 			
 			$resultSet = $this->fetchDNs();
+
 			$connectionMgr = $this->getContext()->getModel("LDAPConnectionManager","LConf");
 			$connections = $connectionMgr->getConnectionsForUser();
 			if(!$connections)
