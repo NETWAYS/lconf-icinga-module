@@ -1,7 +1,8 @@
 
 1) Prerequisites
 
-You need a running mysql and php (with PEAR and CLI) environment w/ icinga-web and ido (ido2db).
+- php5 with ldap and a running icinga-web instance
+- an ldap server
 Phing is required for installation but shipped with this module (see phing.php at the root folder)
 
 
