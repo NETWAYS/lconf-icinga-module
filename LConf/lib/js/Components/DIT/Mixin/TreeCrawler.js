@@ -110,7 +110,7 @@ Ext.ns("LConf.DIT.Mixin").TreeCrawler = function() {
 
             this.selectPath(node.getPath());
 
-            node.getOwnerTree().fireCustomEvent("nodeSelected",node,this.id);
+            this.eventDispatcher.fireCustomEvent("nodeSelected",node,this.id);
             this.scrollIntoView(this,node.lastChild || node);
         }
 

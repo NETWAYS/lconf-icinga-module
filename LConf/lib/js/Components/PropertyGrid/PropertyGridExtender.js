@@ -13,6 +13,7 @@ Ext.ns("LConf.PropertyGrid").PropertyGridExtender = function(colModel) {
                     this.addAction(extension);
                     break;
                 case 'column':
+                    // not implemented yet
                     break;
 
             }
@@ -93,7 +94,7 @@ Ext.ns("LConf.PropertyGrid").PropertyGridExtender = function(colModel) {
                 if(objectMatches(store,action) && propertyMatches(rec,action)) {
                     this.record = rec;
                     
-                    return "icon-16 icinga-icon-cog";
+                    return "icon-16 "+action.iconCls;
                 }
                 v = "";
                 return "";
