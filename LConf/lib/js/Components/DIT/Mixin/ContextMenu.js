@@ -95,7 +95,7 @@ Ext.ns("LConf.DIT.Mixin").ContextMenu = function() {
         });
         if(!tree)
             return false;
-        AppKit.log(tree);
+        
         var tabPanel = tree.ownerCt;
         var ctx = new Ext.menu.Menu({
             items: [{

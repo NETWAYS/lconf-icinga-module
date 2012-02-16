@@ -162,7 +162,7 @@ Ext.ns("LConf.View").FilterPanel = Ext.extend(Ext.Panel, {
             presets = Ext.decode(record.get('filter_json'));
             filter_name = record.get('filter_name');
         }
-        AppKit.log(this,arguments);
+        
         var tree = new LConf.Filter.FilterTree({
             presets: presets,
             filter_name: filter_name,

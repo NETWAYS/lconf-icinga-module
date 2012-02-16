@@ -175,6 +175,52 @@ li div.italic * span {
 }
 
 
+.lconf_serviceCheck {
+    padding: 1em;
+}
+
+.lconf_serviceCheck.error .message {
+    background-image: url(../../../../images/icons/cross-circle-frame.png);
+    background-repeat: no-repeat;
+    font-weight: bold;
+    color:red;
+    padding-left:24px;
+}
+
+.lconf_serviceCheck.error .command {
+    padding-top: 2em;
+}
+
+.lconf_serviceCheck.error .command .label {
+    font-weight: bold;
+}
+
+.lconf_serviceCheck.success .statusCode {
+    margin:auto;
+    width: 50%;
+    border: 1px solid black;
+    text-align:center;
+    font-size:15px;
+    font-weight:bold;
+    
+}
+
+.lconf_serviceCheck.success .message {
+    margin:auto;
+    margin-top:5px;
+    width: 95%;
+    border: 1px solid black;
+    padding:1em;
+    font-size:10px;
+    font-weight:bold;
+    font-family: monospace;
+    height: 80px;
+    overflow: auto;
+}
+
+.lconf_serviceCheck.success .hint {
+    color: red;
+}
 .lconf-logo { background-image: url(../images/tree_small.png) !important; background-repeat: no-repeat;}
 .lconf-application-lightning { background-image: url(../../../../images/icons/application_lightning.png) !important; background-repeat: no-repeat;}
 .icinga-icon-arrow-divide { background-image: url(../../../../images/icons/arrow-branch.png) !important; background-repeat: no-repeat; }

@@ -22,7 +22,8 @@ Ext.onReady(function() {
         connect :           '<?php echo $ro->gen("modules.lconf.data.connect"); ?>',
         principals :        '<?php echo $ro->gen("modules.lconf.data.principals"); ?>',
         ldapmetaprovider :  '<?php echo $ro->gen("modules.lconf.data.ldapmetaprovider"); ?>',
-        exportConfig:       '<?php echo $ro->gen("modules.lconf.export"); ?>'
+        exportConfig:       '<?php echo $ro->gen("modules.lconf.export"); ?>',
+        checkCommand:       '<?php echo $ro->gen("modules.lconf.testCheck"); ?>'
     };
 
     var icons =  <?php echo json_encode($icons); ?>;

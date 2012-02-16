@@ -17,9 +17,10 @@ Ext.ns("LConf.PropertyGrid.Extensions").TestCheckCommand = {
     
     handler: function(grid) {
         var checkValue = this.record.get("value");
+        var me =  LConf.PropertyGrid.Extensions.TestCheckCommand;
         if(typeof checkValue !== "string")
             return;
-        LConf.PropertyGrid.Extensions.TestCheckCommand.grid = grid;
+        me.grid = grid;
 
         Ext.Ajax.request({
             url: grid.urls.ldapmetaprovider,
@@ -30,115 +31,57 @@ Ext.ns("LConf.PropertyGrid.Extensions").TestCheckCommand = {
 
             success: function(result) {
                 var resultSet = Ext.decode(result.responseText);
-                if(resultSet.total < 1) {
-                    Ext.Msg.alert(
-                        _("Couldn't find checkcommand!"),
-                        _("Couldn't find a checkcommandentry for checkValue")
-                    );
-                } else {
-                    LConf.PropertyGrid.Extensions.TestCheckCommand.showCheckCommandWindow(resultSet.result[0].entry,this.record);
+                var ldapEntry = null
+
+                if(resultSet.total > 0) {
+                    ldapEntry = resultSet.result[0].entry;
                 }
+
+                me.showCheckCommandWindow(
+                    ldapEntry,
+                    this.record,
+                    checkValue
+                );
             },
             scope: this
         });
     },
 
-    resolveToField: function(fieldname, record, prefix) {
-        var me = LConf.PropertyGrid.Extensions.TestCheckCommand;
-        switch(fieldname) {
-            case '$SERVICENAME$':
-                var field = null;
-                record.store.each(function(entry) {
-                    if(entry.get("property") == "cn") {
-                        field = {
-                            xtype: 'textfield',
-                            fieldLabel: fieldname,
-                            value: entry.get("value")
-                        };
-                        return false;
-                    }
-                    return true;
-                },this);
-                return field;
-                break;
-           case '$HOSTNAME$':
-                var combobox = new (LConf.Editors.ComboBoxFactory.create(
-                    Ext.encode({"LDAP": ["objectclass="+prefix+"host"],"Attr": "cn"}),me.grid.urls
-                ))();
-                combobox.fieldLabel = fieldname;
-                combobox.getStore().setBaseParam("connectionId", me.grid.connId)
-                return combobox;
-           case '$HOSTADDRESS$':
-                var combobox = new (LConf.Editors.ComboBoxFactory.create(
-                    Ext.encode({"LDAP": ["objectclass="+prefix+"host"],"Attr": prefix+"address"}),me.grid.urls
-                ))();
-                combobox.fieldLabel = fieldname;
-                combobox.getStore().setBaseParam("connectionId", me.grid.connId)
-                return combobox;
-            default:
-               return {
-                   xtype: 'textfield',
-                   fieldLabel: fieldname
-               }
-        }
-    },
+    
 
-    showCheckCommandWindow: function(ldapEntry,record) {
+    showCheckCommandWindow: function(ldapEntry,record, directCheckCmd) {
         var commandLine = null;
         var prefix = "";
         var me = LConf.PropertyGrid.Extensions.TestCheckCommand;
-        for(var i in ldapEntry) {
-            if(/(.*?)commandline$/i.test(i)) {
-                commandLine = ldapEntry[i][0];
+        var dn = "";
+        if(ldapEntry === null) {
+            commandLine = record.get("value");
+            prefix = record.get("property").match(/(.*?)service.*$/i)[1];
+        } else {
+            for(var i in ldapEntry) {
+                if(i == "dn")
+                    dn = ldapEntry[i];
+                if(/(.*?)(commandline)$/i.test(i)) {
+                    commandLine = ldapEntry[i][0];
+                    if(Ext.isObject(commandLine))
+                        commandLine = commandLine.data["property"];
+                    prefix = i.match(/(.*?)(commandline)$/i)[1];
 
-                prefix = i.match(/(.*?)commandline$/i)[1];
-                
-            }
-        };
+                }
+            };
+        }
         if(commandLine === null)
             return Ext.Msg.alert("Error",_("Couldn't find commandline"));
         
-        var insertVars = commandLine.match(/(\$.*?\$)/gi);
-        var items = [{
-            xtype: 'container',
-            html: '<b>Checkcommand: </b><br/> '+commandLine
-
-        }];
-
-        for(var i =0;i<insertVars.length;i++) {
-            var currentValue = insertVars[i];
-            items.push(me.resolveToField(currentValue,record,prefix));
-        }
-
-        
-        var window = new Ext.Window({   
-            closable: true,
-            closeaction: 'destroy',
-            width: 400,
-            
-            constrain:true,
-            title: 'Test check',
-            items: [
-                new Ext.form.FormPanel({
-                    padding:"2em",
-                    autoScroll:true,
-                    defaults: {
-                        anchor: '80%'
-                    },
-                    items: items,
-                })
-            ],
-            buttons: [{
-                text: 'Test Check result',
-                iconCls: 'icinga-icon-cog'
-            }, {
-                text: 'Cancel',
-                iconCls: 'icinga-icon-cancel'
-            }]
+        var wnd = new LConf.Views.TestCheckWindow({
+            grid: me.grid,
+            record: record,
+            dn: dn,
+            prefix: prefix,
+            commandLine: commandLine
         });
-        var pos = Ext.EventObject.getXY();
-        window.setPosition(pos[0],pos[1]);
-        window.show();
+        wnd.show();
+      
     }
 
 };
