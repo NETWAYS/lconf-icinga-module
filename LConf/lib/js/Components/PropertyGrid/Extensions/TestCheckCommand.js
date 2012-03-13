@@ -18,7 +18,7 @@ Ext.ns("LConf.PropertyGrid.Extensions").TestCheckCommand = {
     handler: function(grid) {
         var checkValue = this.record.get("value");
         var checkCmd = checkValue.replace(/^(.*?)!.*/,"$1");
-        var argumentRegExp = /!(\w*)/g
+        var argumentRegExp = /!([^!]*)/g
         var args = [];
         while(result = argumentRegExp.exec(checkValue)) {
             args.push(result[1]);
