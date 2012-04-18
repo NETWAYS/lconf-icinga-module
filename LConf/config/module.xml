@@ -362,7 +362,7 @@
     			</setting>
     			
     			<setting name="inheritance">
-   			
+   		<!--	
                     <ae:parameter name="@@SCHEMA_PREFIX@@Host">
                         <ae:parameter name="(@@SCHEMA_PREFIX@@Host|@@SCHEMA_PREFIX@@StructuralObject)">
                             <ae:parameter name="attributes">
@@ -394,7 +394,7 @@
                             </ae:parameter>
                         </ae:parameter>
                     </ae:parameter>
-
+-->
     			</setting>
 
     			<setting name="ldap_definition_ini">%core.module_dir%/LConf/lib/ldapConfig/staticObjects.ini</setting>
