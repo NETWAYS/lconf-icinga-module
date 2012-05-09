@@ -37,11 +37,11 @@ class doctrineDBBuilderTask extends Task {
 	protected function checkForDoctrine() {
 		$icinga = $this->project->getUserProperty("PATH_Icinga");
         self::$APPKIT_LIB_DB = $icinga."/app/modules/AppKit/lib/database/models/";
-		$doctrinePath = $icinga."/lib/doctrine/";
-		if(!file_exists($doctrinePath."/Doctrine.compiled.php"))
-			throw new BuildException("Doctrine.php not found at ".$doctrinePath."Doctrine.compiled.php");
+		$doctrinePath = $icinga."/lib/doctrine/lib/";
+		if(!file_exists($doctrinePath."/Doctrine.php"))
+			throw new BuildException("Doctrine.php not found at ".$doctrinePath."Doctrine.php");
 		// setup autoloader
-		require_once($doctrinePath."/Doctrine.compiled.php");
+		require_once($doctrinePath."/Doctrine.php");
 		spl_autoload_register("Doctrine::autoload");
 		spl_autoload_register("doctrineDBBuilderTask::loadModel");
 		$iniData = parse_ini_file($this->ini);

@@ -26,11 +26,11 @@ class sqlRunnerTask extends Task {
 	 */
 	protected function checkForDoctrine() {
 		$icinga = $this->project->getUserProperty("PATH_Icinga");
-		$doctrinePath = $icinga."/lib/doctrine/";
-		if(!file_exists($doctrinePath."Doctrine.compiled.php"))
+		$doctrinePath = $icinga."/lib/doctrine/lib/";
+		if(!file_exists($doctrinePath."Doctrine.php"))
 			throw new BuildException("Doctrine.php not found at ".$doctrinePath."Doctrine.compiled.php");
 		
-		require_once($doctrinePath."Doctrine.compiled.php");
+		require_once($doctrinePath."Doctrine.php");
 		spl_autoload_register("Doctrine::autoload");
 	}
 	
