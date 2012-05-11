@@ -5,12 +5,6 @@
 *************************  Icinga Module Toolkit   ************************ 
 Available targets: 
 	- install-module:	Installs the current module
-	- deploy-module: 	Deploys a module for distribution
-	- remove-module:	Removes a module from this system
-	- rollback:		Restores files that we're altered by install-module
-	
-	- export-cronk:		Exports a cronk for distribution
-	- import-cronk:		Imports a cronk
 ***************************************************************************
 		</echo>
 	</target>
@@ -54,7 +48,7 @@ Available targets:
 		
 		<!-- Set up Doctrine -->
 		<taskdef name="doctrineDBBuilder" classname="bin.doctrineDBBuilderTask" />
-		<input propertyname="confirm" promptChar="?" defaultValue="y" validargs="y,n">Create tables</input>
+		<input propertyname="confirm" promptChar="?" defaultValue="y" validargs="y,n">Create lconf tables (not needed on update)</input>
 		<if>
 			<equals arg1="${confirm}" arg2="y" />
 			<then>
@@ -88,7 +82,7 @@ Available targets:
 		</copy>	
 		
 		
-		<input propertyname="confirm" promptChar="?" defaultValue="y" validargs="y,n">Process sql queries?</input>
+		<input propertyname="confirm" promptChar="?" defaultValue="y" validargs="y,n">Create lconf credentials (not needed on update)?</input>
 		<if>
 			<equals arg1="${confirm}" arg2="y" />
 			<then>
