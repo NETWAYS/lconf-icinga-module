@@ -7,14 +7,13 @@ Ext.ns("LConf.DIT.Helper").NodeWizardManager = function(tree) {
         this.newNodeParent = _parent.id;
         if(!this.wizardWindow) {
             this.wizardWindow = new Ext.Window({
-                width:800,
                 id:'newNodeWizardWnd',
                 renderTo: Ext.getBody(),
-                height: Ext.getBody().getHeight()> 400 ? 400 : Ext.getBody().getHeight(),
+                height: 700,
+                width: 800,
                 centered:true,
                 stateful:false,
                 shadow:false,
-
                 constrain:true,
                 modal:true,
                 title: _('Create new entry'),
@@ -55,7 +54,6 @@ Ext.ns("LConf.DIT.Helper").NodeWizardManager = function(tree) {
             borders:false,
             autoDestroy:false,
             margins: "3 3 3 3",
-            height: Ext.getBody().getHeight()*0.9 > 400 ? 400 : Ext.getBody().getHeight()*0.9,
             constrain:true,
             layout: 'fit',
             items: [{
@@ -74,35 +72,17 @@ Ext.ns("LConf.DIT.Helper").NodeWizardManager = function(tree) {
                     selectionchange: function(view, selections) {
                         var selected = view.getSelectedRecords()[0];
                         this.selectedWizard = selected;
+                        this.showWizard(this.selectedWizard.id)
                     },
                     scope:this
                 },
                 columns: [{
                     tpl:new Ext.XTemplate("<tpl>",
-                            "<div style='width:100%;text-align:left;'>",
+                            "<div style='width:100%;text-align:left;cursor:pointer'>",
                                 "<em unselectable='on'><div class='{iconCls}' style='float:left;height:25px;width:25px;overflow:hidden'>&nbsp;</div>{description}</em>",
                             "</div>"),
-                    header: _('Entry description'),
                     dataIndex: 'description'
                 }]
-            }],
-            buttons: [{
-                text: _('Next &#187;'),
-                handler: function(btn) {
-                    if(!this.selectedWizard)	{
-                        // Confirm if nothing is selected
-                        Ext.Msg.confirm(
-                            _('Nothing selected'),
-                            _('You haven\'t selected anything yet, create a custom entry?'),
-                            function(btn) {
-                                if(btn == "yes")
-                                    this.showWizard();
-                            },this
-                        )
-                     }else
-                        this.showWizard(this.selectedWizard.id);
-                },
-                scope:this
             }]
         });
     }

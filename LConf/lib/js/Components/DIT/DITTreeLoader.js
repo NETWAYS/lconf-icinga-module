@@ -14,7 +14,7 @@ Ext.ns("LConf.DIT").DITTreeLoader = Ext.extend(Ext.tree.TreeLoader,{
         var nodeAttr = attr;
         var i = 0;
         var objClass = attr.objectclass[i];
-        var noIcon = false
+        var noIcon = false;
         LConf.Helper.Debug.d("DITTreeLoader createNode",this,arguments);
         do {
             objClass = attr.objectclass[i];
@@ -23,8 +23,9 @@ Ext.ns("LConf.DIT").DITTreeLoader = Ext.extend(Ext.tree.TreeLoader,{
             if(objClass === 'alias') {
                 nodeAttr.isAlias = true;
             }
-            if(typeof this.iconSet[objClass] === "string") {
-                nodeAttr.iconCls = this.iconSet[objClass];
+            if(typeof this.iconSet[objClass.toLowerCase()] === "string") {    
+            
+                nodeAttr.iconCls = this.iconSet[objClass.toLowerCase()];
             } else {
                 noIcon = true;
             }
@@ -50,7 +51,7 @@ Ext.ns("LConf.DIT").DITTreeLoader = Ext.extend(Ext.tree.TreeLoader,{
     constructor: function(config) {
         
         this.dataUrl = config.urls.directoryprovider;
-        this.iconSet = config.icons
+        this.iconSet = config.icons;
         LConf.Helper.Debug.d("Icons ",this.iconSet,config);
         Ext.tree.TreeLoader.prototype.constructor.call(this,config);
     },

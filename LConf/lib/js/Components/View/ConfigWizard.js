@@ -1,30 +1,49 @@
-Ext.ns("LConf.View").ConfigWizard = Ext.extend(LConf.View.PropertyManager,{
+Ext.ns("LConf.View").ConfigWizard = Ext.extend(LConf.View.PropertyManagerPanel,{
     
     id : Ext.id("wizard"),
     root: 'properties',
     enableFb : true,
-    noLoadOnSave: true,
+    isConfigWizard:true,
     presets: {},
 
     constructor: function(config) {
         Ext.apply(this,config);
         this.presets = config.presets;
         LConf.Helper.Debug.d("Created ConfigWizard",this,arguments);
-        
-        LConf.View.PropertyManager.prototype.constructor.call(this,config);
-
-        this.initMe();
+        config.extensionsEnabled = false;
+        LConf.View.PropertyManagerPanel.prototype.constructor.call(this,config);
 
     },
-
+    
     initComponent: function() {
-        LConf.View.PropertyManager.prototype.initComponent.apply(this,arguments);
+        LConf.View.PropertyManagerPanel.prototype.initComponent.apply(this,arguments);
+        this.getStore().toggleReloadOnSave(false);
         this.height = Ext.getBody().getHeight()*0.9 > 400 ? 400 : Ext.getBody().getHeight()*0.9;
         this.getStore().proxy.api.create.url = this.urls.modifynode;
         this.getStore().baseParams.xaction = "create";
         LConf.Helper.Debug.d("Rewrote proxy route",this.getStore());
+        this.initMe();
+        this.disable(false);
     },
 
+    viewProperties: function (selectedDN,connection,noAsk) {
+	var store = this.getStore();
+	if(!store)
+	    return null;
+
+        // check for pending changes
+        
+        this.selectedNode = selectedDN;
+        var id = selectedDN.attributes["aliasdn"] || selectedDN.id;
+        id = id.replace(/^\*\d{4}\*/,"");
+
+        store.setNode(id);
+        store.setConnection(connection);
+        store.load();
+        return true;
+    },
+
+    
     initMe : function() {
         this.on("render", function(elem) {
             this.ownerCt.on("hide",function(elem) {
@@ -32,7 +51,7 @@ Ext.ns("LConf.View").ConfigWizard = Ext.extend(LConf.View.PropertyManager,{
                 this.getStore().on("beforeload",function(store,rec,ope) {
                     return false; //supress reading
                 });
-            },this,{single:true})
+            },this,{single:true});
             var record = Ext.data.Record.create(['id','property','value']);
 
             this.getStore().on("exception",function(proxy,type,action,options,response) {
@@ -48,6 +67,16 @@ Ext.ns("LConf.View").ConfigWizard = Ext.extend(LConf.View.PropertyManager,{
                 return true;
             },this);
             this.getStore().removeListener("save");
+            this.addNodeSpecificViews({
+                attributes: {
+                    objectclass: {
+                        0: this.presets[this.wizardView]["objectclass"],
+                        count: 1
+                    }
+                       
+                   
+                }
+            });
 
             if(this.presets[this.wizardView]) {
                 var properties = this.presets[this.wizardView];
@@ -66,7 +95,7 @@ Ext.ns("LConf.View").ConfigWizard = Ext.extend(LConf.View.PropertyManager,{
                     this.getStore().save();
                 },
                 scope: this
-            })
+            });
         },this);
     },
     

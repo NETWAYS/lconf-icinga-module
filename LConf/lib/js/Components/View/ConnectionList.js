@@ -181,12 +181,12 @@ Ext.ns("LConf.View").ConnectionList = Ext.extend(Ext.Panel, {
     getDetailTemplate: function() {
         if(!this.detailTpl) {
             this.detailTpl = new Ext.XTemplate(
-                '<table style="margin:10px;width:100%" cellpadding="0" cellspacing="0">',
+                '<table style="margin:10px;paddiong:5px,width:100%" cellpadding="0" cellspacing="0">',
                     '<tr><td>ID</td><td>{connection_id}</td></tr>',
                     '<tr><td>Name</td><td>{connection_name}</td></tr>',
                     '<tr><td colspan="2">Description</td></tr>',
                     '<tr><td colspan="2">',
-                        '<div style="background-color:white;border:1px solid black;border-radius:5px;height:75px;width:70%;overflow:auto">',
+                        '<div style="padding:5px;background-color:white;margin:2px;border:1px solid black;height:75px;width:70%;overflow:auto">',
                             '{connection_description}',
                         '</div>',
                     '</td></tr>',
@@ -234,14 +234,12 @@ Ext.ns("LConf.View").ConnectionList = Ext.extend(Ext.Panel, {
 
         var infoWnd = new Ext.Window({
             title: _('Export result'),
-            width: 330,
-            height: 350,
+            width: Ext.getBody().getWidth()*0.8,
+            height:  Ext.getBody().getHeight()*0.8,
             layout: 'fit',
             autoScroll: true,
             modal:true,
             items: new Ext.grid.GridPanel({
-                autoHeight: true,
-                autoWidth: true,
                 border: false,
                 store: new Ext.data.JsonStore({
                     root: 'config',

@@ -88,20 +88,20 @@ Ext.ns("LConf.DIT").DITTree = Ext.extend(Ext.ux.MultiSelectTreePanel,{
 
     getLastExport: function(parent) {
         try {
-            var r = /LCONF->EXPORT->CLUSTER = /i
+            var r = /LCONF->EXPORT->CLUSTER = /i;
             for(var i in (parent.attributes.description || {})) {
                 if(!parent.attributes.description[i].match(r))
                     continue;
                 return parent.attributes.modifytimestamp[0];
             }
             return -1;
-        } catch(e) {
+        } catch(e) {
             AppKit.log(e);
         }
     },
 
     checkIfNodeIsSynced: function(node,parent) {
-        var r = /.*structuralobject/i
+        var r = /.*structuralobject/i;
         var lastExport = -1;
         while(parent) {
 

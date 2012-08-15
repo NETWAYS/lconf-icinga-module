@@ -3,87 +3,102 @@ Ext.ns("LConf.DIT.Mixin").ContextMenu = function() {
 
     this.showGeneralNodeDialog = function(node,e,justCreate) {
         e.preventDefault();
-        var tree = node.getOwnerTree();
+        
         var ctx = new Ext.menu.Menu({
-            items: [{
-                text: _('Refresh this part of the tree'),
-                iconCls: 'icinga-icon-arrow-refresh',
-                handler: tree.refreshNode.createDelegate(tree,[node,true]),
-                scope: this,
-                hidden: node.isLeaf() || justCreate
-            },{
-                text: _('Create new node on same level'),
-                iconCls: 'icinga-icon-add',
-                handler: tree.wizardManager.callNodeCreationWizard.createDelegate(tree.wizardManager,[{node:node}]),
-                scope: this,
-                hidden: !(node.parentNode)
-            },{
-                text: _('Create new node as child'),
-                iconCls: 'icinga-icon-sitemap',
-                handler: tree.wizardManager.callNodeCreationWizard.createDelegate(tree.wizardManager,[{node:node,isChild:true}]),
-                scope: this
-            },{
-                text: _('Remove <b>only this</b> node'),
-                iconCls: 'icinga-icon-delete',
-                handler: function() {
-                    Ext.Msg.confirm(_("Remove selected nodes"),
-                        _("Do you really want to delete this entry?<br/>")+
-                        _("Subentries will be deleted, too!"),
-                        function(btn){
-                            if(btn == 'yes') {
-                                tree.removeNodes([node]);
-                            }
-                        },this);
-                },
-                hidden: justCreate,
-                scope: this
-            },{
-                text: _('Remove <b>all selected</b> nodes'),
-                iconCls: 'icinga-icon-cross',
-                hidden:!(tree.getSelectionModel().getSelectedNodes().length),
-                handler: function() {
-                    Ext.Msg.confirm(_("Remove selected nodes"),
-                        _("Do you really want to delete the selected entries?<br/>")+
-                        _("Subentries will be deleted, too!"),
-                        function(btn){
-                            if(btn == 'yes') {
-                                var toDelete = tree.getSelectionModel().getSelectedNodes();
-                                tree.removeNodes(toDelete);
-                            }
-                        },this);
-                },
-                hidden: justCreate,
-                scope: this
-            },{
-                text: _('Jump to alias target'),
-                iconCls: 'icinga-icon-arrow-redo',
-                hidden: justCreate || !node.attributes.isAlias && !node.id.match(/\*\d{4}\*/),
-                handler: tree.jumpToRealNode.createDelegate(tree,[node])
-            },{
-                text: _('Resolve alias to nodes'),
-                iconCls: 'icinga-icon-arrow-application-expand',
-                hidden: justCreate || !node.attributes.isAlias && !node.id.match(/\*\d{4}\*/),
-                handler: tree.callExpandAlias.createDelegate(tree,[node])
-            },{
-                text: _('Display aliases to this node'),
-                iconCls: 'icinga-icon-wand',
-                hidden: node.attributes.isAlias || node.id.match(/\*\d{4}\*/),
-                handler: function(btn) {
-                    tree.eventDispatcher.fireCustomEvent("aliasMode",node);
-                },
-                scope:this,
-                hidden: justCreate
-            },{
-                text: _('Search/Replace'),
-                iconCls: 'icinga-icon-zoom',
-                handler: tree.searchReplaceManager.execute,
-                hidden: (node.parentNode),
-                scope: tree.searchReplaceManager
-            }]
+            items: this.getMenuDefinitionForObject(node,justCreate)
         });
-        ctx.showAt(e.getXY())
+        ctx.showAt(e.getXY());
     };
 
+    this.getMenuDefinitionForObject = function(node,justCreate) {
+        var tree = node.getOwnerTree();
+        var base =  [{
+            text: _('Refresh this part of the tree'),
+            iconCls: 'icinga-icon-arrow-refresh',
+            handler: tree.refreshNode.createDelegate(tree,[node,true]),
+            scope: this,
+            hidden: node.isLeaf() || justCreate
+        },{
+            text: _('Create new node on same level'),
+            iconCls: 'icinga-icon-add',
+            handler: tree.wizardManager.callNodeCreationWizard.createDelegate(tree.wizardManager,[{node:node}]),
+            scope: this,
+            hidden: !(node.parentNode)
+        },{
+            text: _('Create new node as child'),
+            iconCls: 'icinga-icon-sitemap',
+            handler: tree.wizardManager.callNodeCreationWizard.createDelegate(tree.wizardManager,[{node:node,isChild:true}]),
+            scope: this
+        },{
+            text: _('Remove <b>only this</b> node'),
+            iconCls: 'icinga-icon-delete',
+            handler: function() {
+                Ext.Msg.confirm(_("Remove selected nodes"),
+                                _("Do you really want to delete this entry?<br/>")+
+                                _("Subentries will be deleted, too!"),
+                                function(btn){
+                                    if(btn == 'yes') {
+                                        tree.removeNodes([node]);
+                                    }
+                                },this);
+            },
+            hidden: justCreate,
+            scope: this
+        },{
+            text: _('Remove <b>all selected</b> nodes'),
+            iconCls: 'icinga-icon-cross',
+            hidden:!(tree.getSelectionModel().getSelectedNodes().length),
+            handler: function() {
+                Ext.Msg.confirm(_("Remove selected nodes"),
+                                _("Do you really want to delete the selected entries?<br/>")+
+                                _("Subentries will be deleted, too!"),
+                                function(btn){
+                                    if(btn == 'yes') {
+                                        var toDelete = tree.getSelectionModel().getSelectedNodes();
+                                        tree.removeNodes(toDelete);
+                                    }
+                                },this);
+            },
+            hidden: justCreate,
+            scope: this
+        },{
+            text: _('Jump to alias target'),
+            iconCls: 'icinga-icon-arrow-redo',
+            hidden: justCreate || !node.attributes.isAlias && !node.id.match(/\*\d{4}\*/),
+            handler: tree.jumpToRealNode.createDelegate(tree,[node])
+        },{
+            text: _('Resolve alias to nodes'),
+            iconCls: 'icinga-icon-arrow-application-expand',
+            hidden: justCreate || !node.attributes.isAlias && !node.id.match(/\*\d{4}\*/),
+            handler: tree.callExpandAlias.createDelegate(tree,[node])
+        },{
+            text: _('Display aliases to this node'),
+            iconCls: 'icinga-icon-wand',
+            hidden: node.attributes.isAlias || node.id.match(/\*\d{4}\*/),
+            handler: function(btn) {
+                tree.eventDispatcher.fireCustomEvent("aliasMode",node);
+            },
+            scope:this,
+            hidden: justCreate
+        },{
+            text: _('Search/Replace'),
+            iconCls: 'icinga-icon-zoom',
+            handler: tree.searchReplaceManager.execute,
+            hidden: (node.parentNode),
+            scope: tree.searchReplaceManager
+        }];
+        this.addMenuExtensionsForNode(node,justCreate,base);
+        return base;
+    };
+
+    this.addMenuExtensionsForNode = function(node,justCreate,base) {
+        LConf.Extensions.Registry.foreach("DITMenu",function(extension) {
+            if(extension.appliesOnNode(node))
+                base.push(extension.getEntryForNode(node));
+            
+        },this);
+    };
+    
     this.showNodeDroppedDialog = function(e) {
         var containsAlias = false;
         var tree = null;
@@ -132,6 +147,6 @@ Ext.ns("LConf.DIT.Mixin").ContextMenu = function() {
         });
         ctx.showAt(e.rawEvent.getXY());
         return true;
-    }
+    };
 
-}
+};

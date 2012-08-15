@@ -19,13 +19,13 @@ Ext.ns("LConf.DIT.Mixin").TreeCrawler = function() {
                 if(cb)
                     cb();
         },this,{single:true});
-    }
+    };
 
     this.getExpandedSubnodes = function(node) {
         var expanded = {
             here : [],
             nextLevel: []
-        }
+        };
         if(node) {
             node.eachChild(function(subNode) {
                 if(subNode.isExpanded()) {
@@ -35,7 +35,7 @@ Ext.ns("LConf.DIT.Mixin").TreeCrawler = function() {
             },this);
         }
         return expanded;
-    }
+    };
 
 
     this.expandViaTreeObject = function(treeObj,finishFn,selected) {
@@ -58,7 +58,7 @@ Ext.ns("LConf.DIT.Mixin").TreeCrawler = function() {
                     this.expandViaTreeObject(next, finishFn);
                 }
                 expandBranchesLeft--;
-            }
+            };
 
             if(!node.isExpanded()) {
                 node.on("expand",function(_node) {
@@ -70,7 +70,7 @@ Ext.ns("LConf.DIT.Mixin").TreeCrawler = function() {
             }
             return true;
         },this);
-    }
+    };
 
     this.jumpToRealNode = function(alias) {
         var id = this.processDNForServer(alias.attributes.aliasedobjectname[0]);
@@ -84,7 +84,7 @@ Ext.ns("LConf.DIT.Mixin").TreeCrawler = function() {
         this.selectPath(node.getPath());
         this.expandPath(node.getPath());
         return true;
-    }
+    };
 
     this.searchDN = function(dn) {
         var baseDN = this.getRootNode().id;
@@ -93,17 +93,17 @@ Ext.ns("LConf.DIT.Mixin").TreeCrawler = function() {
         var expandDescriptor = {
             here: baseDN,
             nextLevel: []
-        }
+        };
 
         var curPos = expandDescriptor;
         var lastDN = baseDN;
         while(splitted.length) {
-            lastDN =  splitted.pop()+","+lastDN
+            lastDN =  splitted.pop()+","+lastDN;
             curPos.nextLevel = [{
                 here: lastDN,
                 nextLevel: []
-            }]
-            curPos = curPos.nextLevel[0]
+            }];
+            curPos = curPos.nextLevel[0];
         }
         var finishFN = function() {
             var node = this.getNodeById(dn);
@@ -111,10 +111,10 @@ Ext.ns("LConf.DIT.Mixin").TreeCrawler = function() {
             this.selectPath(node.getPath());
 
             this.eventDispatcher.fireCustomEvent("nodeSelected",node,this.id);
-            this.scrollIntoView(this,node.lastChild || node);
-        }
+            (node.ui ? node.ui : node).getEl().scrollIntoView(this.refOwner);
+        };
 
         this.expandViaTreeObject(expandDescriptor,finishFN.createDelegate(this));
-    }
-}
+    };
+};
 

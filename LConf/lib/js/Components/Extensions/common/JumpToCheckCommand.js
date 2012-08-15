@@ -1,4 +1,4 @@
-Ext.ns("LConf.PropertyGrid.Extensions").JumpToCheckCommand = {
+Ext.ns("LConf.Extensions.KVGrid").JumpToCheckCommand = {
     xtype: 'action',
     appliesOn: {
         properties: ".*checkcommand$"
@@ -11,7 +11,7 @@ Ext.ns("LConf.PropertyGrid.Extensions").JumpToCheckCommand = {
         var cell = grid.getView().getCell(row,col);
         var checkValue = this.record.get("value");
         var checkCmd = checkValue.replace(/^(.*?)!.*/,"$1");
-        var me =  LConf.PropertyGrid.Extensions.JumpToCheckCommand;
+        var me =  LConf. Extensions.KVGrid.JumpToCheckCommand;
         if(typeof checkValue !== "string")
             return;
         me.grid = grid;
@@ -19,7 +19,7 @@ Ext.ns("LConf.PropertyGrid.Extensions").JumpToCheckCommand = {
             url: grid.urls.ldapmetaprovider,
             params: {
                 field: Ext.encode({"LDAP":["objectclass=lconfCommand","cn="+checkCmd],"Attr":"*"}),
-                connectionId: grid.connId
+                connectionId: grid.getStore().getConnection()
             },
 
             success: function(result) {
@@ -39,10 +39,11 @@ Ext.ns("LConf.PropertyGrid.Extensions").JumpToCheckCommand = {
                 }
                 
                 grid.eventDispatcher.fireCustomEvent("searchDN",resultSet.result[0].entry.dn);
-                    
-                
+                return true;
             },
             scope: this
         });
     }
 };
+
+LConf.Extensions.Registry.registerKeyValueGridExtension(LConf.Extensions.KVGrid.JumpToCheckCommand);

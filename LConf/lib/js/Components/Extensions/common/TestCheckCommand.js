@@ -3,7 +3,7 @@
  * 
  */
 
-Ext.ns("LConf.PropertyGrid.Extensions").TestCheckCommand = {
+Ext.ns("LConf.Extensions.KVGrid").TestCheckCommand = {
     xtype: 'action',
     appliesOn: {
         object: {
@@ -13,12 +13,13 @@ Ext.ns("LConf.PropertyGrid.Extensions").TestCheckCommand = {
     },
     iconCls: 'icinga-icon-cog',
     qtip: _('Test this definition'),
+
     grid: null,
     
     handler: function(grid) {
         var checkValue = this.record.get("value");
         var checkCmd = checkValue.replace(/^(.*?)!.*/,"$1");
-        var argumentRegExp = /!([^!]*)/g
+        var argumentRegExp = /!([^!]*)/g;
         var args = [];
         while(result = argumentRegExp.exec(checkValue)) {
             args.push(result[1]);
@@ -32,12 +33,12 @@ Ext.ns("LConf.PropertyGrid.Extensions").TestCheckCommand = {
             url: grid.urls.ldapmetaprovider,
             params: {
                 field: Ext.encode({"LDAP":["objectclass=lconfCommand","cn="+checkCmd],"Attr":"*"}),
-                connectionId: grid.connId
+                connectionId: grid.getStore().getConnection()
             },
 
             success: function(result) {
                 var resultSet = Ext.decode(result.responseText);
-                var ldapEntry = null
+                var ldapEntry = null;
 
                 if(resultSet.total > 0) {
                     ldapEntry = resultSet.result[0].entry;
@@ -89,7 +90,9 @@ Ext.ns("LConf.PropertyGrid.Extensions").TestCheckCommand = {
             args: args
         });
         wnd.show();
-      
+        return true;
     }
-
 };
+
+// register extension, comment to disable it
+LConf.Extensions.Registry.registerKeyValueGridExtension(LConf.Extensions.KVGrid.TestCheckCommand);

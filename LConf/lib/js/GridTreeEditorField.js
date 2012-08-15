@@ -179,7 +179,7 @@ Ext.onReady(function() {
 				if(el.id.split("_")[0].toLowerCase() == "objectclass") {
 					this.types[el.data.value] = true;
 				}
-			},this)
+			},this);
 		},
 		cancelEditEv: function (ev,target) {
 			if(!this.editing)
@@ -213,9 +213,13 @@ Ext.onReady(function() {
 				me.setValue("");
 			},this,{single:true});
 
-			this.tree.editorTxt.addListener("keyup",function(e) {		
-				var intermediateValue = this.tree.editorTxt.getRawValue();
-				this.tree.filterByProperty(intermediateValue);
+			this.tree.editorTxt.addListener("keyup",function(obj,e) {		
+                            if(e.getKey() == e.ENTER) {
+                                this.completeEdit.defer(200,this);
+                            }
+                            var intermediateValue = this.tree.editorTxt.getRawValue();
+			    this.tree.filterByProperty(intermediateValue);
+                            
 			},this,{buffer:true});
 			
 			this.tree.editorTxt.addListener("change",function(e) {
