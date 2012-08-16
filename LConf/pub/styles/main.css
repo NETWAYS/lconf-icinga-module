@@ -30,19 +30,24 @@
     margin:auto;
 }
 .ldap-connection {
-    margin:auto;
-    margin-top:2px;
-    width:150px;
-    padding:5px;
-    height:50px;
-    border: 1px solid #cacaca;
+    width: 170px;
+    height: 15px;
+    border: 1px solid #cecece;
+    margin: auto;
+    margin-top:5px;
+    background-color: #efefef;
+    padding: 5px;
+    clear: both;
     -moz-border-radius:2px;
     -webkit-border-radius:2px;
-    background-color:#efefef;
-    line-height:1.2em;
-    
     cursor:pointer;
-    clear:both;
+}
+
+.ldap-connection.x-view-over {
+    background-color:#dedede;
+}
+.ldap-connection.x-view-select{
+    background-color:#dddddd;
 }
 
 .ldap-connection.plus {
@@ -68,9 +73,9 @@
 }
 
 .ldap-connection .thumb {
-    height:35px;
-    width:35px;
-    background-image:url(../images/world.png);
+    height:15px;
+    width:32px;
+    /*background-image:url(../images/world.png);*/
     background-repeat:no-repeat;
     float:left;
     
@@ -78,10 +83,10 @@
 
 .ldap-filter {
     margin:auto;
-    margin-top:2px;
+    margin-top:5px;
     width:170px;
     padding:5px;
-    height:1.5em;
+    height:15px;
 
     border: 1px solid #cacaca;
     -moz-border-radius:2px;
@@ -127,7 +132,7 @@
 .aliasinfobox {
     width: 80%;
     border: 2px solid #898998;
-    background-color: #efefef;
+    background-color: #ffffff;
     border-radius: 2px;
     box-shadow: 2px 2px 2px #dedede;
     margin: auto;

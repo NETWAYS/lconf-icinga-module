@@ -24,7 +24,6 @@ Ext.ns("LConf.DIT").DITTreeLoader = Ext.extend(Ext.tree.TreeLoader,{
                 nodeAttr.isAlias = true;
                 
             }
-            console.log(this.iconSet,this.iconSet[objClass.toLowerCase()],objClass.toLowerCase());
             if(typeof this.iconSet[objClass.toLowerCase()] === "string") {    
             
                 nodeAttr.iconCls = this.iconSet[objClass.toLowerCase()];

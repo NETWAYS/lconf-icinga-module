@@ -27,17 +27,18 @@
                         text: 'Go to aliased node',
                         handler: function() {
                             var rec = store.findProperty("aliasedobjectname")[0];
-                            var alias = {
-                                attributes: {
-                                    aliasedobjectname: [rec.get("value")]
-                                }
-                            }
                             store.eventDispatcher.fireCustomEvent("searchDN",rec.get("value"));
                         }
                     }, {
                         iconCls: 'icinga-icon-attach',
                         text: 'Show aliased node in tree',
                         handler: function() {
+                            var rec = store.findProperty("aliasedobjectname")[0];
+                            var alias = {
+                                attributes: {
+                                    aliasedobjectname: [rec.get("value")]
+                                }
+                            }
                             store.eventDispatcher.fireCustomEvent("jumpToRealNode",alias);
                         }
                     }]
