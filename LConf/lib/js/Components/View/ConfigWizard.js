@@ -67,25 +67,24 @@ Ext.ns("LConf.View").ConfigWizard = Ext.extend(LConf.View.PropertyManagerPanel,{
                 return true;
             },this);
             this.getStore().removeListener("save");
-            this.addNodeSpecificViews({
-                attributes: {
-                    objectclass: {
-                        0: this.presets[this.wizardView]["objectclass"],
-                        count: 1
-                    }
-                       
-                   
-                }
-            });
+            
 
             if(this.presets[this.wizardView]) {
                 var properties = this.presets[this.wizardView];
                 for(var property in properties) {
                     this.getStore().add(new record({property:property,value:properties[property]}));
                 }
-            } else
+                this.addNodeSpecificViews({
+                    attributes: {
+                        objectclass: {
+                            0: this.presets[this.wizardView]["objectclass"],
+                            count: 1
+                        }
+                    }
+                });
+            } else {
                 this.getStore().add(new record());
-
+            }
             this.fbar.add({
                 xtype: 'button',
                 text: _('Save and close'),

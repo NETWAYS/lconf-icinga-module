@@ -2,6 +2,9 @@ Ext.ns("LConf.View").FilterPanel = Ext.extend(Ext.Panel, {
     
     filterState: null,
     dView : null,
+    flex:3,
+    width: 200,
+    autoScroll:true,
     title: _('Filter'),
     constructor: function(cfg) {
         if(typeof cfg !== "object")

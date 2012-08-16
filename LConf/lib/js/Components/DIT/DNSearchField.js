@@ -1,5 +1,4 @@
-Ext.ns("LConf.DIT").DNSearchField = Ext.extend(Ext.form.TextField, {
-    xtype:'textfield',
+Ext.ns("LConf.DIT").DNSearchField = Ext.extend(AppKit.search.Searchbox, {
     iconCls: 'icinga-icon-zoom',
     value: 'Search keyword',
     enableKeyEvents: true,
@@ -7,7 +6,7 @@ Ext.ns("LConf.DIT").DNSearchField = Ext.extend(Ext.form.TextField, {
     searchWindow: null,
     eventDispatcher: null,
     urls: null,
-    
+    width: 200,
     constructor: function(cfg) {
         this.searchWindow = new Ext.Window({
             layout:'fit',
@@ -17,11 +16,11 @@ Ext.ns("LConf.DIT").DNSearchField = Ext.extend(Ext.form.TextField, {
         });
         this.eventDispatcher = cfg.eventDispatcher;
         this.urls = cfg.urls;
-        Ext.form.TextField.prototype.constructor.apply(this,arguments);
+        AppKit.search.Searchbox.prototype.constructor.apply(this,arguments);
     },
     
     initEvents: function() {
-        Ext.form.TextField.prototype.initEvents.apply(this,arguments);
+        AppKit.search.Searchbox.prototype.initEvents.apply(this,arguments);
         this.on({
             focus: function(e) {
                 e.setValue("")

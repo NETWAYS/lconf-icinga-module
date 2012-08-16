@@ -259,4 +259,4 @@ Ext.ns("LConf.Extensions.Helper").TimePeriodObject = function(toParse,timeframes
           this.parseTimeFrames(timeframes || toParse);
     }
     
-}
+};

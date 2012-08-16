@@ -2,7 +2,7 @@
  * The simple editor for host information. Contains most parameters that are appliable for hosts
  *
  **/
-(function() {
+new (function() {
 
 var prefix = LConf.Configuration.prefix;
 
@@ -816,6 +816,7 @@ LConf.Extensions.Registry.registerPropertyView({
     objectclass: ".*host$",
     handler: function(store) {
         var p = new Ext.Panel({
+            autoDestroy:true,
             autoScroll: true,
             isMain: true,
             iconCls: 'icinga-icon-host',
@@ -836,7 +837,7 @@ LConf.Extensions.Registry.registerPropertyView({
         var storeFn = updateFormValues.createDelegate(p);
         store.on("update",storeFn);
         store.on("load",storeFn);
-        p.addListener("beforeremove",function() {
+        p.addListener("destroy",function() {
             store.removeListener("update",storeFn);
             store.removeListener("load",storeFn)
         });

@@ -1,6 +1,6 @@
 
 Ext.ns("LConf.DIT.Helper").NodeWizardManager = function(tree) {
-    this.callNodeCreationWizard = function(cfg) {
+    this.callNodeCreationWizard = function(cfg,id) {
         var _parent = cfg.node;
         if(!cfg.isChild)
             _parent = _parent.parentNode;
@@ -21,14 +21,8 @@ Ext.ns("LConf.DIT.Helper").NodeWizardManager = function(tree) {
                 closeAction:'hide'
             });
         }
-
-        this.wizardWindow.removeAll();
-        this.wizardWindow.add(this.getNodeSelectionDialog());
-
-        this.wizardWindow.doLayout();
+        this.showWizard(id)
         this.wizardWindow.show();
-        this.wizardWindow.center();
-
     };
 
 
@@ -48,7 +42,7 @@ Ext.ns("LConf.DIT.Helper").NodeWizardManager = function(tree) {
         this.wizardWindow.center()
 }
 
-    this.getNodeSelectionDialog = function() {
+    this.getNodeSelectionDialog = function(id) {
         LConf.Helper.Debug.d("Wizards",tree.wizards);
         return new Ext.Panel({
             borders:false,

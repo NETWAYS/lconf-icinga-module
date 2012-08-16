@@ -191,7 +191,7 @@ Ext.ns("LConf.DIT").DITTree = Ext.extend(Ext.ux.MultiSelectTreePanel,{
 
     importMixins: function() {
         for(var mixin in LConf.DIT.Mixin) {
-            var mixinInstance = new LConf.DIT.Mixin[mixin]();
+            var mixinInstance = new LConf.DIT.Mixin[mixin](this);
             for(var classElement in mixinInstance) {
                 this[classElement] = mixinInstance[classElement];
             }

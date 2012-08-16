@@ -1,5 +1,5 @@
 
-(function() {
+new (function() {
 /*   
 var errorArea = new Ext.Container({
     style: 'color:red',
@@ -642,7 +642,7 @@ var timePeriodPanel = function(store) {
                 layout: 'card',
                 activeItem: 0,
                 width: 750,
-                height: 400,
+                height: 300,
                 items: [{
                     xtype: 'panel',
                     layout: 'fit',
@@ -722,6 +722,7 @@ var timePeriodPanel = function(store) {
     });
 }
 
+
 var prefix = LConf.Configuration.prefix;
 
 LConf.Extensions.Registry.registerPropertyView({
@@ -746,15 +747,14 @@ LConf.Extensions.Registry.registerPropertyView({
                 
             ]
         });
-        binder.registerCustomBinding(function(cmp) {
-            return (cmp.bindId == "timeframeGrid");
-        }, function(store,cmp) {
+        var timeGridToStore = function(store,cmp) {
             store.remove(store.findProperty(prefix+"timeperiodvalue"));
             cmp.getStore().each(function(record) {
                 store.setProperty(prefix+"timeperiodvalue",record.get("periodObj").toString(),true);
             },this)
-        }, function(map,cmp) {
-            
+        };
+        
+        var storeToTimeGrid = function(map,cmp) {
             if(!map[prefix+"timeperiodvalue"])
                 return;
             var store = cmp.getStore();
@@ -770,13 +770,14 @@ LConf.Extensions.Registry.registerPropertyView({
                } catch(e) {
                    errors.push(e);
                    continue;
-               }
-                
-            }
-            
-          //  errorArea.display(errors);
-            
-        });
+               }   
+            }   
+        };
+        
+        // register a custom bidner for the grid
+        binder.registerCustomBinding(function(cmp) {
+            return (cmp.bindId == "timeframeGrid");
+        },timeGridToStore,storeToTimeGrid()); 
 
         binder.bindCmp(p,true);
         p.addListener("destroy",function() {

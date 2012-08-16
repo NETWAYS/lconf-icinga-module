@@ -21,7 +21,7 @@ var updateFieldValues = function(map) {
         if(lconfProperty == i.toLowerCase())
             this.setValue(map[i]);
     }
-}
+};
 
 /**
  * Special helper for syncing TriStateButtons
@@ -35,7 +35,7 @@ var updateTristateButtonValues = function(map) {
         this.toggle("true",true);
     else
         this.toggle("disabled");
-}
+};
 
 
 
@@ -48,7 +48,7 @@ var getServiceInfoPanel = function(store) {
             store.setProperty(cmp.lconfProperty,value);
         }
 
-    }
+    };
 
     // specific comboboxes for groups
     var contactgroupBox = LConf.Editors.EditorFieldManager.getEditorFieldForProperty(
@@ -136,9 +136,9 @@ var getServiceInfoPanel = function(store) {
              contactgroupBox ,
              contactBox]
         }
-    }
+    };
     
-}
+};
 
 /**
  * Returns the general host information FormPanel 
@@ -157,17 +157,17 @@ var getCheckPreferences = function(store) {
         } else {
             store.setProperty(cmp.lconfProperty,value);
         }
-    }
+    };
     
     var onTristateToggle = function(cmp,state) {
         if(state === "true") {
-            store.setProperty(this.lconfProperty,"1")
+            store.setProperty(this.lconfProperty,"1");
         } else if(state === "false") {
-            store.setProperty(this.lconfProperty,"0")
+            store.setProperty(this.lconfProperty,"0");
         } else {
             store.deleteProperties(store.findProperty(this.lconfProperty));
         }
-    }
+    };
     // specific comboboxes for groups
     var checkCommandBox = LConf.Editors.EditorFieldManager.getEditorFieldForProperty(
         prefix+"ServiceCheckCommand",{
@@ -339,8 +339,8 @@ var getCheckPreferences = function(store) {
                 }]
             }]
         }]
-    }
-}
+    };
+};
     
 var getNotificationPreferences = function(store) {
         
@@ -350,16 +350,16 @@ var getNotificationPreferences = function(store) {
         } else {
             store.setProperty(cmp.lconfProperty,value);
         }
-    }
+    };
     var onTristateToggle = function(cmp,state) {
         if(state === "true") {
-            store.setProperty(this.lconfProperty,"1")
+            store.setProperty(this.lconfProperty,"1");
         } else if(state === "false") {
-            store.setProperty(this.lconfProperty,"0")
+            store.setProperty(this.lconfProperty,"0");
         } else {
             store.deleteProperties(store.findProperty(this.lconfProperty));
         }
-    }
+    };
     // specific comboboxes for groups
     var tpCommandBox = LConf.Editors.EditorFieldManager.getEditorFieldForProperty(
         prefix+"ServiceNotificationPeriod",{
@@ -441,7 +441,7 @@ var getNotificationPreferences = function(store) {
                     btn.toggle(true,true);
             }
         },this);
-    }
+    };
     
     
     var defaultBtn =  new Ext.Button({
@@ -547,8 +547,8 @@ var getNotificationPreferences = function(store) {
                 pressed: 'disabled'
             }]
         }
-    }
-}
+    };
+};
 
 
 var getFlappingPreferences = function(store) {
@@ -558,16 +558,16 @@ var getFlappingPreferences = function(store) {
         } else {
             store.setProperty(cmp.lconfProperty,value);
         }
-    }
+    };
     var onTristateToggle = function(cmp,state) {
         if(state === "true") {
-            store.setProperty(this.lconfProperty,"1")
+            store.setProperty(this.lconfProperty,"1");
         } else if(state === "false") {
-            store.setProperty(this.lconfProperty,"0")
+            store.setProperty(this.lconfProperty,"0");
         } else {
             store.deleteProperties(store.findProperty(this.lconfProperty));
         }
-    }
+    };
     var btnGroup = new Ext.ButtonGroup({
         xtype: 'buttongroup',
         columns: 3,
@@ -617,7 +617,7 @@ var getFlappingPreferences = function(store) {
                     btn.toggle(true,true);
             }
         },this);
-    }
+    };
     
     var defaultBtn = new Ext.Button({
         xtype: 'button',
@@ -631,7 +631,7 @@ var getFlappingPreferences = function(store) {
             if(state == false) {
                 btnGroup.items.each(function(btn) { 
                     btn.toggle(false,true);
-                })
+                });
                 store.deleteProperties(store.findProperty(btn.lconfProperty));
             }
         },
@@ -646,7 +646,7 @@ var getFlappingPreferences = function(store) {
                 
             }
         }
-    })
+    });
     
     return {   
         xtype:'form',
@@ -765,11 +765,11 @@ var getFlappingPreferences = function(store) {
                 }]
             }*/]        
         }]
-    }
-}
+    };
+};
 
 var updateFormValues = function() {
-    var ldapMap = {}
+    var ldapMap = {};
     this.store.each(function(r) {
         ldapMap[r.get('property').toLowerCase()] = r.get('value');
     });
@@ -785,7 +785,7 @@ var updateFormValues = function() {
                     if(!subitem)
                         return false;
                     subitem.getForm().callFieldMethod("updateFieldValues",[ldapMap]);
-                })
+                });
             }
         });
         if(this.items.items[1])
@@ -793,16 +793,16 @@ var updateFormValues = function() {
     } else {
         this.on("show",updateFormValues,this,{single:true});
     }
-}
+};
 
 LConf.Extensions.Registry.registerPropertyView({
 
     objectclass: ".*service$",
     handler: function(store) {
         var p = new Ext.Panel({
+            autoDestroy: true,
             autoScroll: true,
             isMain: true,
-
             title: 'Service settings',
             iconCls: 'icinga-icon-service',
             defaults: {
@@ -822,9 +822,9 @@ LConf.Extensions.Registry.registerPropertyView({
         var storeFn = updateFormValues.createDelegate(p);
         store.on("update",storeFn);
         store.on("load",storeFn);
-        p.addListener("beforeremove",function() {
+        p.addListener("destroy",function() {
             store.removeListener("update",storeFn);
-            store.removeListener("load",storeFn)
+            store.removeListener("load",storeFn);
         });
         return p;
 
@@ -832,3 +832,5 @@ LConf.Extensions.Registry.registerPropertyView({
 });
 
 })();
+
+//window.TESTFUNC();

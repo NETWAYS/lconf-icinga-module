@@ -22,7 +22,9 @@ Ext.ns("LConf.DIT").DITTreeLoader = Ext.extend(Ext.tree.TreeLoader,{
             // select appropriate icon
             if(objClass === 'alias') {
                 nodeAttr.isAlias = true;
+                
             }
+            console.log(this.iconSet,this.iconSet[objClass.toLowerCase()],objClass.toLowerCase());
             if(typeof this.iconSet[objClass.toLowerCase()] === "string") {    
             
                 nodeAttr.iconCls = this.iconSet[objClass.toLowerCase()];
@@ -42,7 +44,10 @@ Ext.ns("LConf.DIT").DITTreeLoader = Ext.extend(Ext.tree.TreeLoader,{
 
         nodeAttr.id = attr["dn"];
         nodeAttr.leaf = attr["isLeaf"] ? true :false;
-
+        if(attr["valid"] === false) {
+            nodeAttr.qtip = "<span style='color:red'>This alias points to an non-existing target</span>";
+            nodeAttr.text = "<span style='color:red'>"+nodeAttr.text+" (broken)</span>";
+        }
         return Ext.tree.TreeLoader.prototype.createNode.call(this,nodeAttr);
     },
 
@@ -51,7 +56,10 @@ Ext.ns("LConf.DIT").DITTreeLoader = Ext.extend(Ext.tree.TreeLoader,{
     constructor: function(config) {
         
         this.dataUrl = config.urls.directoryprovider;
-        this.iconSet = config.icons;
+        this.iconSet = {};
+        for(var i in config.icons) 
+            this.iconSet[i.toLowerCase()] = config.icons[i];
+        
         LConf.Helper.Debug.d("Icons ",this.iconSet,config);
         Ext.tree.TreeLoader.prototype.constructor.call(this,config);
     },

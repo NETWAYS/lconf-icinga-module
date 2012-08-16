@@ -2,7 +2,7 @@
  * Generic simple editor view for host,service or contactgroups, including a grid view
  * 
  */
-(function() {
+new (function() {
 
 var prefix = LConf.Configuration.prefix;
 
@@ -113,6 +113,7 @@ var getGroupView = function(type,store) {
         padding: "1em 1em 1em 1em",
         autoHeight: true,
         items:{
+            autoDestroy: true,
             xtype: 'fieldset',
             iconCls: 'icinga-icon-'+type.toLowerCase(),
             title: type+' info',
@@ -146,7 +147,10 @@ var getGroupView = function(type,store) {
     });
     store.on("load",updateFormValues.createDelegate(form));
     store.on("update",updateFormValues.createDelegate(form));
-
+    form.on("destroy",function() {
+        store.removeListener("load",updateFormValues.createDelegate(form));
+        store.removeListener("update",updateFormValues.createDelegate(form));
+    },this)
     return form;
 }
 
@@ -225,7 +229,7 @@ var getGroupMembersView = function(type,store,objectclasses) {
         viewConfig: {
             forceFit: true
         },
-        height: 500
+        height: 400
     });
 
     var onChanged = function() {    
@@ -262,13 +266,12 @@ LConf.Extensions.Registry.registerPropertyView({
         var p = new Ext.Panel({
             autoScroll: true,
             isMain: true,
-
+            autoDestroy: true,
             title: 'Hostgroups',
             iconCls: 'icinga-icon-hostgroup',
             defaults: {
                 flex: 1,
                 border: false
-
             },
             items: [
                 getGroupView("Hostgroup",store),
@@ -285,7 +288,7 @@ LConf.Extensions.Registry.registerPropertyView({
         var p = new Ext.Panel({
             autoScroll: true,
             isMain: true,
-
+            autoDestroy: true,
             title: 'Servicegroups',
             iconCls: 'icinga-icon-servicegroup',
             defaults: {
@@ -306,9 +309,9 @@ LConf.Extensions.Registry.registerPropertyView({
     objectclass: ".*contactgroup$",
     handler: function(store) {
         var p = new Ext.Panel({
+            autoDestroy: true,
             autoScroll: true,
             isMain: true,
-
             title: 'Contactgroup',
             iconCls: 'icinga-icon-group',
             defaults: {

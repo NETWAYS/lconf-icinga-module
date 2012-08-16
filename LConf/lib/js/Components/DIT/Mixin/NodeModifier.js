@@ -4,7 +4,7 @@
  *
  */
 
-Ext.ns("LConf.DIT.Mixin").NodeModifier = function() {
+Ext.ns("LConf.DIT.Mixin").NodeModifier = function(src) {
 
     this.processDNForServer = function(dn) {
         dn = dn.replace("ALIAS=Alias of:","");
@@ -260,6 +260,7 @@ Ext.ns("LConf.DIT.Mixin").NodeModifier = function() {
             scope: this
         });
     }
+    
 }
 
 

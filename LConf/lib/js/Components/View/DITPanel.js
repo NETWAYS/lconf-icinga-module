@@ -15,8 +15,8 @@ Ext.ns("LConf.View").DITPanel = Ext.extend(Ext.TabPanel,{
         Ext.apply(this,cfg);
         
         this.dnSearchField = new LConf.DIT.DNSearchField(cfg);
-        this.bbar = new Ext.Toolbar({
-            items:['->',this.dnSearchField]
+        this.tbar = new Ext.Toolbar({
+            items:[this.dnSearchField]
         });
 
         Ext.TabPanel.prototype.constructor.apply(this,arguments);

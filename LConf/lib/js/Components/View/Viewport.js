@@ -7,12 +7,12 @@ Ext.ns("LConf.View").Viewport = function(cfg) {
         layout:'border',
         id: 'view-container',
         defaults: {
-            split:true,
-            collapsible: true
+            //split:true,
+            padding:1,
+            //collapsible: true
         },
         border: false,
         items: [{
-            title: 'DIT',
             region: 'west',
             id: 'west-frame-lconf',
             layout: 'fit',
@@ -25,7 +25,6 @@ Ext.ns("LConf.View").Viewport = function(cfg) {
         }, {
             region:'center',
             collapsible:false,
-            title: "Properties",
             layout: 'fit',
             id:'center-frame',
             margins: '5 0 0 0',
@@ -38,16 +37,14 @@ Ext.ns("LConf.View").Viewport = function(cfg) {
               }*/
             
         },{
-            title: 'Actions',
             region: 'east',
             id: 'east-frame',
-            layout: 'accordion',
+            layout: 'vbox',
             animate:true,
             margins:'5 0 0 0',
             cls: false,
-            width:200,
-            minSize:100,
-            maxSize:200,
+            width:210,
+           
             items:[
                 new LConf.View.ConnectionList(cfg),
                 new LConf.View.FilterPanel(cfg)

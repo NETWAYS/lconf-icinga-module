@@ -4,7 +4,9 @@ Ext.ns("LConf.View").ConnectionList = Ext.extend(Ext.Panel, {
     title: _('Connections'),
     layout: 'fit',
     dView: null,
-    
+    flex:2,
+    width: 200,
+    autoScroll:true,
     constructor : function(config) {
         config = config || {};
         Ext.apply(this,config);
@@ -61,15 +63,16 @@ Ext.ns("LConf.View").ConnectionList = Ext.extend(Ext.Panel, {
         if(!this.tpl) {
             this.tpl = new Ext.XTemplate(
                 '<tpl for=".">',
-                    '<div class="ldap-connection" ext:qtip="{connection_description}" id="conn_{connection_id}">',
-                        '<div class="thumb"></div>',
-                        '<span class="X-editable"><b>{connection_name}</b></span><br/>',
-                        '<span class="X-editable">',
-                        '<tpl if="connection_ldaps == true">ldaps://</tpl>',
-                        '{connection_host}:{connection_port}</span><br/>',
-                        '<tpl if="connection_default == true">(default)</tpl>',
-                    '</div>',
-
+                    '<div class="ldap-connection" ext:qtip="',
+                        '<div=\'margin:10px;padding:5px,width:100%\'>',
+                            '<b>{connection_name}</b><br/>',
+                            '<span style=\'font-family:monaco,monospace\'>{connection_host}:{connection_port}</span>',
+                            '<div>BindDN: {connection_binddn}</div>',
+                            '<div>BaseDN: {connection_basedn}</div>',
+                        '<div>','" id="conn_{connection_id}">',
+                        '<div class="thumb icon-16 icinga-icon-world"></div>',
+                        '<div class="X-editable" style="font-size:12px">{connection_name}</div>',
+            '        </div>',
                 '</tpl>'
             );
         }
@@ -138,12 +141,6 @@ Ext.ns("LConf.View").ConnectionList = Ext.extend(Ext.Panel, {
                     handler : function() {this.startConnect(index,node);},
                     scope:this
                 },{
-                    text: 'View',
-                    id: this.id+'-edit'+index,
-                    iconCls: 'icinga-icon-database',
-                    handler : function() {this.viewDetails(index,node);},
-                    scope:this
-                },{
                     iconCls: 'icinga-icon-wrench-screwdriver',
                     text: 'Export config',
                     handler: function() {
@@ -156,51 +153,6 @@ Ext.ns("LConf.View").ConnectionList = Ext.extend(Ext.Panel, {
         this.ctxMenu[index].showAt(_e.getXY());
     },
 
-    viewDetails : function(index,node) {
-        var record = this.getStore().getAt(index);
-        var tpl = this.getDetailTemplate();
-
-        var detailWindow = new Ext.Window({
-            title: record.get('connectionName'),
-            autoDestroy: true,
-            closable: true,
-            modal: true,
-            width:400,
-            height:300,
-            defaultType: 'field'
-
-        });
-        detailWindow.render(Ext.getBody());
-        detailWindow.doLayout();
-        tpl.overwrite(detailWindow.body,record.data);
-        detailWindow.show();
-
-
-    },
-
-    getDetailTemplate: function() {
-        if(!this.detailTpl) {
-            this.detailTpl = new Ext.XTemplate(
-                '<table style="margin:10px;paddiong:5px,width:100%" cellpadding="0" cellspacing="0">',
-                    '<tr><td>ID</td><td>{connection_id}</td></tr>',
-                    '<tr><td>Name</td><td>{connection_name}</td></tr>',
-                    '<tr><td colspan="2">Description</td></tr>',
-                    '<tr><td colspan="2">',
-                        '<div style="padding:5px;background-color:white;margin:2px;border:1px solid black;height:75px;width:70%;overflow:auto">',
-                            '{connection_description}',
-                        '</div>',
-                    '</td></tr>',
-                    '<tr><td>BindDN</td><td> {connection_binddn}</td></tr>',
-                    '<tr><td>BaseDN</td><td> {connection_basedn}</td></tr>',
-                    '<tr><td>Host</td><td> {connection_host}</td></tr>',
-                    '<tr><td>Port</td><td> {connection_port}</td><tr>',
-                    '<tr><td>Authentification type </td><td>  --</td><tr>',
-                    '<tr><td>Uses TLS </td></td> {connection_tls}</td></tr>',
-                '</table>'
-                );
-        }
-        return this.detailTpl;
-    },
 
     isConnected: function(connName) {
         if(this.connections[connName])

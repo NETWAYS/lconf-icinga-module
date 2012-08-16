@@ -34,7 +34,7 @@ Ext.ns("LConf.View").PropertyManagerPanel = Ext.extend(Ext.TabPanel,{
         childCfg.autoDestroy = false;
         this.keyValGrid = new LConf.View.PropertyKeyValueGrid(childCfg);
         this.add(new Ext.Panel({    
-            title: _('LDAP Definition'),
+            title: _('Properties'),
             items: this.keyValGrid,
             layout: 'fit'
         }));

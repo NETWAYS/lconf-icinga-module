@@ -3,7 +3,7 @@
  * 
  **/
 
-(function() {
+new (function() {
   
 var prefix = LConf.Configuration.prefix;
 
@@ -116,7 +116,7 @@ LConf.Extensions.Registry.registerPropertyView({
         var p = new Ext.Panel({
             autoScroll: true,
             isMain: true,
-
+            autoDestroy: true,
             title: 'Check command',
             iconCls: 'icinga-icon-cog',
             defaults: {
@@ -132,7 +132,7 @@ LConf.Extensions.Registry.registerPropertyView({
         var storeFn = updateFormValues.createDelegate(p);
         store.on("update",storeFn);
         store.on("load",storeFn);
-        p.addListener("beforeremove",function() {
+        p.addListener("destroy",function() {
             store.removeListener("update",storeFn);
             store.removeListener("load",storeFn)
         });
