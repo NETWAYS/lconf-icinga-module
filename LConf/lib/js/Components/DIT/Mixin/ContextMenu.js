@@ -79,6 +79,7 @@ Ext.ns("LConf.DIT.Mixin").ContextMenu = function() {
             },{
                 text: _('Create new node as child'),
                 iconCls: 'icinga-icon-sitemap',
+                hidden: !(node.isAlias),      
                 menu: this.getNodeCreationMenu(tree,{node:node,isChild:true}),
                 //handler: tree.wizardManager.callNodeCreationWizard.createDelegate(tree.wizardManager,[),
                 scope: this
@@ -193,6 +194,11 @@ Ext.ns("LConf.DIT.Mixin").ContextMenu = function() {
                     iconCls: 'icinga-icon-attach',
                     hidden: containsAlias || e.dropNode.connId != e.target.ownerTree.connId,
                     handler: tree.buildAlias.createDelegate(this,[e.point,e.dropNode,e.target])
+                },{
+                    text: _('Create alias as child'),
+                    iconCls: 'icinga-icon-attach',
+                    hidden: containsAlias || e.dropNode.connId != e.target.ownerTree.connId,
+                    handler: tree.buildAlias.createDelegate(this,["append",e.dropNode,e.target])
                 },{
                     text: _('Cancel'),
                     iconCls: 'icinga-icon-cancel'
