@@ -743,8 +743,7 @@ LConf.Extensions.Registry.registerPropertyView({
                 border: false
             },
             items: [
-                timePeriodPanel(store),
-                
+                timePeriodPanel(store)            
             ]
         });
         var timeGridToStore = function(store,cmp) {
@@ -777,7 +776,7 @@ LConf.Extensions.Registry.registerPropertyView({
         // register a custom bidner for the grid
         binder.registerCustomBinding(function(cmp) {
             return (cmp.bindId == "timeframeGrid");
-        },timeGridToStore,storeToTimeGrid()); 
+        },timeGridToStore,storeToTimeGrid); 
 
         binder.bindCmp(p,true);
         p.addListener("destroy",function() {
