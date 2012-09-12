@@ -411,7 +411,9 @@ Ext.ux.data.PagingStore = Ext.extend(Ext.data.Store, {
 
 
 Ext.ux.data.PagingJsonStore = Ext.extend(Ext.ux.data.PagingStore, {
-    constructor: Ext.data.JsonStore.prototype.constructor
+    constructor: function() {
+        Ext.data.JsonStore.prototype.constructor.apply(this,arguments);
+    } 
 });
 
 
