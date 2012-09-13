@@ -8,7 +8,7 @@ Ext.ns("LConf.View").Viewport = function(cfg) {
         id: 'view-container',
         defaults: {
             //split:true,
-            padding:1,
+            padding:1
             //collapsible: true
         },
         border: false,
