@@ -89,7 +89,8 @@ Ext.ns("LConf.View").ConfigWizard = Ext.extend(LConf.View.PropertyManagerPanel,{
                 xtype: 'button',
                 text: _('Save and close'),
                 iconCls: 'icinga-icon-disk',
-                handler: function() {
+                handler: function(cmp) {
+                    document.activeElement.blur();
                     this.getStore().closeOnSave = true;
                     this.getStore().save();
                 },
