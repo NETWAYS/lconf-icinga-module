@@ -94,7 +94,8 @@ Ext.ns("LConf.View").PropertyManagerPanel = Ext.extend(Ext.TabPanel,{
                 xtype:'button',
                 text: _('Save Changes'),
                 iconCls: 'icinga-icon-disk',
-                handler: function () {
+                handler: function (cmp) {
+                    document.activeElement.blur();
                     if(this.getStore().isValid() !== true) {
                         Ext.Msg.alert(_("Property ")+this.getStore().isValid()+_(" is invalid"),_("Please review your entries "));
                     }
