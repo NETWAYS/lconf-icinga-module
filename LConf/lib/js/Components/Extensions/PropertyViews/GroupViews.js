@@ -112,7 +112,6 @@ var getGroupView = function(type,store) {
         width: '90%',
         store: store,
         anchor: '90%',
-
         padding: "1em 1em 1em 1em",
         autoHeight: true,
         items:{
@@ -201,7 +200,7 @@ var getGroupMembersView = function(type,store,objectclasses) {
 
     var grid = new Ext.grid.GridPanel({
         sm: chkBox,
-        anchor: '95%',
+        ddGroup: 'treenodes',
         tbar: new Ext.Toolbar({
             items: [{
                 xtype: 'button',
@@ -249,7 +248,51 @@ var getGroupMembersView = function(type,store,objectclasses) {
         },
         height: 400
     });
-
+    grid.on("render",function() {
+        grid.dZone = new Ext.dd.DropZone(grid.getView().scroller,{
+            ddGroup: 'treenodes',
+            getTargetFromEvent: function(e) {
+                return grid.getView().scroller;
+            },
+            onNodeEnter : function(target, dd, e, data){ 
+                Ext.fly(target).addClass('my-row-highlight-class');
+            },
+            onNodeOut : function(target, dd, e, data){ 
+                Ext.fly(target).removeClass('my-row-highlight-class');
+            },
+            nodeMatches : function(node) {
+                var matcher = new RegExp(".*"+objectclasses+"$","i");
+                for(var x=0;x<node.attributes.objectclass.count;x++) {
+                    if(matcher.test(node.attributes.objectclass[x]))
+                        return true;
+                }
+                return false;
+            },
+            onNodeOver : function(target, dd, e, data) { 
+                for(var i=0;i<dd.dragData.nodes.length;i++) {
+                    if(this.nodeMatches(dd.dragData.nodes[i]))
+                        return Ext.dd.DropZone.prototype.dropAllowed;
+                }
+                return Ext.dd.DropZone.prototype.dropNotAllowed;
+            },
+            onNodeDrop : function(target, dd, e, data){
+                var dns = [];
+                for(var i=0;i<dd.dragData.nodes.length;i++) {
+                    var node = dd.dragData.nodes[i]
+                    if(this.nodeMatches(node))
+                        dns.push(node.attributes.dn.split(",")[0].split("=")[1]);
+                }
+                for(i=0;i<dns.length;i++) {
+                    var entry = memberStore.find("entry",dns[i]);
+                    AppKit.log(memberStore,entry,dns[i]);
+                    if(entry == -1)
+                        continue;
+                    memberStore.getAt(entry).set("active",true);
+                    syncLdapStore();
+                }
+            }
+        });
+    },this);
     var onChanged = function() {    
         var toSelect = []
         memberStore.each(function(record) {
@@ -260,8 +303,19 @@ var getGroupMembersView = function(type,store,objectclasses) {
         grid.getSelectionModel().ignoreSelectEvents = true;
         grid.getSelectionModel().selectRecords(toSelect);
         grid.getSelectionModel().ignoreSelectEvents = false;
+        if(grid.lastScrollPos) {
+            
+            grid.getView().scroller.dom.scrollTop = grid.lastScrollPos.top;
+            grid.getView().scroller.dom.scrollLeft = grid.lastScrollPos.left;
+        }
     }
-    
+    memberStore.on("beforeload",function(cmp,t,l) {
+        grid.lastScrollPos = {
+            top:  grid.getView().scroller.dom.scrollTop,
+            left: grid.getView().scroller.dom.scrollLeft
+        }
+        AppKit.log(grid);
+    },this)
     memberStore.on("load",onChanged ,this,{buffer:100});
     memberStore.on("load",function(my) {
         if(my.curFilter)
@@ -283,7 +337,7 @@ LConf.Extensions.Registry.registerPropertyView({
     handler: function(store) {
         var p = new Ext.Panel({
             autoScroll: true,
-            isMain: true,
+            priority: 1,
             autoDestroy: true,
             title: 'Hostgroups',
             iconCls: 'icinga-icon-hostgroup',
@@ -305,7 +359,7 @@ LConf.Extensions.Registry.registerPropertyView({
     handler: function(store) {
         var p = new Ext.Panel({
             autoScroll: true,
-            isMain: true,
+            priority: 1,
             autoDestroy: true,
             title: 'Servicegroups',
             iconCls: 'icinga-icon-servicegroup',
@@ -329,7 +383,7 @@ LConf.Extensions.Registry.registerPropertyView({
         var p = new Ext.Panel({
             autoDestroy: true,
             autoScroll: true,
-            isMain: true,
+            priority: 1,
             title: 'Contactgroup',
             iconCls: 'icinga-icon-group',
             defaults: {
