@@ -90,12 +90,13 @@ Ext.ns("LConf.DIT").DITTree = Ext.extend(Ext.ux.MultiSelectTreePanel,{
         try {
             var r = /LCONF->EXPORT->CLUSTER = /i;
             for(var i in (parent.attributes.description || {})) {
-                if(!parent.attributes.description[i].match(r))
+                if(!r.test(parent.attributes.description[i]))
                     continue;
                 return parent.attributes.modifytimestamp[0];
             }
             return -1;
         } catch(e) {
+            AppKit.log(parent)
             AppKit.log(e);
         }
     },
