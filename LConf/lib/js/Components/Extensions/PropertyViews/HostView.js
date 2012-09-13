@@ -16,9 +16,16 @@ var updateFieldValues = function(map) {
     if(!this.lconfProperty) {
         return;
     }
-
+    
     var lconfProperty = this.lconfProperty.toLowerCase();
+    if(this.hideOn) {
+        if(new RegExp(".*"+this.hideOn+"$","i").test(map["objectclass"])) {
+            this.hide();
+            return;
+        }
+    }
     for(var i in map) {
+        
         if(lconfProperty == i.toLowerCase())
             this.setValue(map[i]);
     }
@@ -48,6 +55,7 @@ var updateTristateButtonValues = function(map) {
  **/
 var getHostInfoPanel = function(store) {
     var editorURLs = Ext.ns("LConf.Editors").EditorFieldManager.urls;
+    var isCompact = false;
     
     // these helperfunctions are defined inline as we need the store
     // @TODO: not nice and a lot of copy&paste
@@ -57,9 +65,9 @@ var getHostInfoPanel = function(store) {
         } else {
             store.setProperty(cmp.lconfProperty,value);
         }
-
     }
-     var onFieldChangeStrict = function(cmp,value) {
+    
+    var onFieldChangeStrict = function(cmp,value) {
          store.deleteProperties(store.findProperty(cmp.lconfProperty));
         if(value != "") {
             store.setProperty(cmp.lconfProperty,value);
@@ -112,7 +120,7 @@ var getHostInfoPanel = function(store) {
         contactBox.updateFieldValues = updateFieldValues;
         hostgroupBox.store.setBaseParam("connectionId",store.getConnection());
         hostgroupBox.updateFieldValues = updateFieldValues;
-
+        
     }).defer(200);
     
     return {
@@ -142,16 +150,19 @@ var getHostInfoPanel = function(store) {
             items: [{
                 fieldLabel: 'Host name',
                 xtype: 'textfield',
+                hideOn: 'structuralObject',
                 allowBlank: false,
                 lconfProperty: "cn",
                 anchor: '90%'
             },{
                 fieldLabel: 'Host alias',
+                hideOn: 'structuralObject',
                 xtype: 'textfield',
                 lconfProperty: prefix+"Alias",
                 anchor: '90%'
             },{
                 fieldLabel: 'Address',
+                hideOn: 'structuralObject',
                 xtype: 'textfield',
                 lconfProperty: prefix+"Address",
                 anchor: '90%'
@@ -401,7 +412,7 @@ var getNotificationPreferences = function(store) {
             fieldLabel: 'Period',
             lconfProperty: prefix+"HostNotificationPeriod",
             xtype: 'combo',
-            emptyText: 'Default host check command',
+            emptyText: 'Default timeperiod',
             anchor: '90%',         
             listeners: {
                 change: onFieldChange
@@ -813,8 +824,9 @@ var updateFormValues = function() {
 
 LConf.Extensions.Registry.registerPropertyView({
 
-    objectclass: ".*host$",
+    objectclass: ".*(host|structuralobject)$",
     handler: function(store) {
+        
         var p = new Ext.Panel({
             autoDestroy:true,
             autoScroll: true,
@@ -837,6 +849,7 @@ LConf.Extensions.Registry.registerPropertyView({
         var storeFn = updateFormValues.createDelegate(p);
         store.on("update",storeFn);
         store.on("load",storeFn);
+        
         p.addListener("destroy",function() {
             store.removeListener("update",storeFn);
             store.removeListener("load",storeFn)

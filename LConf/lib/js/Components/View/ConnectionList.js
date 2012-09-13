@@ -90,7 +90,7 @@ Ext.ns("LConf.View").ConnectionList = Ext.extend(Ext.Panel, {
                 overClass:'x-view-over',
                 multiSelect: false,
                 itemSelector:'div.ldap-connection',
-                emptyText: 'unnamed',
+                emptyText: '',
                 cls: 'ldap-data-view'
             });
         }

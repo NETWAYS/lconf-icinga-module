@@ -15,8 +15,13 @@ var updateFieldValues = function(map) {
     if(!this.lconfProperty) {
         return;
     }
+    if(this.hideOn) {
+        if(new RegExp(".*"+this.hideOn+"$","i").test(map["objectclass"])) {
+            this.hide();
+            return;
+        }
+    }
     var lconfProperty = this.lconfProperty.toLowerCase();
-    
     for(var i in map) {
         if(lconfProperty == i.toLowerCase())
             this.setValue(map[i]);
@@ -123,13 +128,9 @@ var getServiceInfoPanel = function(store) {
             items: [{
                 fieldLabel: 'Service name',
                 xtype: 'textfield',
+                hideOn: 'structuralObject',
                 lconfProperty: "cn",
                 allowBlank: false,
-                anchor: '90%'
-            },{
-                fieldLabel: 'Service alias',
-                xtype: 'textfield',
-                lconfProperty: prefix+"Alias",
                 anchor: '90%'
             },
             servicegroupBox,
@@ -595,11 +596,15 @@ var getFlappingPreferences = function(store) {
             flapSetting: 'o',
             enableToggle: true
         },{
-            text: 'Down',
-            flapSetting: 'd',
+            text: 'Warning',
+            flapSetting: 'w',
             enableToggle: true
         },{
-            text: 'Unreachable',
+            text: 'Critical',
+            flapSetting: 'c',
+            enableToggle: true
+        },{
+            text: 'Unknown',
             flapSetting: 'u',
             enableToggle: true
         }]
@@ -797,7 +802,7 @@ var updateFormValues = function() {
 
 LConf.Extensions.Registry.registerPropertyView({
 
-    objectclass: ".*service$",
+    objectclass: ".*(structuralobject|service)$",
     handler: function(store) {
         var p = new Ext.Panel({
             autoDestroy: true,

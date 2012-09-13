@@ -14,6 +14,12 @@ var updateFieldValues = function(map) {
     if(!this.lconfProperty) {
         return;
     }
+    if(this.hideOn) {
+        if(new RegExp(".*"+this.hideOn+"$","i").test(map["objectclass"])) {
+            this.hide();
+            return;
+        }
+    }
     var lconfProperty = this.lconfProperty.toLowerCase();
     for(var i in map) {
         if(lconfProperty == i.toLowerCase())
@@ -95,21 +101,25 @@ var getContactPanel = function(store) {
                 xtype: 'textfield',
                 allowBlank: false,
                 lconfProperty: "cn",
+                hideOn: 'structuralobject',
                 anchor: '90%'
             },{
                 fieldLabel: 'Contact alias',
                 xtype: 'textfield',
                 lconfProperty: prefix+"Alias",
+                hideOn: 'structuralobject',
                 anchor: '90%'
             },{
                 fieldLabel: 'Email',
                 xtype: 'textfield',
                 lconfProperty: prefix+"Email",
+                hideOn: 'structuralobject',
                 anchor: '90%'
             },{
                 fieldLabel: 'Pager',
                 xtype: 'textfield',
                 lconfProperty: prefix+"Pager",
+                hideOn: 'structuralobject',
                 anchor: '90%'
             },
             contactgroupBox]
@@ -565,11 +575,10 @@ var updateFormValues = function() {
 
 LConf.Extensions.Registry.registerPropertyView({
 
-    objectclass: ".*contact$",
+    objectclass: ".*(structuralobject|contact)$",
     handler: function(store) {
         var p = new Ext.Panel({
             autoScroll: true,
-            isMain: true,
             iconCls: 'icinga-icon-user',
             title: 'Contact settings',
             defaults: {

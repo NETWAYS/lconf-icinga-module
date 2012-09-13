@@ -79,7 +79,7 @@ Ext.ns("LConf.DIT.Mixin").ContextMenu = function() {
             },{
                 text: _('Create new node as child'),
                 iconCls: 'icinga-icon-sitemap',
-                hidden: !(node.isAlias),      
+                hidden: (node.isAlias),      
                 menu: this.getNodeCreationMenu(tree,{node:node,isChild:true}),
                 //handler: tree.wizardManager.callNodeCreationWizard.createDelegate(tree.wizardManager,[),
                 scope: this
