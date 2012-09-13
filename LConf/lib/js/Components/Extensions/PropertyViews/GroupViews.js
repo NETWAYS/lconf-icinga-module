@@ -61,6 +61,9 @@ var getGroupMembersStore = function(field,objectStore) {
                         el.set("active",true);
                     }
                 }
+                
+                if(this.onlyAssigned)
+                    this.filter("active",true);
             }
         }
     });
@@ -200,7 +203,22 @@ var getGroupMembersView = function(type,store,objectclasses) {
         sm: chkBox,
         anchor: '95%',
         tbar: new Ext.Toolbar({
-            items: ['->',{
+            items: [{
+                xtype: 'button',
+                iconCls: 'icinga-icon-accept',
+                text: _('Only assigned'),
+                enableToggle: true,
+                toggleHandler: function(btn,state) {
+                    if(state === false) {
+                        memberStore.clearFilter();
+                        memberStore.onlyAssigned = false;
+                    } else {
+                        memberStore.filter("active",true);
+                        memberStore.onlyAssigned = true;
+                    }
+                },
+                scope: this
+            },'->',{
                 xtype: 'textfield',
                 iconCls: 'icinga-icon-search',
                 emptyText: 'Enter text to filter',
