@@ -1,5 +1,7 @@
+/*jshint browser:true, curly:false */
+/*global Ext:true,LConf:true */
 Ext.ns("LConf.View").Viewport = function(cfg) {
-    
+    "use strict";    
     cfg.eventDispatcher = new LConf.EventDispatcher();
     cfg.filterState = new LConf.Filter.FilterState(cfg);
 
@@ -65,4 +67,4 @@ Ext.ns("LConf.View").Viewport = function(cfg) {
     }
     cfg.parentCmp.add(mainContainer);
     cfg.parentCmp.doLayout();
-}
+};

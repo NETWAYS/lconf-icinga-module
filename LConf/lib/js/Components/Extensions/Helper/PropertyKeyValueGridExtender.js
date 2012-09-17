@@ -1,4 +1,7 @@
+/*jshint browser:true, curly:false */
+/*global Ext:true, LConf:true */
 Ext.ns("LConf.Extensions.Helper").PropertyKeyValueGridExtender = function(colModel) {
+    "use strict";
     this.colModel = colModel;
     this.actionColumns = [];
 
@@ -43,14 +46,11 @@ Ext.ns("LConf.Extensions.Helper").PropertyKeyValueGridExtender = function(colMod
     };
 
     this.addAction = function(action) {
-        
-        var item = this.actionColumns.length-1;
         this.actionColumns.push({
             tooltip: action.qtip,
             getClass: function(v, meta, rec,row,col,store) {
                 if(objectMatches(store,action) && propertyMatches(rec,action)) {
                     this.record = rec;
-                    
                     return "icon-16 "+action.iconCls;
                 }
                 v = "";
@@ -59,7 +59,5 @@ Ext.ns("LConf.Extensions.Helper").PropertyKeyValueGridExtender = function(colMod
             handler: action.handler
 
         });
-    };
-   
-    
+    };    
 };

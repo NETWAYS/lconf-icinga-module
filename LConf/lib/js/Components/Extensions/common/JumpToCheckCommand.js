@@ -1,3 +1,9 @@
+/*jshint browser:true, curly:false */
+/*global Ext:true, LConf:true, _:true */
+(function() {    
+
+"use strict";
+
 Ext.ns("LConf.Extensions.KVGrid").JumpToCheckCommand = {
     xtype: 'action',
     appliesOn: {
@@ -47,3 +53,4 @@ Ext.ns("LConf.Extensions.KVGrid").JumpToCheckCommand = {
 };
 
 LConf.Extensions.Registry.registerKeyValueGridExtension(LConf.Extensions.KVGrid.JumpToCheckCommand);
+})();

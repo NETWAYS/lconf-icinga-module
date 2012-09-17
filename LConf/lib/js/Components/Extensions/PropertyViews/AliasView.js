@@ -1,12 +1,14 @@
+/*jshint browser:true, curly:false */
+/*global Ext:true, LConf: true */
 (function() {
-    
+    "use strict";
     LConf.Extensions.Registry.registerPropertyView({
         objectclass: "alias",
         handler: function(store) {
             
             var p = new Ext.Panel({
                 autoScroll: true,
-                isMain: true,
+                priority: 1,
 
                 title: 'Alias',
                 iconCls: 'icinga-icon-attach',
@@ -38,14 +40,14 @@
                                 attributes: {
                                     aliasedobjectname: [rec.get("value")]
                                 }
-                            }
+                            };
                             store.eventDispatcher.fireCustomEvent("jumpToRealNode",alias);
                         }
                     }]
                 }]
             });
             store.on("load",function() {
-                var rec = store.findProperty("aliasedobjectname")[0].get("value")
+                var rec = store.findProperty("aliasedobjectname")[0].get("value");
                 p.items.get(0).update("<div style='margin:auto' class='icon-32 icinga-icon-exclamation-white'>"+
                         "</div>This is an alias entry to <p>"+
                         "<span style='font-family:monaco,monospace'>"+rec+"</span></p>");

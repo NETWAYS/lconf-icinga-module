@@ -4,10 +4,14 @@
  * 
  * @author: Jannis Moßhammer <jannis.mosshammer@netways.de>
  */
+
+/*jshint browser:true, curly:false */
+/*global Ext:true */
 Ext.ns("Ext.ux.LConf").SliderRangeMarkerPlugin= function(cfg) {
+    "use strict";
     cfg = cfg || {
         color: "green"
-    }
+    };
     return {
         init : function(slider) {
             var el = {
@@ -24,11 +28,11 @@ Ext.ns("Ext.ux.LConf").SliderRangeMarkerPlugin= function(cfg) {
                     tag: 'div',
                     style: "background-color:"+cfg.color+";position:relative"
                 }))
-            }
+            };
             var resize = function() {
                 
                 if(slider.getValues()[0] < slider.getValues()[1]) {
-                    var l = slider.thumbs[0].el.getRight()
+                    var l = slider.thumbs[0].el.getRight();
                     var width  = slider.thumbs[1].el.getLeft()-l;
                     
                     el.inner.anchorTo(slider.thumbs[0].el,"tr");
@@ -39,13 +43,12 @@ Ext.ns("Ext.ux.LConf").SliderRangeMarkerPlugin= function(cfg) {
                     el.inner.show();
                     
                 } else {
-                    var r = slider.thumbs[1].el.getRight();
                     el.l.setHeight(el.inner.getHeight());
                     el.r.setHeight(el.inner.getHeight());
                     
                     
-                    el.l.alignTo(slider.thumbs[1].el,"t")
-                    el.r.alignTo(slider.thumbs[0].el,"tr")
+                    el.l.alignTo(slider.thumbs[1].el,"t");
+                    el.r.alignTo(slider.thumbs[0].el,"tr");
                     el.l.setLeft(-7);
                     el.l.setWidth(slider.thumbs[1].el.getLeft()-el.l.getLeft());
                     el.r.setWidth(slider.el.getRight()-slider.thumbs[0].el.getRight());
@@ -54,7 +57,7 @@ Ext.ns("Ext.ux.LConf").SliderRangeMarkerPlugin= function(cfg) {
                     el.l.show();
                     el.r.show();
                 }
-            }
+            };
             slider.on({
                 scope    : this,
                 change: resize,
@@ -65,8 +68,8 @@ Ext.ns("Ext.ux.LConf").SliderRangeMarkerPlugin= function(cfg) {
                     el.inner.setOpacity(0.2);
                     el.r.setOpacity(0.2);
                     el.l.setOpacity(0.2);
-                    el.r.alignTo(slider.thumbs[0].el,"tr")
-                    el.l.alignTo(slider.thumbs[0].el,"tl")
+                    el.r.alignTo(slider.thumbs[0].el,"tr");
+                    el.l.alignTo(slider.thumbs[0].el,"tl");
                     cmp.innerEl.appendChild(el.inner);
                     cmp.el.appendChild(el.l);
                     cmp.el.appendChild(el.r);
@@ -74,5 +77,5 @@ Ext.ns("Ext.ux.LConf").SliderRangeMarkerPlugin= function(cfg) {
                 }
             });
         }
-    }
+    };
 };

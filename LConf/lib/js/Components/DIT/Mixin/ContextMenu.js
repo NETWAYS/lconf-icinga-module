@@ -1,5 +1,7 @@
+/*jshint browser:true, curly:false */
+/*global Ext:true, _:true, LConf:true */
 Ext.ns("LConf.DIT.Mixin").ContextMenu = function() {
-
+    "use strict";
     this.showGeneralNodeDialog = function(node,e,justCreate) {
         e.preventDefault();
         
@@ -58,7 +60,7 @@ Ext.ns("LConf.DIT.Mixin").ContextMenu = function() {
             iconCls: 'icinga-icon-bricks',
             text: 'Add new custom entry',
             handler: tree.wizardManager.callNodeCreationWizard.createDelegate(tree.wizardManager,[cfg,'Custom'])
-        }]
+        }];
         
     };
 
@@ -91,7 +93,7 @@ Ext.ns("LConf.DIT.Mixin").ContextMenu = function() {
                     _("Do you really want to delete this entry?<br/>")+
                         _("Subentries will be deleted, too!"),
                     function(btn){
-                        if(btn == 'yes') {
+                        if(btn === 'yes') {
                             tree.removeNodes([node]);
                         }
                     },this);
@@ -101,19 +103,18 @@ Ext.ns("LConf.DIT.Mixin").ContextMenu = function() {
             },{
                 text: _('Remove <b>all selected</b> nodes'),
                 iconCls: 'icinga-icon-cross',
-                hidden:!(tree.getSelectionModel().getSelectedNodes().length),
                 handler: function() {
                     Ext.Msg.confirm(_("Remove selected nodes"),
                     _("Do you really want to delete the selected entries?<br/>")+
                         _("Subentries will be deleted, too!"),
                     function(btn){
-                        if(btn == 'yes') {
+                        if(btn === 'yes') {
                             var toDelete = tree.getSelectionModel().getSelectedNodes();
                             tree.removeNodes(toDelete);
                         }
                     },this);
                 },
-                hidden: justCreate,
+                hidden: !(tree.getSelectionModel().getSelectedNodes().length) || justCreate,
                 scope: this
             },{
                 text: _('Jump to alias target'),
@@ -128,12 +129,11 @@ Ext.ns("LConf.DIT.Mixin").ContextMenu = function() {
             },{
                 text: _('Display aliases to this node'),
                 iconCls: 'icinga-icon-wand',
-                hidden: node.attributes.isAlias || node.id.match(/\*\d{4}\*/),
-                handler: function(btn) {
+                handler: function() {
                     tree.eventDispatcher.fireCustomEvent("aliasMode",node);
                 },
                 scope:this,
-                hidden: justCreate
+                hidden: node.attributes.isAlias || node.id.match(/\*\d{4}\*/) || justCreate
             },{
                 text: _('Search/Replace'),
                 iconCls: 'icinga-icon-zoom',
@@ -192,12 +192,12 @@ Ext.ns("LConf.DIT.Mixin").ContextMenu = function() {
                 },{
                     text: _('Create alias here'),
                     iconCls: 'icinga-icon-attach',
-                    hidden: containsAlias || e.dropNode.connId != e.target.ownerTree.connId,
+                    hidden: containsAlias || e.dropNode.connId !== e.target.ownerTree.connId,
                     handler: tree.buildAlias.createDelegate(this,[e.point,e.dropNode,e.target])
                 },{
                     text: _('Create alias as child'),
                     iconCls: 'icinga-icon-attach',
-                    hidden: containsAlias || e.dropNode.connId != e.target.ownerTree.connId,
+                    hidden: containsAlias || e.dropNode.connId !== e.target.ownerTree.connId,
                     handler: tree.buildAlias.createDelegate(this,["append",e.dropNode,e.target])
                 },{
                     text: _('Cancel'),

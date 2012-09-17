@@ -2,17 +2,21 @@
  * Helper class that expands tree branches
  * 
  */
+/*jshint browser:true, curly:false */
+/*global Ext:true */
 Ext.ns("LConf.DIT.Mixin").TreeCrawler = function(cmp) {
+    "use strict";
+    
     this.refreshCounter = 0;
     
     this.expandAllRecursive = function(node,cb) {
         node = node || this.getRootNode();
-        if(node == this.getRootNode())
+        if(node === this.getRootNode())
             this.refreshCounter = 0;
         node.reload();
         node.on("load",function() {
             node.eachChild(function(newNode){
-                this.expandAllRecursive(newNode,cb)
+                this.expandAllRecursive(newNode,cb);
             });
             this.refreshCounter--;
             if(this.refreshCounter<1)
@@ -38,7 +42,7 @@ Ext.ns("LConf.DIT.Mixin").TreeCrawler = function(cmp) {
     };
 
 
-    this.expandViaTreeObject = function(treeObj,finishFn,selected) {
+    this.expandViaTreeObject = function(treeObj,finishFn) {
         var expandBranchesLeft = 0;
 
         Ext.each(treeObj.here,function(nodeId) {
@@ -47,8 +51,8 @@ Ext.ns("LConf.DIT.Mixin").TreeCrawler = function(cmp) {
                 return true;
             }
             expandBranchesLeft++;
-            var getNext = function(exp) {
-                if(expandBranchesLeft == 1 && treeObj.nextLevel.length == 0) {
+            var getNext = function() {
+                if(expandBranchesLeft === 1 && treeObj.nextLevel.length === 0) {
                     if (finishFn)
                         finishFn();
                 }
@@ -117,7 +121,6 @@ Ext.ns("LConf.DIT.Mixin").TreeCrawler = function(cmp) {
 
         this.expandViaTreeObject(expandDescriptor,finishFN.createDelegate(this));
     };
-    cmp.eventDispatcher.addCustomListener("jumpToRealNode",this.jumpToRealNode,cmp)
+    cmp.eventDispatcher.addCustomListener("jumpToRealNode",this.jumpToRealNode,cmp);
 
 };
-

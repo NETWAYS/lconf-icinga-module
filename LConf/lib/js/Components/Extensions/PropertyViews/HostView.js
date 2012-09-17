@@ -2,7 +2,10 @@
  * The simple editor for host information. Contains most parameters that are appliable for hosts
  *
  **/
-new (function() {
+/*jshint browser:true, curly:false */
+/*global Ext:true, LConf: true */
+(function() {
+"use strict";
 
 var prefix = LConf.Configuration.prefix;
 
@@ -19,17 +22,17 @@ var updateFieldValues = function(map) {
     
     var lconfProperty = this.lconfProperty.toLowerCase();
     if(this.hideOn) {
-        if(new RegExp(".*"+this.hideOn+"$","i").test(map["objectclass"])) {
+        if(new RegExp(".*"+this.hideOn+"$","i").test(map.objectclass)) {
             this.hide();
             return;
         }
     }
     for(var i in map) {
         
-        if(lconfProperty == i.toLowerCase())
+        if(lconfProperty === i.toLowerCase())
             this.setValue(map[i]);
     }
-}
+};
 
 /**
  * Special helper for syncing TriStateButtons
@@ -43,8 +46,7 @@ var updateTristateButtonValues = function(map) {
         this.toggle("true",true);
     else
         this.toggle("disabled");
-}
-
+};
 
 /**
  * Returns the general host information FormPanel 
@@ -54,26 +56,17 @@ var updateTristateButtonValues = function(map) {
  * @return {Ext.form.FormPanel}
  **/
 var getHostInfoPanel = function(store) {
-    var editorURLs = Ext.ns("LConf.Editors").EditorFieldManager.urls;
-    var isCompact = false;
     
     // these helperfunctions are defined inline as we need the store
     // @TODO: not nice and a lot of copy&paste
     var onFieldChange = function(cmp,value) {
-        if(value == "" && cmp.allowBlank !== false) {
+        if(value === "" && cmp.allowBlank !== false) {
             store.deleteProperties(store.findProperty(cmp.lconfProperty));
         } else {
             store.setProperty(cmp.lconfProperty,value);
         }
-    }
-    
-    var onFieldChangeStrict = function(cmp,value) {
-         store.deleteProperties(store.findProperty(cmp.lconfProperty));
-        if(value != "") {
-            store.setProperty(cmp.lconfProperty,value);
-        }
+    };
 
-    }
     //
     // Define specific comboboxes for groups with the fatory classes 
     var contactgroupBox = LConf.Editors.EditorFieldManager.getEditorFieldForProperty(
@@ -142,7 +135,7 @@ var getHostInfoPanel = function(store) {
                         if(!cmp.activeError)
                             store.markInvalid(true);
                     },
-                    valid: function(cmp) {
+                    valid: function() {
                         store.markInvalid(false);
                     }
                 }
@@ -171,9 +164,9 @@ var getHostInfoPanel = function(store) {
             contactgroupBox ,
             contactBox]
         }
-    }
+    };
     
-}
+};
 
 /**
  * Returns the FormPanel for specifying the hosts check information
@@ -187,22 +180,22 @@ var getCheckPreferences = function(store) {
     // these helperfunctions are defined inline as we need the store
     // @TODO: not nice and a lot of copy&paste
     var onFieldChange = function(cmp,value) {
-        if(value == "" && cmp.allowBlank !== false) {
+        if(value === "" && cmp.allowBlank !== false) {
             store.deleteProperties(store.findProperty(cmp.lconfProperty));
         } else {
             store.setProperty(cmp.lconfProperty,value);
         }
-    }
+    };
     
     var onTristateToggle = function(cmp,state) {
         if(state === "true") {
-            store.setProperty(this.lconfProperty,"1")
+            store.setProperty(this.lconfProperty,"1");
         } else if(state === "false") {
-            store.setProperty(this.lconfProperty,"0")
+            store.setProperty(this.lconfProperty,"0");
         } else {
             store.deleteProperties(store.findProperty(this.lconfProperty));
         }
-    }
+    };
     
     // specific comboboxes for groups
     var checkCommandBox = LConf.Editors.EditorFieldManager.getEditorFieldForProperty(
@@ -284,7 +277,7 @@ var getCheckPreferences = function(store) {
                     }
                 
                     var tristateBtns = this.ownerCt.findByType('tristatebutton');
-                    for(var i=0;i<tristateBtns.length;i++) {
+                    for(i=0;i<tristateBtns.length;i++) {
                         tristateBtns[i].updateFieldValues.apply(tristateBtns[i],arguments);
                     }
                 }
@@ -376,8 +369,8 @@ var getCheckPreferences = function(store) {
                 }]
             }]
         }]
-    }
-}
+    };
+};
  
  /**
  * Returns the FormPanel for specifying the hosts notification information
@@ -391,21 +384,21 @@ var getNotificationPreferences = function(store) {
     // these helperfunctions are defined inline as we need the store
     // @TODO: not nice and a lot of copy&paste       
     var onFieldChange = function(cmp,value) {
-        if(value == "" && cmp.allowBlank !== false) {
+        if(value === "" && cmp.allowBlank !== false) {
             store.deleteProperties(store.findProperty(cmp.lconfProperty));
         } else {
             store.setProperty(cmp.lconfProperty,value);
         }
-    }
+    };
     var onTristateToggle = function(cmp,state) {
         if(state === "true") {
-            store.setProperty(this.lconfProperty,"1")
+            store.setProperty(this.lconfProperty,"1");
         } else if(state === "false") {
-            store.setProperty(this.lconfProperty,"0")
+            store.setProperty(this.lconfProperty,"0");
         } else {
             store.deleteProperties(store.findProperty(this.lconfProperty));
         }
-    }
+    };
     // specific comboboxes for groups
     var tpCommandBox = LConf.Editors.EditorFieldManager.getEditorFieldForProperty(
         prefix+"HostNotificationPeriod",{
@@ -420,6 +413,8 @@ var getNotificationPreferences = function(store) {
         },[prefix+"host"]
     );
     (function() {
+        if(!tpCommandBox.store)
+            return;
         tpCommandBox.store.setBaseParam("connectionId",store.getConnection());
         tpCommandBox.updateFieldValues = updateFieldValues;
     }).defer(200);
@@ -435,7 +430,7 @@ var getNotificationPreferences = function(store) {
         layout: 'column',
 
         listeners: {
-            toggle: function(cmp,val) {
+            toggle: function() {
                 var opts = "";
                 this.items.each(function(btn) {
                     if(btn.pressed)
@@ -483,11 +478,11 @@ var getNotificationPreferences = function(store) {
             btn.toggle(false,true);
             var split = map[p].split(",");
             for(var i=0;i<split.length;i++) {
-                if(split[i].toLowerCase() == btn.notificationType)
+                if(split[i].toLowerCase() === btn.notificationType)
                     btn.toggle(true,true);
             }
         },this);
-    }
+    };
     
     
     var defaultBtn =  new Ext.Button({
@@ -502,7 +497,7 @@ var getNotificationPreferences = function(store) {
             for(var i=1;i<this.ownerCt.items.length;i++) {
                 this.ownerCt.items.items[1].setDisabled(state);
             }
-            if(state == true) {
+            if(state === true) {
                 btnGroup.items.each(function(btn) {
                     btn.toggle(false,true);
                 });
@@ -545,8 +540,8 @@ var getNotificationPreferences = function(store) {
         
             },
             items: [
-                defaultBtn
-                ,btnGroup,
+                defaultBtn,
+                btnGroup,
             {
                 xtype: 'spacer',
                 height: 20
@@ -579,8 +574,8 @@ var getNotificationPreferences = function(store) {
                 pressed: 'disabled'
             }]
         }
-    }
-}
+    };
+};
 
 /**
  * Returns the FormPanel for specifying the hosts flapping information
@@ -592,21 +587,21 @@ var getNotificationPreferences = function(store) {
  **/
 var getFlappingPreferences = function(store) {
      var onFieldChange = function(cmp,value) {
-        if(value == "") {
+        if(value === "") {
             store.deleteProperties(store.findProperty(cmp.lconfProperty));
         } else {
             store.setProperty(cmp.lconfProperty,value);
         }
-    }
+    };
     var onTristateToggle = function(cmp,state) {
         if(state === "true") {
-            store.setProperty(this.lconfProperty,"1")
+            store.setProperty(this.lconfProperty,"1");
         } else if(state === "false") {
-            store.setProperty(this.lconfProperty,"0")
+            store.setProperty(this.lconfProperty,"0");
         } else {
             store.deleteProperties(store.findProperty(this.lconfProperty));
         }
-    }
+    };
     var btnGroup = new Ext.ButtonGroup({
         xtype: 'buttongroup',
         columns: 3,
@@ -652,11 +647,11 @@ var getFlappingPreferences = function(store) {
             btn.toggle(false,true);
             var split = map[p].split(",");
             for(var i=0;i<split.length;i++) {
-                if(split[i].toLowerCase() == btn.flapSetting)
+                if(split[i].toLowerCase() === btn.flapSetting)
                     btn.toggle(true,true);
             }
         },this);
-    }
+    };
     
     var defaultBtn = new Ext.Button({
         xtype: 'button',
@@ -667,10 +662,10 @@ var getFlappingPreferences = function(store) {
         enableToggle: true,
         toggleHandler: function(btn,state) {
             this.ownerCt.items.items[1].setDisabled(state);     
-            if(state == false) {
+            if(state === false) {
                 btnGroup.items.each(function(btn) { 
                     btn.toggle(false,true);
-                })
+                });
                 store.deleteProperties(store.findProperty(btn.lconfProperty));
             }
         },
@@ -685,7 +680,7 @@ var getFlappingPreferences = function(store) {
                 
             }
         }
-    })
+    });
     
     return {   
         xtype:'form',
@@ -712,7 +707,7 @@ var getFlappingPreferences = function(store) {
                 updateFieldValues: function() {
                     var args = arguments;
                     this.ownerCt.cascade(function() {
-                        if(this.xtype != 'hidden' && this.updateFieldValues)
+                        if(this.xtype !== 'hidden' && this.updateFieldValues)
                             this.updateFieldValues.apply(this,args);
                         
                     });
@@ -790,11 +785,11 @@ var getFlappingPreferences = function(store) {
                 }]
             }*/]        
         }]
-    }
-}
+    };
+};
 
 var updateFormValues = function() {
-    var ldapMap = {}
+    var ldapMap = {};
     this.store.each(function(r) {
         ldapMap[r.get('property').toLowerCase()] = r.get('value');
     });
@@ -803,7 +798,7 @@ var updateFormValues = function() {
         this.items.each(function(item) {
             if(!item)
                 return false;
-            if(item.xtype != 'panel') {
+            if(item.xtype !== 'panel') {
                 item.getForm().callFieldMethod("updateFieldValues",[ldapMap]);
             } else {
                 item.items.each(function(subitem) {
@@ -820,7 +815,7 @@ var updateFormValues = function() {
     } else {
         this.on("show",updateFormValues,this,{single:true});
     }
-}
+};
 
 LConf.Extensions.Registry.registerPropertyView({
 
@@ -830,7 +825,7 @@ LConf.Extensions.Registry.registerPropertyView({
         var p = new Ext.Panel({
             autoDestroy:true,
             autoScroll: true,
-            isMain: true,
+            priority: 1,
             iconCls: 'icinga-icon-host',
             title: 'Host settings',
             defaults: {
@@ -852,7 +847,7 @@ LConf.Extensions.Registry.registerPropertyView({
         
         p.addListener("destroy",function() {
             store.removeListener("update",storeFn);
-            store.removeListener("load",storeFn)
+            store.removeListener("load",storeFn);
         });
         return p;
 

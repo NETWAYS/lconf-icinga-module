@@ -2,9 +2,11 @@
  *  SImple view for checkcommands
  * 
  **/
+/*jshint browser:true, curly:false */
+/*global Ext:true, LConf: true */
+(function() {
 
-new (function() {
-  
+"use strict";
 var prefix = LConf.Configuration.prefix;
 
 /**
@@ -25,18 +27,18 @@ var getCommandPanel = function(store) {
         var lconfProperty = this.lconfProperty.toLowerCase();
 
         for(var i in map) {
-            if(lconfProperty == i.toLowerCase())
+            if(lconfProperty === i.toLowerCase())
                 this.setValue(map[i]);
         }
-    }
+    };
 
     var onFieldChange = function(cmp,value) {
-        if(value == "" && cmp.allowBlank !== false) { 
+        if(value === "" && cmp.allowBlank !== false) { 
             store.deleteProperties(store.findProperty(cmp.lconfProperty));
         } else {
             store.setProperty(cmp.lconfProperty,value);
         }
-    }
+    };
     
     return {
         xtype:'form',
@@ -57,7 +59,7 @@ var getCommandPanel = function(store) {
                         if(!cmp.activeError)
                             store.markInvalid(true);
                     },
-                    valid: function(cmp) {
+                    valid: function() {
                         store.markInvalid(false);
                     }
                 }
@@ -76,8 +78,8 @@ var getCommandPanel = function(store) {
                 allowBlank:false
             }]
         }
-    }    
-}
+    };
+};
 
 /**
  * Eventhandler method that updates the current editor panels (must be the scope) 
@@ -85,7 +87,7 @@ var getCommandPanel = function(store) {
  * @TODO: There's a lot of copy&paste between the different editor views
  */
 var updateFormValues = function() {
-    var ldapMap = {}
+    var ldapMap = {};
     this.store.each(function(r) {
         ldapMap[r.get('property').toLowerCase()] = r.get('value');
     });
@@ -93,14 +95,14 @@ var updateFormValues = function() {
         this.items.each(function(item) {
             if(!item)
                 return false;
-            if(item.xtype != 'panel') {
+            if(item.xtype !== 'panel') {
                 item.getForm().callFieldMethod("updateFieldValues",[ldapMap]);
             } else {
                 item.items.each(function(subitem) {
                     if(!subitem)
                         return false;
                     subitem.getForm().callFieldMethod("updateFieldValues",[ldapMap]);
-                })
+                });
             }
         });
         if(this.items.items[1])
@@ -108,14 +110,14 @@ var updateFormValues = function() {
     } else {
         this.on("show",updateFormValues,this,{single:true});
     }
-}
+};
 
 LConf.Extensions.Registry.registerPropertyView({
     objectclass: ".*command",
     handler: function(store) {
         var p = new Ext.Panel({
             autoScroll: true,
-            isMain: true,
+            priority: 1,
             autoDestroy: true,
             title: 'Check command',
             iconCls: 'icinga-icon-cog',
@@ -134,7 +136,7 @@ LConf.Extensions.Registry.registerPropertyView({
         store.on("load",storeFn);
         p.addListener("destroy",function() {
             store.removeListener("update",storeFn);
-            store.removeListener("load",storeFn)
+            store.removeListener("load",storeFn);
         });
         return p;
 

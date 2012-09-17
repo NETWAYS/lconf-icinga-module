@@ -3,7 +3,12 @@
  * 
  * @TODO: Almost excatly the same as the Hostview, refactor
  **/
+/*jshint browser:true, curly:false */
+/*global Ext:true, LConf: true */
 (function() {
+
+"use strict";
+
 var prefix = LConf.Configuration.prefix;
 
 /**
@@ -16,14 +21,14 @@ var updateFieldValues = function(map) {
         return;
     }
     if(this.hideOn) {
-        if(new RegExp(".*"+this.hideOn+"$","i").test(map["objectclass"])) {
+        if(new RegExp(".*"+this.hideOn+"$","i").test(map.objectclass)) {
             this.hide();
             return;
         }
     }
     var lconfProperty = this.lconfProperty.toLowerCase();
     for(var i in map) {
-        if(lconfProperty == i.toLowerCase())
+        if(lconfProperty === i.toLowerCase())
             this.setValue(map[i]);
     }
 };
@@ -47,7 +52,7 @@ var updateTristateButtonValues = function(map) {
 var getServiceInfoPanel = function(store) {
 
     var onFieldChange = function(cmp,value) {
-        if(value == "" && cmp.allowBlank !== false) {
+        if(value === "" && cmp.allowBlank !== false) {
             store.deleteProperties(store.findProperty(cmp.lconfProperty));
         } else {
             store.setProperty(cmp.lconfProperty,value);
@@ -120,7 +125,7 @@ var getServiceInfoPanel = function(store) {
                         if(!cmp.activeError)
                             store.markInvalid(true);
                     },
-                    valid: function(cmp) {
+                    valid: function() {
                         store.markInvalid(false);
                     }
                 }
@@ -153,7 +158,7 @@ var getCheckPreferences = function(store) {
     // these helperfunctions are defined inline as we need the store
     // @TODO: not nice and a lot of copy&paste
     var onFieldChange = function(cmp,value) {
-        if(value == "") {
+        if(value === "") {
             store.deleteProperties(store.findProperty(cmp.lconfProperty));
         } else {
             store.setProperty(cmp.lconfProperty,value);
@@ -247,7 +252,7 @@ var getCheckPreferences = function(store) {
                     }
                 
                     var tristateBtns = this.ownerCt.findByType('tristatebutton');
-                    for(var i=0;i<tristateBtns.length;i++) {
+                    for(i=0;i<tristateBtns.length;i++) {
                         tristateBtns[i].updateFieldValues.apply(tristateBtns[i],arguments);
                     }
                 }
@@ -346,7 +351,7 @@ var getCheckPreferences = function(store) {
 var getNotificationPreferences = function(store) {
         
     var onFieldChange = function(cmp,value) {
-        if(value == "") {
+        if(value === "") {
             store.deleteProperties(store.findProperty(cmp.lconfProperty));
         } else {
             store.setProperty(cmp.lconfProperty,value);
@@ -375,6 +380,8 @@ var getNotificationPreferences = function(store) {
         },[prefix+"service"]
     );
     (function() {
+        if(!tpCommandBox.store)
+            return;
         tpCommandBox.store.setBaseParam("connectionId",store.getConnection());
         tpCommandBox.updateFieldValues = updateFieldValues;
     }).defer(200);
@@ -390,7 +397,7 @@ var getNotificationPreferences = function(store) {
         layout: 'column',
 
         listeners: {
-            toggle: function(cmp,val) {
+            toggle: function() {
                 var opts = "";
                 this.items.each(function(btn) {
                     if(btn.pressed)
@@ -438,7 +445,7 @@ var getNotificationPreferences = function(store) {
             btn.toggle(false,true);
             var split = map[p].split(",");
             for(var i=0;i<split.length;i++) {
-                if(split[i].toLowerCase() == btn.notificationType)
+                if(split[i].toLowerCase() === btn.notificationType)
                     btn.toggle(true,true);
             }
         },this);
@@ -457,7 +464,7 @@ var getNotificationPreferences = function(store) {
             for(var i=1;i<this.ownerCt.items.length;i++) {
                 this.ownerCt.items.items[1].setDisabled(state);
             }
-            if(state == true) {
+            if(state === true) {
                 btnGroup.items.each(function(btn) {
                     btn.toggle(false,true);
                 });
@@ -500,8 +507,8 @@ var getNotificationPreferences = function(store) {
         
             },
             items: [
-                defaultBtn
-                ,btnGroup,
+                defaultBtn,
+                btnGroup,
             {
                 xtype: 'hidden',
                 updateFieldValues: function() {
@@ -512,7 +519,7 @@ var getNotificationPreferences = function(store) {
                     }
                 
                     var tristateBtns = this.ownerCt.findByType('tristatebutton');
-                    for(var i=0;i<tristateBtns.length;i++) {
+                    for(i=0;i<tristateBtns.length;i++) {
                         tristateBtns[i].updateFieldValues.apply(tristateBtns[i],arguments);
                     }
                 }
@@ -554,7 +561,7 @@ var getNotificationPreferences = function(store) {
 
 var getFlappingPreferences = function(store) {
      var onFieldChange = function(cmp,value) {
-        if(value == "") {
+        if(value === "") {
             store.deleteProperties(store.findProperty(cmp.lconfProperty));
         } else {
             store.setProperty(cmp.lconfProperty,value);
@@ -618,7 +625,7 @@ var getFlappingPreferences = function(store) {
             btn.toggle(false,true);
             var split = map[p].split(",");
             for(var i=0;i<split.length;i++) {
-                if(split[i].toLowerCase() == btn.flapSetting)
+                if(split[i].toLowerCase() === btn.flapSetting)
                     btn.toggle(true,true);
             }
         },this);
@@ -633,7 +640,7 @@ var getFlappingPreferences = function(store) {
         enableToggle: true,
         toggleHandler: function(btn,state) {
             this.ownerCt.items.items[1].setDisabled(state);     
-            if(state == false) {
+            if(state === false) {
                 btnGroup.items.each(function(btn) { 
                     btn.toggle(false,true);
                 });
@@ -678,7 +685,7 @@ var getFlappingPreferences = function(store) {
                 updateFieldValues: function() {
                     var args = arguments;
                     this.ownerCt.cascade(function() {
-                        if(this.xtype != 'hidden' && this.updateFieldValues)
+                        if(this.xtype !== 'hidden' && this.updateFieldValues)
                             this.updateFieldValues.apply(this,args);
                         
                     });
@@ -709,7 +716,7 @@ var getFlappingPreferences = function(store) {
                     }
                 
                     var tristateBtns = this.ownerCt.findByType('tristatebutton');
-                    for(var i=0;i<tristateBtns.length;i++) {
+                    for(i=0;i<tristateBtns.length;i++) {
                         tristateBtns[i].updateFieldValues.apply(tristateBtns[i],arguments);
                     }
                 }
@@ -783,7 +790,7 @@ var updateFormValues = function() {
         this.items.each(function(item) {
             if(!item)
                 return false;
-            if(item.xtype != 'panel') {
+            if(item.xtype !== 'panel') {
                 item.getForm().callFieldMethod("updateFieldValues",[ldapMap]);
             } else {
                 item.items.each(function(subitem) {
@@ -807,7 +814,7 @@ LConf.Extensions.Registry.registerPropertyView({
         var p = new Ext.Panel({
             autoDestroy: true,
             autoScroll: true,
-            isMain: true,
+            priority: 1,
             title: 'Service settings',
             iconCls: 'icinga-icon-service',
             defaults: {

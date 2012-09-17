@@ -1,4 +1,8 @@
+/*jshint browser:true, curly:false */
+/*global Ext:true */
 (function() {
+    "use strict";
+    
     var TristateButton = Ext.extend(Ext.Button,{
         enableToggle: true,
         constructor: function(cfg) {
@@ -24,13 +28,13 @@
         toggle : function(state, suppressEvent){
             if(state === undefined) {
                 if(this.pressed === "false")
-                    state = "disabled"
+                    state = "disabled";
                 else if(this.pressed === "true")
                     state = "false";
                 else
                     state = "true";
             }
-            if(state != this.pressed){
+            if(state !== this.pressed){
                 if(this.rendered){
                     this.el.removeClass('x-btn-disabled');
                     this.el.removeClass('x-btn-pressed');
@@ -50,11 +54,10 @@
                 }
             }
             if(this.stateText[state])
-                this.setText(this.stateText[state])
+                this.setText(this.stateText[state]);
             return this;
         }
     });
     Ext.reg("tristatebutton",TristateButton);
 
 })();
-

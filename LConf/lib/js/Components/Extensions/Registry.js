@@ -2,8 +2,10 @@
  *  Registry for LConf addons 
  *
  **/
-
-Ext.ns("LConf.Extensions").Registry = new function() {
+/*jshint browser:true, curly:false */
+/*global Ext:true */
+Ext.ns("LConf.Extensions").Registry = new (function() {
+    "use strict";
     var registeredExtensions = {
         'KVGrid' : [],
         'DITMenu' : [],
@@ -41,7 +43,7 @@ Ext.ns("LConf.Extensions").Registry = new function() {
         }
         
         return propertyViews;
-    }
+    };
     
     /**
     *  Register an extension for dit menus
@@ -70,7 +72,16 @@ Ext.ns("LConf.Extensions").Registry = new function() {
     *
     **/
     this.objectMatches = function(store,objectSelector) {
-        for(var selector in objectSelector) {
+      var testFn = function(record) {
+          if(selector.test(record.get("property"))) {
+              if(property.test(record.get("value"))) {
+                  match = true;
+                  return false;
+              }
+          }
+          return true;
+      };
+      for(var selector in objectSelector) {
             var currentObjectSelector = objectSelector[selector];
             if(!Ext.isArray(currentObjectSelector))
                 currentObjectSelector = [currentObjectSelector];
@@ -81,15 +92,7 @@ Ext.ns("LConf.Extensions").Registry = new function() {
                 selector = new RegExp(selector,"i");
                 var match = false;
                 // test if property name and value matches
-                store.each(function(record) {
-                    if(selector.test(record.get("property"))) {
-                        if(property.test(record.get("value"))) {
-                            match = true;
-                            return false;
-                        }
-                    }
-                    return true;
-                });
+                store.each(testFn);
 
                 if(match === true)
                     return true;
@@ -115,4 +118,4 @@ Ext.ns("LConf.Extensions").Registry = new function() {
     };
 
     
-};
+})();

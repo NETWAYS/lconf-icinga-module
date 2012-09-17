@@ -1,5 +1,8 @@
-
+/*jshint browser:true, curly:false */
+/*global Ext:true, _:true, LConf: true */
 Ext.ns("LConf.DIT.Helper").NodeWizardManager = function(tree) {
+    "use strict";
+  
     this.callNodeCreationWizard = function(cfg,id) {
         var _parent = cfg.node;
         if(!cfg.isChild)
@@ -21,7 +24,7 @@ Ext.ns("LConf.DIT.Helper").NodeWizardManager = function(tree) {
                 closeAction:'hide'
             });
         }
-        this.showWizard(id)
+        this.showWizard(id);
         this.wizardWindow.show();
     };
 
@@ -39,10 +42,10 @@ Ext.ns("LConf.DIT.Helper").NodeWizardManager = function(tree) {
         wizard.setConnectionId(tree.getConnectionId());
         this.wizardWindow.add(wizard);
         this.wizardWindow.doLayout();
-        this.wizardWindow.center()
-}
+        this.wizardWindow.center();
+    };
 
-    this.getNodeSelectionDialog = function(id) {
+    this.getNodeSelectionDialog = function() {
         LConf.Helper.Debug.d("Wizards",tree.wizards);
         return new Ext.Panel({
             borders:false,
@@ -63,10 +66,10 @@ Ext.ns("LConf.DIT.Helper").NodeWizardManager = function(tree) {
                     fields: ['view','description','iconCls']
                 }),
                 listeners: {
-                    selectionchange: function(view, selections) {
+                    selectionchange: function(view) {
                         var selected = view.getSelectedRecords()[0];
                         this.selectedWizard = selected;
-                        this.showWizard(this.selectedWizard.id)
+                        this.showWizard(this.selectedWizard.id);
                     },
                     scope:this
                 },
@@ -79,7 +82,7 @@ Ext.ns("LConf.DIT.Helper").NodeWizardManager = function(tree) {
                 }]
             }]
         });
-    }
+    };
 
     this.callExpandAlias = function(nodeCfg) {
         if(!nodeCfg.attributes.isAlias) {
@@ -93,7 +96,7 @@ Ext.ns("LConf.DIT.Helper").NodeWizardManager = function(tree) {
                 xaction:'expandAlias',
                 connectionId: this.connId
             },
-            success: function(resp) {
+            success: function() {
                 LConf.LoadingLayer.hide();
                 this.refreshNode(nodeCfg.parentNode);
 
@@ -101,11 +104,11 @@ Ext.ns("LConf.DIT.Helper").NodeWizardManager = function(tree) {
             failure: function(resp) {
                 LConf.LoadingLayer.hide();
                 var err = (resp.responseText.length<50) ? resp.responseText : 'Internal Exception, please check your logs';
-                Ext.Msg.alert(_("Error"),_("Couldn't expand Alias:<br\>"+err));
+                Ext.Msg.alert(_("Error"),_("Couldn't expand Alias:<br/>"+err));
             },
             scope: this
         });
         LConf.LoadingLayer.show();
-    }
+    };
 
-}
+};

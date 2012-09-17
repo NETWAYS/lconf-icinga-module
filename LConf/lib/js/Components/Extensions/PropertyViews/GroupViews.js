@@ -2,7 +2,10 @@
  * Generic simple editor view for host,service or contactgroups, including a grid view
  * 
  */
-new (function() {
+/*jshint browser:true, curly:false */
+/*global Ext:true, _:true, LConf: true, AppKit: true */
+(function() {
+"use strict";
 
 var prefix = LConf.Configuration.prefix;
 
@@ -12,13 +15,13 @@ var updateFieldValues = function(map) {
     }
     var lconfProperty = this.lconfProperty.toLowerCase();
     for(var i in map) {
-        if(lconfProperty == i.toLowerCase())
+        if(lconfProperty === i.toLowerCase())
             this.setValue(map[i]);
     }
-}
+};
 
 var updateFormValues = function() {
-    var ldapMap = {}
+    var ldapMap = {};
     this.store.each(function(r) {
         ldapMap[r.get('property').toLowerCase()] = r.get('value');
     });
@@ -28,7 +31,7 @@ var updateFormValues = function() {
     } else {
         this.on("show",updateFormValues,this,{single:true});
     }
-}
+};
 
 /**
  * Returns a {Ext.ux.data.PagingJsonStore} that can be used for selecting members of the 
@@ -52,7 +55,7 @@ var getGroupMembersStore = function(field,objectStore) {
             connectionId: objectStore.getConnection() // maybe null, but is read on the objectStore's load event'
         },
         listeners: {
-            load: function(store,records) {
+            load: function() {
                 if(!this.activeMembers)
                     return false;
                 for(var i=0;i<this.activeMembers.length;i++) {
@@ -75,22 +78,22 @@ var getGroupMembersStore = function(field,objectStore) {
             for(var x=0;x<splitted.length;x++)
                 this.activeMembers.push(splitted[x]);
         }
-    }
+    };
     if(objectStore.getConnection()) { // if we already have a populated objectclass store, load directly
         memberStore.load();
     }
     
-    objectStore.on("load", function(store,records) {
+    objectStore.on("load", function(store) {
         memberStore.setBaseParam("connectionId",objectStore.getConnection());
         memberStore.markActive(store.findProperty(prefix+"members"));
         memberStore.load();
     });
-    objectStore.on("update", function(store,records) {
+    objectStore.on("update", function(store) {
         memberStore.markActive(store.findProperty(prefix+"members"));
         memberStore.load();
     });
     return memberStore;
-}
+};
  
 /** 
  * Returns the {Ext.form.FormPanel} containing the editor fields for name and alias definition
@@ -101,12 +104,12 @@ var getGroupMembersStore = function(field,objectStore) {
  **/
 var getGroupView = function(type,store) {
     var onFieldChange = function(cmp,value) {
-        if(value == "" && cmp.allowBlank !== false) {
+        if(value === "" && cmp.allowBlank !== false) {
             store.deleteProperties(store.findProperty(cmp.lconfProperty));
         } else {
             store.setProperty(cmp.lconfProperty,value);
         }
-    }
+    };
     var form = new Ext.form.FormPanel({
         xtype: 'form',
         width: '90%',
@@ -128,7 +131,7 @@ var getGroupView = function(type,store) {
                         if(!cmp.activeError)
                             store.markInvalid(true);
                     },
-                    valid: function(cmp) {
+                    valid: function() {
                         store.markInvalid(false);
                     }
                 }
@@ -152,9 +155,9 @@ var getGroupView = function(type,store) {
     form.on("destroy",function() {
         store.removeListener("load",updateFormValues.createDelegate(form));
         store.removeListener("update",updateFormValues.createDelegate(form));
-    },this)
+    },this);
     return form;
-}
+};
 
 
 /**
@@ -177,7 +180,7 @@ var getGroupMembersView = function(type,store,objectclasses) {
                 property.push(record.get('entry'));
         });
         store.setProperty(prefix+"members",property.join(","));
-    }
+    };
     
     var chkBox = new Ext.grid.CheckboxSelectionModel({
         sortable: true,
@@ -251,13 +254,13 @@ var getGroupMembersView = function(type,store,objectclasses) {
     grid.on("render",function() {
         grid.dZone = new Ext.dd.DropZone(grid.getView().scroller,{
             ddGroup: 'treenodes',
-            getTargetFromEvent: function(e) {
+            getTargetFromEvent: function() {
                 return grid.getView().scroller;
             },
-            onNodeEnter : function(target, dd, e, data){ 
+            onNodeEnter : function(target){ 
                 Ext.fly(target).addClass('my-row-highlight-class');
             },
-            onNodeOut : function(target, dd, e, data){ 
+            onNodeOut : function(target){ 
                 Ext.fly(target).removeClass('my-row-highlight-class');
             },
             nodeMatches : function(node) {
@@ -268,24 +271,24 @@ var getGroupMembersView = function(type,store,objectclasses) {
                 }
                 return false;
             },
-            onNodeOver : function(target, dd, e, data) { 
+            onNodeOver : function(target,dd) { 
                 for(var i=0;i<dd.dragData.nodes.length;i++) {
                     if(this.nodeMatches(dd.dragData.nodes[i]))
                         return Ext.dd.DropZone.prototype.dropAllowed;
                 }
                 return Ext.dd.DropZone.prototype.dropNotAllowed;
             },
-            onNodeDrop : function(target, dd, e, data){
+            onNodeDrop : function(target, dd){
                 var dns = [];
                 for(var i=0;i<dd.dragData.nodes.length;i++) {
-                    var node = dd.dragData.nodes[i]
+                    var node = dd.dragData.nodes[i];
                     if(this.nodeMatches(node))
                         dns.push(node.attributes.dn.split(",")[0].split("=")[1]);
                 }
                 for(i=0;i<dns.length;i++) {
                     var entry = memberStore.find("entry",dns[i]);
                     AppKit.log(memberStore,entry,dns[i]);
-                    if(entry == -1)
+                    if(entry === -1)
                         continue;
                     memberStore.getAt(entry).set("active",true);
                     syncLdapStore();
@@ -294,28 +297,26 @@ var getGroupMembersView = function(type,store,objectclasses) {
         });
     },this);
     var onChanged = function() {    
-        var toSelect = []
+        var toSelect = [];
         memberStore.each(function(record) {
             if(record.get('active'))
                 toSelect.push(record);
-        })
-        // we can't use supressEvents here, because then the whole selection wouldn't be visible'
+        });
+        // we can't use supressEvents here, because then the whole selection wouldn't be visible
         grid.getSelectionModel().ignoreSelectEvents = true;
         grid.getSelectionModel().selectRecords(toSelect);
         grid.getSelectionModel().ignoreSelectEvents = false;
         if(grid.lastScrollPos) {
-            
             grid.getView().scroller.dom.scrollTop = grid.lastScrollPos.top;
             grid.getView().scroller.dom.scrollLeft = grid.lastScrollPos.left;
         }
-    }
-    memberStore.on("beforeload",function(cmp,t,l) {
+    };
+    memberStore.on("beforeload",function() {
         grid.lastScrollPos = {
             top:  grid.getView().scroller.dom.scrollTop,
             left: grid.getView().scroller.dom.scrollLeft
-        }
-        AppKit.log(grid);
-    },this)
+        };
+    },this);
     memberStore.on("load",onChanged ,this,{buffer:100});
     memberStore.on("load",function(my) {
         if(my.curFilter)
@@ -328,8 +329,8 @@ var getGroupMembersView = function(type,store,objectclasses) {
         xtype: 'fieldset',
         title: 'Members',
         items: grid
-    }
-}
+    };
+};
 
 
 LConf.Extensions.Registry.registerPropertyView({

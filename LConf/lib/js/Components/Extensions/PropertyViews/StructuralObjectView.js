@@ -1,4 +1,8 @@
+/*jshint browser:true, curly:false */
+/*global Ext:true, LConf: true */
 (function() {
+"use strict";
+
 var getStructuralObjectForm = function(store) {
     return {
         xtype:'form',
@@ -17,7 +21,7 @@ var getStructuralObjectForm = function(store) {
                         if(!cmp.activeError)
                             store.markInvalid(true);
                     },
-                    valid: function(cmp) {
+                    valid: function() {
                         store.markInvalid(false);
                     }
                 }
@@ -30,8 +34,8 @@ var getStructuralObjectForm = function(store) {
                 anchor: '90%'
             }]
         }
-    }
-}
+    };
+};
 
 LConf.Extensions.Registry.registerPropertyView({
 
@@ -43,7 +47,7 @@ LConf.Extensions.Registry.registerPropertyView({
         var p = new Ext.Panel({
             autoDestroy: true,
             autoScroll: true,
-            isMain: true,
+            priority: 2,
             iconCls: 'lconf-logo',
             title: 'Structural object',
             defaults: {

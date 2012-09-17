@@ -2,6 +2,10 @@
  * Grid extension that adds a column to test checks 
  * 
  */
+/*jshint browser:true, curly:false */
+/*global Ext:true, LConf:true, _:true */
+(function() {    
+"use strict";
 
 Ext.ns("LConf.Extensions.KVGrid").TestCheckCommand = {
     xtype: 'action',
@@ -21,7 +25,8 @@ Ext.ns("LConf.Extensions.KVGrid").TestCheckCommand = {
         var checkCmd = checkValue.replace(/^(.*?)!.*/,"$1");
         var argumentRegExp = /!([^!]*)/g;
         var args = [];
-        while(result = argumentRegExp.exec(checkValue)) {
+        var result = argumentRegExp.exec(checkValue);
+        if(result) {
             args.push(result[1]);
         }
         var me =  LConf.PropertyGrid.Extensions.TestCheckCommand;
@@ -67,16 +72,16 @@ Ext.ns("LConf.Extensions.KVGrid").TestCheckCommand = {
             prefix = record.get("property").match(/(.*?)service.*$/i)[1];
         } else {
             for(var i in ldapEntry) {
-                if(i == "dn")
+                if(i === "dn")
                     dn = ldapEntry[i];
                 if(/(.*?)(commandline)$/i.test(i)) {
                     commandLine = ldapEntry[i][0];
                     if(Ext.isObject(commandLine))
-                        commandLine = commandLine.data["property"];
+                        commandLine = commandLine.data.property;
                     prefix = i.match(/(.*?)(commandline)$/i)[1];
 
                 }
-            };
+            }
         }
         if(commandLine === null)
             return Ext.Msg.alert("Error",_("Couldn't find commandline"));
@@ -96,3 +101,5 @@ Ext.ns("LConf.Extensions.KVGrid").TestCheckCommand = {
 
 // register extension, comment to disable it
 LConf.Extensions.Registry.registerKeyValueGridExtension(LConf.Extensions.KVGrid.TestCheckCommand);
+
+})();

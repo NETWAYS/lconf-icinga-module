@@ -1,6 +1,5 @@
 Ext.ns("LConf").Configuration = {
-    prefix : "lconf"
-    
+    prefix : "lconf"    
 };
 
 

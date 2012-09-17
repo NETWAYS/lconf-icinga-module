@@ -16,9 +16,10 @@
  * 
  * @author: Jannis Moßhammer <jannis.mosshammer@netways.de>
  */
-
+/*jshint browser:true, curly:false */
+/*global Ext:true */
 Ext.ns("LConf.Extensions.Helper").TimePeriodObject = function(toParse,timeframes) {
-  
+    "use strict";
     var dayPattern = /^ *day \d.*/i;
     var regexpParts = {
         months: 'january|february|march|april|may|june|july|august|october|november|december',
@@ -91,12 +92,12 @@ Ext.ns("LConf.Extensions.Helper").TimePeriodObject = function(toParse,timeframes
             toPattern = "(- *("+regexpParts.weekdays+") *(-{0,1}[0-9]+)? *("+regexpParts.months+")?)?", // optional
             intervalPattern = "(/ *([0-9]+))?";
 
-        var weekdayOnly = new RegExp("^ "+fromPattern+" *"+toPattern+" *"+intervalPattern+" +([0-9:,\-]+) *$","i");
+        var weekdayOnly = new RegExp("^ "+fromPattern+" *"+toPattern+" *"+intervalPattern+' +([0-9:,\-]+) *$',"i");
         var weekdayTest = str.match(weekdayOnly);
         if(!weekdayTest) 
             throw "Couldn't parse "+str;
         
-        this.from.day = weekdayTest[idx.DAY].trim()
+        this.from.day = weekdayTest[idx.DAY].trim();
         if(weekdayTest[idx.DAY_NR])
             this.from.dayNr = parseInt(weekdayTest[idx.DAY_NR],10);
         if(weekdayTest[idx.MONTH])
@@ -109,14 +110,14 @@ Ext.ns("LConf.Extensions.Helper").TimePeriodObject = function(toParse,timeframes
                 dayNr: null,
                 dayInterval: null,
                 date: null
-            }
+            };
         if(weekdayTest[idx.TO_NR])
-            this.to.dayNr = parseInt(weekdayTest[idx.TO_NR],10)
+            this.to.dayNr = parseInt(weekdayTest[idx.TO_NR],10);
         if(weekdayTest[idx.TO_MONTH])
             this.to.month = weekdayTest[idx.TO_MONTH];
         if(weekdayTest[idx.HAS_INTERVAL])
-            this.from.dayInterval = parseInt(weekdayTest[idx.INTERVAL],10)
-    }
+            this.from.dayInterval = parseInt(weekdayTest[idx.INTERVAL],10);
+    };
     
     this.parseMonthPatternTimePeriod = function(str) {
         var fromPattern = "("+regexpParts.months+") *(-{0,1}[0-9]+)? *",
@@ -138,15 +139,15 @@ Ext.ns("LConf.Extensions.Helper").TimePeriodObject = function(toParse,timeframes
                 dayNr: null,
                 dayInterval: null,
                 date: null
-            }
+            };
             if(monthResult[4])
                 this.to.month = monthResult[4];
             if(monthResult[5])
-                this.to.dayNr = parseInt(monthResult[5],10)
+                this.to.dayNr = parseInt(monthResult[5],10);
             if(monthResult[6])
-                this.from.dayInterval = parseInt(monthResult[7]);
+                this.from.dayInterval = parseInt(monthResult[7],10);
         }
-    }
+    };
     
     this.parseDateBasedTimePeriod = function(str) {
         var fromPattern = "([1-3][0-9]{3,3}-[01][0-9]-[0-3][0-9])",
@@ -165,17 +166,17 @@ Ext.ns("LConf.Extensions.Helper").TimePeriodObject = function(toParse,timeframes
                 dayNr: null,
                 dayInterval: null,
                 date: yearResult[3]
-            }
+            };
         if(yearResult[4])
-            this.from.dayInterval = parseInt(yearResult[5],10)
-    }
+            this.from.dayInterval = parseInt(yearResult[5],10);
+    };
     
     this.parseFromString = function(str) {
         if(isNaN(str[0]))
             this.parsePatternBasedTimePeriod(str);
         else
             this.parseDateBasedTimePeriod(str);
-    }
+    };
     
     this.parseTimeFrames = function(str) {
         
@@ -189,7 +190,7 @@ Ext.ns("LConf.Extensions.Helper").TimePeriodObject = function(toParse,timeframes
             var res = timeFrames[i].split("-");
             this.timeframes.push(res);
         }
-    }
+    };
     
     this.getTimeFrameString = function() {
         var str = [];
@@ -197,7 +198,7 @@ Ext.ns("LConf.Extensions.Helper").TimePeriodObject = function(toParse,timeframes
             str.push(this.timeframes[i].join("-"));
         }
         return str.join(",");
-    }
+    };
     
     this.getKeyValPart = function(timeObj,noDay) {
         var keyString = "";
@@ -219,21 +220,21 @@ Ext.ns("LConf.Extensions.Helper").TimePeriodObject = function(toParse,timeframes
        if(timeObj.date)
            keyString += timeObj.date;
        return keyString;
-    }
+    };
     
     this.toKeyVal = function() {
-       var keyString = this.getKeyValPart(this.from)
+       var keyString = this.getKeyValPart(this.from);
        if(this.to)
-           keyString += " - "+this.getKeyValPart(this.to,true)
+           keyString += " - "+this.getKeyValPart(this.to,true);
        if(this.from.dayInterval)
            keyString += " / "+this.from.dayInterval;
        return [keyString, this.getTimeFrameString()];
-    }
+    };
 
     this.toString = function() {
         var t = this.toKeyVal();
         return t[0]+" "+t[1];
-    }
+    };
 
     this.validate = function() {
         if(this.from.date && (this.from.day || this.from.month || this.from.dayNr))
@@ -245,14 +246,14 @@ Ext.ns("LConf.Extensions.Helper").TimePeriodObject = function(toParse,timeframes
                 if(this.from[i] === null && this.to[i] !== null)
                     return "Inconsistent date format given ("+i+" is given in end, but not in start date)";
             }
-            for(var i in this.from) {
-                if(i != "month" && i != "day" && i != "dayInterval")
+            for(i in this.from) {
+                if(i !== "month" && i !== "day" && i !== "dayInterval")
                     if(this.to[i] === null && this.from[i] !== null)
                         return "Inconsisten date format given ("+i+" is given in start, but not in end date)";
             }
         }
         return true;
-    }
+    };
 
     if(typeof toParse === "string") {
           this.parseFromString(toParse);

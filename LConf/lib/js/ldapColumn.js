@@ -1,6 +1,8 @@
+/*jshint browser:true, curly:false */
+/*global Ext:true, _:true, AppKit: true, Cronk: true*/
 Ext.ns('Cronk.grid.ColumnRenderer');
 (function() {
-
+    "use strict";
     var ldapColumnSelector = new Ext.util.DelayedTask(function(cfg) {
         var objsToCheck = (Ext.DomQuery.jsSelect("div.lconf_cronk_sel"));
         var idsToCheck = [];
@@ -44,19 +46,20 @@ Ext.ns('Cronk.grid.ColumnRenderer');
                     }),cfg);
             }
         });
-    }
+    };
 	
     var drawLinks = function(data,cfg) {
+        var cssSelFn = function(elem) {
+            handleCSSSelector(data,elem,id,cfg);
+        };
         for(var id in data.elems) {
             // Check if we have multiple results
             if(!Ext.isArray(data.elems[id])) {
                 handleCSSSelector(data,data.elems[id],id,cfg);
             } else 
-                Ext.each(data.elems[id],function(elem) {
-                    handleCSSSelector(data,elem,id,cfg)
-                });
+                Ext.each(data.elems[id],cssSelFn);
         }	
-    }
+    };
 	
     var handleCSSSelector = function(data,elem,id,cfg) {
 
@@ -68,9 +71,9 @@ Ext.ns('Cronk.grid.ColumnRenderer');
         elem.replaceClass("unfinished","available");
         registerQTip(elem);
         elem.on("click",function(e) {
-            showDNMenu(e,dnInfo,cfg)
-            },this);
-    }
+            showDNMenu(e,dnInfo,cfg);
+        },this);
+    };
 
     var registerQTip = function(elem) {
         var qtipAttr = elem.getAttribute("qtip","ext");
@@ -81,7 +84,7 @@ Ext.ns('Cronk.grid.ColumnRenderer');
                 html: _(qtipAttr)
             }).doLayout();
         }
-    }
+    };
 	
     var showDNMenu = function(e,dnInfo,cfg) {
         var menuItems = [];
@@ -92,7 +95,6 @@ Ext.ns('Cronk.grid.ColumnRenderer');
                 handler: function() {
 
                     var url = AppKit.c.path+"/"+cfg.ldapRoute;
-                    
                     window.location.href = url+"/"+connection.id+"/"+dnInfo.DN;				
                 }
             });
@@ -100,11 +102,11 @@ Ext.ns('Cronk.grid.ColumnRenderer');
         new Ext.menu.Menu({
             items: menuItems
         }).showAt(e.getXY());
-    }
+    };
 	
-    Cronk.grid.ColumnRenderer.ldapColumn = 	function(cfg) {
+    Cronk.grid.ColumnRenderer.ldapColumn = function(cfg) {
 		
-        return function(value, metaData, record, rowIndex, colIndex, store) {
+        return function(value) {
             ldapColumnSelector.delay(200,null,null,[cfg]);
             
 
@@ -113,8 +115,8 @@ Ext.ns('Cronk.grid.ColumnRenderer');
                 flat_attr = attr+'="'+cfg.attr[attr]+'"';
             }
             return '<div class="lconf_cronk_sel unfinished" '+flat_attr+' lconf_val="'+value+'"><div style="width:25px;height:25px;display:block;" ></div></div>';
-        }
-    }
+        };
+    };
 		
 
-})()
+})();

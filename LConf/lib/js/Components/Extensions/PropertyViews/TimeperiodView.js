@@ -1,32 +1,11 @@
-
-new (function() {
-/*   
-var errorArea = new Ext.Container({
-    style: 'color:red',
-    padding: 5
+/*jshint browser:true, curly:false */
+/*global Ext:true, LConf: true */
+(function() {
     
-});
-errorArea.display = function(errors) {
-    if(errors.length == 0) {
-        errorArea.update("");
-        return
-    }
-        
-    var html = new Ext.Element(Ext.DomHelper.createDom({
-        tag: 'ul',
-        style: 'padding: 5px;border: 2px solid red;width:400px; margin:auto',
-        html: '!! Configuration errors: !!'
-    }));
-    var tpl = Ext.DomHelper.createTemplate({tag: 'li', html: "Invalid timeframe: {0}"});
-    for(var i=0; i<errors.length; i++){
-        tpl.append(html, [errors[i]]); // use template to append to the actual node
-    }
-    errorArea.update(html.dom.innerHTML);
-}
-   */
-var timePeriodPanel = function(store) {
+"use strict";
+var timePeriodPanel = function() {
     
-    var timePeriodParser = LConf.Extensions.Helper.TimePeriodObject;
+    var TimePeriodParser = LConf.Extensions.Helper.TimePeriodObject;
 
     var dayStore = new Ext.data.ArrayStore({
         id: 0,
@@ -60,7 +39,7 @@ var timePeriodPanel = function(store) {
             ['november','November'],['december','December']]
     });
 
-    var timeFrameSlider = Ext.extend(Ext.form.CompositeField,{
+    var TimeFrameSlider = Ext.extend(Ext.form.CompositeField,{
         fieldLabel: 'From - To',
         setValue: function(startTime,endTime) {
             var fromField = this.items.get(0),
@@ -118,7 +97,7 @@ var timePeriodPanel = function(store) {
                     lField.setValue(String.format('{0}:{1}', String.leftPad(~~(lThumb.value/60),2,'0'),String.leftPad((lThumb.value%60),2,'0')));
                     lField.resumeEvents();
 
-                    rField.suspendEvents()
+                    rField.suspendEvents();
                     rField.setValue(String.format('{0}:{1}', String.leftPad(~~(rThumb.value/60),2,'0'),String.leftPad((rThumb.value%60),2,'0')));
                     rField.resumeEvents();
                 }
@@ -154,7 +133,7 @@ var timePeriodPanel = function(store) {
                 var timeperiod = panel.items.get(0).getActiveTab().getTimeframeObject();
 
                 panel.items.get(1).items.each(function(cmp) {
-                    timeperiod.timeframes.push(cmp.getFieldValue())
+                    timeperiod.timeframes.push(cmp.getFieldValue());
                 });
                 var isValid = timeperiod.validate();
                 if(isValid !== true) {
@@ -184,7 +163,7 @@ var timePeriodPanel = function(store) {
                 outer.getLayout().setActiveItem(0);
                 outer.doLayout();
             }
-        }]
+        }];
 
 
         var panel =  new Ext.Panel({
@@ -202,7 +181,7 @@ var timePeriodPanel = function(store) {
                     layout: 'form',
                     autoScroll:true,
                     labelWidth: 2,
-                    plugins: new function() {
+                    plugins: new (function() {
                         this.init = function(form) {
                             form.fromTimeFrameObject = function(timePeriod) {
                                 var fromField = this.items.get(0);
@@ -212,7 +191,7 @@ var timePeriodPanel = function(store) {
 
                                 fromField.items.each(function(item) {
                                     if(timeperiod.from[item.name] !== null) {
-                                        item.setValue(timePeriod.from[item.name])
+                                        item.setValue(timePeriod.from[item.name]);
                                         item.fireEvent("change",item,timePeriod.from[item.name]);
                                     }
                                 });
@@ -221,16 +200,16 @@ var timePeriodPanel = function(store) {
                                 if(timePeriod.to) {
                                     toChk.setValue(1);
                                     toField.items.each(function(item) {
-                                        item.setValue(timePeriod.to[item.name])
-                                        item.fireEvent("change",item,timePeriod.to[item.name])
+                                        item.setValue(timePeriod.to[item.name]);
+                                        item.fireEvent("change",item,timePeriod.to[item.name]);
                                     });
                                 }
-                                ivField.items.get(0).setValue(timePeriod.from.dayInterval !=  null);
-                                ivField.items.get(1).setValue(timePeriod.from.dayInterval)  
-                            }
+                                ivField.items.get(0).setValue(timePeriod.from.dayInterval !==  null);
+                                ivField.items.get(1).setValue(timePeriod.from.dayInterval);
+                            };
 
                             form.getTimeframeObject = function() {
-                                var timePeriod = new timePeriodParser();
+                                var timePeriod = new TimePeriodParser();
                                 var fromField = this.items.get(0);
                                 var toField = this.items.get(2);
                                 var ivField = this.items.get(3);
@@ -254,10 +233,10 @@ var timePeriodPanel = function(store) {
                                     timePeriod.from.dayInterval = ivField.items.get(1).getValue();
                                 }
                                 return timePeriod;
-                            }
-                        }
+                            };
+                        };
 
-                    },
+                    })(),
                     title: 'Day based timezone',
                     defaults: {
                         border: false
@@ -277,7 +256,7 @@ var timePeriodPanel = function(store) {
                             forceSelection: true,
                             listeners: {
                                 change: function(cmp,v) {
-                                    if(v == "" && cmp.ownerCt.items.get(2).getValue() == "") {
+                                    if(v === "" && cmp.ownerCt.items.get(2).getValue() === "") {
                                         cmp.ownerCt.items.get(1).show();
                                         cmp.ownerCt.doLayout();
                                     } else {
@@ -309,7 +288,7 @@ var timePeriodPanel = function(store) {
                             listeners: {
                                 change: function(cmp,val) {
                                     var v = cmp.ownerCt.items.get(0).getValue();
-                                    if(v == "" &&  val == "") {
+                                    if(v === "" &&  val === "") {
                                         cmp.ownerCt.items.get(1).show();
                                         cmp.ownerCt.doLayout();
                                     } else {
@@ -359,7 +338,7 @@ var timePeriodPanel = function(store) {
                             forceSelection: true,
                             listeners: {
                                 change: function(cmp,v) {
-                                    if( v == "" && cmp.ownerCt.items.get(2).getValue() == "") {
+                                    if( v === "" && cmp.ownerCt.items.get(2).getValue() === "") {
                                         cmp.ownerCt.items.get(1).show();
                                         cmp.ownerCt.doLayout();
                                     } else {
@@ -391,7 +370,7 @@ var timePeriodPanel = function(store) {
                             listeners: {
                                 change: function(cmp,val) {
                                     var v = cmp.ownerCt.items.get(0).getValue();
-                                    if(v == "" &&  val == "day") {
+                                    if(v === "" &&  val === "day") {
                                         cmp.ownerCt.items.get(1).show();
                                         cmp.ownerCt.doLayout();
                                     } else {
@@ -445,7 +424,7 @@ var timePeriodPanel = function(store) {
                     title: 'Date based timezone',
                     layout: 'form',
                     labelWidth: 1,
-                    plugins: new function() {
+                    plugins: new (function() {
                         this.init = function(form) {
                             form.fromTimeFrameObject = function(timePeriod) {
                                 var fromDate = this.items.get(0);
@@ -456,16 +435,16 @@ var timePeriodPanel = function(store) {
                                 toChk.setValue(timePeriod.to !== null);
                                 if(timePeriod.to !== null) {
                                     toDate.setValue(timePeriod.to.date);
-                                    toDate.fireEvent("change",toDate)
+                                    toDate.fireEvent("change",toDate);
                                 }
                                 if(timePeriod.from.dayInterval !== null) {
                                     ivField.items.get(0).setValue(true);
-                                    ivField.items.get(1).setValue(timePeriod.from.dayInterval)
+                                    ivField.items.get(1).setValue(timePeriod.from.dayInterval);
                                 }
-                            }
+                            };
 
                             form.getTimeframeObject = function() {
-                                var timePeriod = new timePeriodParser();
+                                var timePeriod = new TimePeriodParser();
                                 var fromDate = this.items.get(0);
                                 var toDate = this.items.get(2);
                                 var ivField = this.items.get(3);
@@ -479,9 +458,9 @@ var timePeriodPanel = function(store) {
                                     timePeriod.from.dayInterval = ivField.items.get(1).getValue();
 
                                 return timePeriod;
-                            }
-                        } 
-                    },
+                            };
+                        };
+                    })(),
                     items: [{
                         xtype: 'datefield', 
                         value: new Date(),
@@ -511,7 +490,7 @@ var timePeriodPanel = function(store) {
                             enable: function(cmp) {
                                 cmp.ownerCt.get(0).setMaxValue(cmp.getValue());
                             },
-                            change: function(cmp,val) {
+                            change: function(cmp) {
                                 cmp.ownerCt.get(0).setMaxValue(cmp.getValue());
                             }
                         }
@@ -548,7 +527,7 @@ var timePeriodPanel = function(store) {
                 flex: 2,
                 autoScroll:true,
                 width: 650,
-                items: [new timeFrameSlider()],
+                items: [new TimeFrameSlider()],
                 buttons: [{
                         xtype: 'label',
                         text: '',
@@ -559,7 +538,7 @@ var timePeriodPanel = function(store) {
                     iconCls: 'icinga-icon-add',
                     handler: function(cmp) {
                         var panel = cmp.ownerCt.ownerCt;
-                        panel.add(new timeFrameSlider());
+                        panel.add(new TimeFrameSlider());
                         cmp.ownerCt.items.get(0).setText("");
                         panel.doLayout();
                     }
@@ -576,7 +555,7 @@ var timePeriodPanel = function(store) {
                         } else {
                             cmp.ownerCt.items.get(0).setText("");
                         }
-                        panel.remove(panel.items.last())
+                        panel.remove(panel.items.last());
                         panel.doLayout();
                         return true;
                     }
@@ -587,7 +566,7 @@ var timePeriodPanel = function(store) {
 
         if(record) {
 
-            var timeperiod = record.get("periodObj")
+            var timeperiod = record.get("periodObj");
             if(timeperiod.from.date) {
                 panel.items.get(0).setActiveTab(1);
                 panel.items.get(0).doLayout();
@@ -600,14 +579,14 @@ var timePeriodPanel = function(store) {
             for(var i=0;i<timeperiod.timeframes.length;i++) {
                 var start = timeperiod.timeframes[i][0],
                     end = timeperiod.timeframes[i][1],
-                    slider = new timeFrameSlider();
+                    slider = new TimeFrameSlider();
                 panel.items.get(1).add(slider);
                 slider.setValue(start,end);
             }
 
         }
-        return panel
-    }
+        return panel;
+    };
 
     return new Ext.Panel({
         title: 'Timeperiods',
@@ -674,7 +653,7 @@ var timePeriodPanel = function(store) {
                                         iconCls: 'icon-16  icinga-icon-application-edit',
                                         tooltip: 'Modify',
                                         style: 'width: 18px',
-                                        handler: function(grid,row,col) {
+                                        handler: function(grid,row) {
                                             var record = grid.getStore().getAt(row);
                                             var parent = grid.ownerCt.ownerCt;
                                             parent.add(getTimeRangeWizard(record,grid.getStore()));
@@ -685,7 +664,7 @@ var timePeriodPanel = function(store) {
                                         tooltip: 'Delete',
                                         iconCls: 'icon-16 icinga-icon-cancel',
                                         style: 'width: 18px',
-                                        handler: function(grid,row,col) {
+                                        handler: function(grid,row) {
                                             grid.getStore().removeAt(row);
                                             grid.fireEvent("change",grid);
                                         }
@@ -720,7 +699,7 @@ var timePeriodPanel = function(store) {
             }]
         }]
     });
-}
+};
 
 
 var prefix = LConf.Configuration.prefix;
@@ -735,7 +714,7 @@ LConf.Extensions.Registry.registerPropertyView({
         var p = new Ext.Panel({
             autoDestroy: true,
             autoScroll: true,
-            isMain: true,
+            priority: 1,
             iconCls: 'icinga-icon-clock-red',
             title: 'Timeperiods',
             defaults: {
@@ -750,7 +729,7 @@ LConf.Extensions.Registry.registerPropertyView({
             store.remove(store.findProperty(prefix+"timeperiodvalue"));
             cmp.getStore().each(function(record) {
                 store.setProperty(prefix+"timeperiodvalue",record.get("periodObj").toString(),true);
-            },this)
+            },this);
         };
         
         var storeToTimeGrid = function(map,cmp) {
@@ -775,7 +754,7 @@ LConf.Extensions.Registry.registerPropertyView({
         
         // register a custom bidner for the grid
         binder.registerCustomBinding(function(cmp) {
-            return (cmp.bindId == "timeframeGrid");
+            return (cmp.bindId === "timeframeGrid");
         },timeGridToStore,storeToTimeGrid); 
 
         binder.bindCmp(p,true);

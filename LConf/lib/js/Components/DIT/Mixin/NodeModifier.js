@@ -3,9 +3,10 @@
  * used by the DIT Tree
  *
  */
-
-Ext.ns("LConf.DIT.Mixin").NodeModifier = function(src) {
-
+/*jshint browser:true, curly:false */
+/*global Ext:true, _:true, LConf:true */
+Ext.ns("LConf.DIT.Mixin").NodeModifier = function() {
+    "use strict";
     this.processDNForServer = function(dn) {
         dn = dn.replace("ALIAS=Alias of:","");
         dn = dn.replace(/^\*\d{4}\*/,"");
@@ -18,7 +19,7 @@ Ext.ns("LConf.DIT.Mixin").NodeModifier = function(src) {
         if(!Ext.isArray(nodes))
             nodes = [nodes];
         Ext.each(nodes,function(node) {
-            var id = (node.attributes["aliasdn"] || node.id)
+            var id = (node.attributes.aliasdn || node.id);
             dn.push(this.processDNForServer(id));
         },this);
         var updateNodes = this.getHighestAncestors(nodes);
@@ -29,12 +30,12 @@ Ext.ns("LConf.DIT.Mixin").NodeModifier = function(src) {
                 xaction:'destroy',
                 connectionId: this.connId
             },
-            success: function(resp) {
+            success: function() {
               
                 Ext.each(updateNodes,function(node) {
                     if(node)
                         this.refreshNode(node);
-                },this)
+                },this);
             },
             failure: function(resp) {
                 
@@ -54,7 +55,7 @@ Ext.ns("LConf.DIT.Mixin").NodeModifier = function(src) {
             selected = selected[0];
 
         if(tree.reloadFilters) {
-            tree.getLoader().baseParams["filters"] = tree.reloadFilters;
+            tree.getLoader().baseParams.filters = tree.reloadFilters;
             preserveStructure = false;
         }
         tree.reloadFilters = false;
@@ -77,12 +78,12 @@ Ext.ns("LConf.DIT.Mixin").NodeModifier = function(src) {
 
 
         if(preserveStructure) {
-            this.on("load", function(elem) {
+            this.on("load", function() {
                 tree.expandViaTreeObject(expandTree,callback,selected);
             },this,{single:true});
         }
         node.reload();
-    }
+    };
 
     /**
      * Reduces a set of nodes to the highest ancestors of them.
@@ -109,7 +110,7 @@ Ext.ns("LConf.DIT.Mixin").NodeModifier = function(src) {
             var hasAncestor = false;
             for(var x=0;x < nodeSet.length;x++) {
                 var checkNode = nodeSet[x];
-                if(checkNode == node)
+                if(checkNode === node)
                     continue;
                 if(node.isAncestor(checkNode)) {
                     hasAncestor = true;
@@ -124,16 +125,16 @@ Ext.ns("LConf.DIT.Mixin").NodeModifier = function(src) {
             }
         }
         return Ext.unique(returnSet);
-    }
+    };
 
     this.buildAlias = function(pos,fromArr,to) {
         Ext.each(fromArr,function(from) {
             var toDN = to.id;
-            if(pos != 'append')
+            if(pos !== 'append')
                 toDN = to.parentNode.id;
 
-            if(from.parentNode.id == toDN) {
-                Ext.Msg.alert(_("Error"),_("Target and source are the same"))
+            if(from.parentNode.id === toDN) {
+                Ext.Msg.alert(_("Error"),_("Target and source are the same"));
                 return false;
             }
 
@@ -149,7 +150,7 @@ Ext.ns("LConf.DIT.Mixin").NodeModifier = function(src) {
             },{
                 "property" : "ou",
                 "value" : from.id.split(",")[0].split("=")[1]
-            }]
+            }];
             Ext.Ajax.request({
                 url: this.urls.modifynode,
                 params: {
@@ -170,16 +171,16 @@ Ext.ns("LConf.DIT.Mixin").NodeModifier = function(src) {
             });
             return true;
         },this);
-    }
+    };
 
     this.copyNode = function(pos,fromArr,to,move) {
         Ext.each(fromArr,function(from) {
             var toDN = to.id;
-            if(pos != 'append')
+            if(pos !== 'append')
                 toDN = to.parentNode.id;
 
-            if(move && from.parentNode.id == toDN) {
-                Ext.Msg.alert(_("Error"),_("Target and source are the same"))
+            if(move && from.parentNode.id === toDN) {
+                Ext.Msg.alert(_("Error"),_("Target and source are the same"));
                 return false;
             }
 
@@ -187,7 +188,7 @@ Ext.ns("LConf.DIT.Mixin").NodeModifier = function(src) {
                 targetDN: this.processDNForServer(toDN),
                 targetConnId: this.connId,
                 sourceDN: this.processDNForServer(from.id)
-            }
+            };
             LConf.Helper.Debug.d("Copying nodes",this,arguments);
             Ext.Ajax.request({
                 url: this.urls.modifynode,
@@ -198,7 +199,7 @@ Ext.ns("LConf.DIT.Mixin").NodeModifier = function(src) {
                 },
                 failure:function(resp) {
                     var err = (resp.responseText.length<1024) ? resp.responseText : 'Internal Exception, please check your logs';
-                    Ext.Msg.alert(_("Error"),_("Couldn't copy node:<br\>"+err));
+                    Ext.Msg.alert(_("Error"),_("Couldn't copy node:<br/>"+err));
                 },
                 success: function() {
                     if(to.getOwnerTree())
@@ -209,8 +210,8 @@ Ext.ns("LConf.DIT.Mixin").NodeModifier = function(src) {
                 scope:this
             });
             return true;
-        },this)
-    }
+        },this);
+    };
 
     this.callExpandAlias = function(nodeCfg) {
         if(!nodeCfg.attributes.isAlias) {
@@ -224,7 +225,7 @@ Ext.ns("LConf.DIT.Mixin").NodeModifier = function(src) {
                 xaction:'expandAlias',
                 connectionId: this.connId
             },
-            success: function(resp) {
+            success: function() {
                 this.refreshNode(nodeCfg.parentNode);
 
             },
@@ -234,7 +235,7 @@ Ext.ns("LConf.DIT.Mixin").NodeModifier = function(src) {
             },
             scope: this
         });
-    }
+    };
 
 
     this.callExpandAlias = function(nodeCfg) {
@@ -249,18 +250,16 @@ Ext.ns("LConf.DIT.Mixin").NodeModifier = function(src) {
                 xaction:'expandAlias',
                 connectionId: this.connId
             },
-            success: function(resp) {
+            success: function() {
                 this.refreshNode(nodeCfg.parentNode);
 
             },
             failure: function(resp) {
                 var err = (resp.responseText.length<50) ? resp.responseText : 'Internal Exception, please check your logs';
-                Ext.Msg.alert(_("Error"),_("Couldn't expand Alias:<br\>"+err));
+                Ext.Msg.alert(_("Error"),_("Couldn't expand Alias:<br/>"+err));
             },
             scope: this
         });
-    }
+    };
     
-}
-
-
+};

@@ -2,8 +2,10 @@
  * Simple Editor view for Contact definitions
  * 
  */
+/*jshint browser:true, curly:false */
+/*global Ext:true, LConf: true */
 (function() {
-
+"use strict";
     
 var prefix = LConf.Configuration.prefix;
 
@@ -15,17 +17,17 @@ var updateFieldValues = function(map) {
         return;
     }
     if(this.hideOn) {
-        if(new RegExp(".*"+this.hideOn+"$","i").test(map["objectclass"])) {
+        if(new RegExp(".*"+this.hideOn+"$","i").test(map.objectclass)) {
             this.hide();
             return;
         }
     }
     var lconfProperty = this.lconfProperty.toLowerCase();
     for(var i in map) {
-        if(lconfProperty == i.toLowerCase())
+        if(lconfProperty === i.toLowerCase())
             this.setValue(map[i]);
     }
-}
+};
 
 var updateTristateButtonValues = function(map) {
     if(map[this.lconfProperty.toLowerCase()] === "0" || map[this.lconfProperty] === 0)
@@ -34,7 +36,7 @@ var updateTristateButtonValues = function(map) {
         this.toggle("true",true);
     else
         this.toggle("disabled");
-}
+};
 
 
 /**
@@ -45,13 +47,13 @@ var updateTristateButtonValues = function(map) {
  */
 var getContactPanel = function(store) {
     var onFieldChange = function(cmp,value) {
-        if(value == ""  && cmp.allowBlank !== false) {
+        if(value === ""  && cmp.allowBlank !== false) {
             store.deleteProperties(store.findProperty(cmp.lconfProperty));
         } else {
             store.setProperty(cmp.lconfProperty,value);
         }
 
-    }
+    };
 
     // specific comboboxes for groups
     var contactgroupBox = LConf.Editors.EditorFieldManager.getEditorFieldForProperty(
@@ -91,7 +93,7 @@ var getContactPanel = function(store) {
                         if(!cmp.activeError)
                             store.markInvalid(true);
                     },
-                    valid: function(cmp) {
+                    valid: function() {
                         store.markInvalid(false);
                     }
                 }
@@ -124,9 +126,8 @@ var getContactPanel = function(store) {
             },
             contactgroupBox]
         }
-    }
-    
-}
+    }; 
+};
 
 /**
  * The Host notification panel, like in the host editor
@@ -137,21 +138,21 @@ var getContactPanel = function(store) {
 var getContactHostNotificationPreferences = function(store) {
         
     var onFieldChange = function(cmp,value) {
-        if(value == "") {
+        if(value === "") {
             store.deleteProperties(store.findProperty(cmp.lconfProperty));
         } else {
             store.setProperty(cmp.lconfProperty,value);
         }
-    }
+    };
     var onTristateToggle = function(cmp,state) {
         if(state === "true") {
-            store.setProperty(this.lconfProperty,"1")
+            store.setProperty(this.lconfProperty,"1");
         } else if(state === "false") {
-            store.setProperty(this.lconfProperty,"0")
+            store.setProperty(this.lconfProperty,"0");
         } else {
             store.deleteProperties(store.findProperty(this.lconfProperty));
         }
-    }
+    };
     // specific comboboxes for groups
     var tpCommandBox = LConf.Editors.EditorFieldManager.getEditorFieldForProperty(
         prefix+"HostNotificationPeriod",{
@@ -166,6 +167,8 @@ var getContactHostNotificationPreferences = function(store) {
         },[prefix+"host"]
     );
     (function() {
+        if(!tpCommandBox.store)
+            return;
         tpCommandBox.store.setBaseParam("connectionId",store.getConnection());
         tpCommandBox.updateFieldValues = updateFieldValues;
     }).defer(200);
@@ -181,7 +184,7 @@ var getContactHostNotificationPreferences = function(store) {
         layout: 'column',
 
         listeners: {
-            toggle: function(cmp,val) {
+            toggle: function() {
                 var opts = "";
                 this.items.each(function(btn) {
                     if(btn.pressed)
@@ -229,11 +232,11 @@ var getContactHostNotificationPreferences = function(store) {
             btn.toggle(false,true);
             var split = map[p].split(",");
             for(var i=0;i<split.length;i++) {
-                if(split[i].toLowerCase() == btn.notificationType)
+                if(split[i].toLowerCase() === btn.notificationType)
                     btn.toggle(true,true);
             }
         },this);
-    }
+    };
     
     
     var defaultBtn =  new Ext.Button({
@@ -248,7 +251,7 @@ var getContactHostNotificationPreferences = function(store) {
             for(var i=1;i<this.ownerCt.items.length;i++) {
                 this.ownerCt.items.items[1].setDisabled(state);
             }
-            if(state == true) {
+            if(state === true) {
                 btnGroup.items.each(function(btn) {
                     btn.toggle(false,true);
                 });
@@ -291,22 +294,19 @@ var getContactHostNotificationPreferences = function(store) {
         
             },
             items: [
-                defaultBtn
-                ,btnGroup,
-            {
-                xtype: 'spacer',
-                height: 20
-            },tpCommandBox,{
-                xtype: 'numberfield',
-                fieldLabel: 'Interval',
-                updateFieldValues: function() {
-                    updateFieldValues.apply(this,arguments);
-                    btnGroup.updateFieldValues.apply(btnGroup,arguments);
-                    defaultBtn.updateFieldValues.apply(defaultBtn,arguments);
-
-                },
+                defaultBtn,
+                btnGroup,{
+                    xtype: 'spacer',
+                    height: 20
+                },tpCommandBox,{
+                    xtype: 'numberfield',
+                    fieldLabel: 'Interval',
+                    updateFieldValues: function() {
+                        updateFieldValues.apply(this,arguments);
+                        btnGroup.updateFieldValues.apply(btnGroup,arguments);
+                        defaultBtn.updateFieldValues.apply(defaultBtn,arguments);
+                    },
                 lconfProperty: prefix+'ContactHostNotificationInterval',
-
                 width:30
             },{
                 xtype: 'tristatebutton',
@@ -325,8 +325,8 @@ var getContactHostNotificationPreferences = function(store) {
                 pressed: 'disabled'
             }]
         }
-    }
-}
+    };
+};
 
 
 
@@ -339,21 +339,21 @@ var getContactHostNotificationPreferences = function(store) {
 var getContactServiceNotificationPreferences = function(store) {
         
     var onFieldChange = function(cmp,value) {
-        if(value == "") {
+        if(value === "") {
             store.deleteProperties(store.findProperty(cmp.lconfProperty));
         } else {
             store.setProperty(cmp.lconfProperty,value);
         }
-    }
+    };
     var onTristateToggle = function(cmp,state) {
         if(state === "true") {
-            store.setProperty(this.lconfProperty,"1")
+            store.setProperty(this.lconfProperty,"1");
         } else if(state === "false") {
-            store.setProperty(this.lconfProperty,"0")
+            store.setProperty(this.lconfProperty,"0");
         } else {
             store.deleteProperties(store.findProperty(this.lconfProperty));
         }
-    }
+    };
     // specific comboboxes for groups
     var tpCommandBox = LConf.Editors.EditorFieldManager.getEditorFieldForProperty(
         prefix+"ContactServiceNotificationPeriod",{
@@ -383,7 +383,7 @@ var getContactServiceNotificationPreferences = function(store) {
         layout: 'column',
 
         listeners: {
-            toggle: function(cmp,val) {
+            toggle: function() {
                 var opts = "";
                 this.items.each(function(btn) {
                     if(btn.pressed)
@@ -431,11 +431,11 @@ var getContactServiceNotificationPreferences = function(store) {
             btn.toggle(false,true);
             var split = map[p].split(",");
             for(var i=0;i<split.length;i++) {
-                if(split[i].toLowerCase() == btn.notificationType)
+                if(split[i].toLowerCase() === btn.notificationType)
                     btn.toggle(true,true);
             }
         },this);
-    }
+    };
     
     
     var defaultBtn =  new Ext.Button({
@@ -450,7 +450,7 @@ var getContactServiceNotificationPreferences = function(store) {
             for(var i=1;i<this.ownerCt.items.length;i++) {
                 this.ownerCt.items.items[1].setDisabled(state);
             }
-            if(state == true) {
+            if(state === true) {
                 btnGroup.items.each(function(btn) {
                     btn.toggle(false,true);
                 });
@@ -460,13 +460,10 @@ var getContactServiceNotificationPreferences = function(store) {
         updateFieldValues: function(map) {
             if(typeof map[this.lconfProperty.toLowerCase()] === "undefined") {
                 this.toggle(true,true);
-                
-                btnGroup.setDisabled(true);
-                
+                btnGroup.setDisabled(true);             
             } else {
                 this.toggle(false,true); 
-                btnGroup.setDisabled(false);
-                
+                btnGroup.setDisabled(false);             
             }
         }
     });
@@ -476,8 +473,7 @@ var getContactServiceNotificationPreferences = function(store) {
         autoHeight: true,        
         flex: 1,
         layout: 'form',
-        padding: "1em 1em 1em 1em",
-        
+        padding: "1em 1em 1em 1em", 
         items: {
             xtype: 'fieldset',
             flex:1,
@@ -486,15 +482,13 @@ var getContactServiceNotificationPreferences = function(store) {
             border: true,
             anchor: '90%',
             defaults: {
-               
                 listeners: {
                     change: onFieldChange
-                }
-        
+                }  
             },
             items: [
-                defaultBtn
-                ,btnGroup,
+                defaultBtn,
+                btnGroup,
             {
                 xtype: 'hidden',
                 updateFieldValues: function() {
@@ -505,7 +499,7 @@ var getContactServiceNotificationPreferences = function(store) {
                     }
                 
                     var tristateBtns = this.ownerCt.findByType('tristatebutton');
-                    for(var i=0;i<tristateBtns.length;i++) {
+                    for(i=0;i<tristateBtns.length;i++) {
                         tristateBtns[i].updateFieldValues.apply(tristateBtns[i],arguments);
                     }
                 }
@@ -522,7 +516,6 @@ var getContactServiceNotificationPreferences = function(store) {
 
                 },
                 lconfProperty: prefix+'ContactServiceNotificationInterval',
-
                 width:30
             },{
                 xtype: 'tristatebutton',
@@ -541,11 +534,11 @@ var getContactServiceNotificationPreferences = function(store) {
                 pressed: 'disabled'
             }]
         }
-    }
-}
+    };
+};
 
 var updateFormValues = function() {
-    var ldapMap = {}
+    var ldapMap = {};
     this.store.each(function(r) {
         ldapMap[r.get('property').toLowerCase()] = r.get('value');
     });
@@ -554,7 +547,7 @@ var updateFormValues = function() {
         this.items.each(function(item) {
             if(!item)
                 return false;
-            if(item.xtype != 'panel') {
+            if(item.xtype !== 'panel') {
                 item.getForm().callFieldMethod("updateFieldValues",[ldapMap]);
             } else {
                 item.items.each(function(subitem) {
@@ -571,7 +564,7 @@ var updateFormValues = function() {
     } else {
         this.on("show",updateFormValues,this,{single:true});
     }
-}
+};
 
 LConf.Extensions.Registry.registerPropertyView({
 
@@ -579,6 +572,7 @@ LConf.Extensions.Registry.registerPropertyView({
     handler: function(store) {
         var p = new Ext.Panel({
             autoScroll: true,
+            priority: 1,
             iconCls: 'icinga-icon-user',
             title: 'Contact settings',
             defaults: {
@@ -599,10 +593,9 @@ LConf.Extensions.Registry.registerPropertyView({
         store.on("load",storeFn);
         p.addListener("beforeremove",function() {
             store.removeListener("update",storeFn);
-            store.removeListener("load",storeFn)
+            store.removeListener("load",storeFn);
         });
         return p;
-
     }
 });
 
