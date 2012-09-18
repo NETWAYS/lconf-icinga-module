@@ -34,7 +34,7 @@ Ext.onReady(function() {
         },
 		
         getValue: function () {
-            if(this.value)
+            if(!this.value)
                 this.value = this.startValue;
             return this.value;
         },
@@ -61,15 +61,18 @@ Ext.onReady(function() {
         },
 		
         completeEdit: function (remainVisible) {
+            AppKit.log("edited",this.editing);
             if(!this.editing) {
                 return;
             }
+            AppKit.log("issame",this.startValue === this.getValue(),this.startValue,this.getValue());
             if(this.startValue === this.getValue() && this.ignoreNoChange) {
                 this.hideEdit(remainVisible);	
                 return;
             }
             if(this.fireEvent("beforeComplete",this,this.getValue(),this.startValue) !== false) {
                 var value = this.getValue();
+                AppKit.log(value);
                 this.hideEdit(remainVisible);
 
                 this.fireEvent("complete",this,value,this.startValue);
@@ -119,6 +122,7 @@ Ext.onReady(function() {
                     click: function(node) {
                         if(!node.isLeaf())
                             return true;
+                        
                         this.tree.editorTxt.setValue(node.text);
                         this.setValue(node.text);
                         return false;
@@ -136,8 +140,8 @@ Ext.onReady(function() {
             });
             tree.filterByProperty = function(p) {
                 var root = this.getRootNode();
-                var r = new RegExp('.*'+p+'.*');
-                r.ignoreCase = true;
+                var r = new RegExp('.*'+p+'.*',"i");
+                
                 root.cascade(function(node) {
                     if(!node.isLeaf())
                         return true;
@@ -192,7 +196,7 @@ Ext.onReady(function() {
                 ev.stopEvent();
                 return false;
             } else {	
-                this.cancelEdit();
+                this.completeEdit();
                 return true;
             }
         },
