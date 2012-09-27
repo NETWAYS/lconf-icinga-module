@@ -40,6 +40,8 @@ Ext.ns("LConf.Extensions.Helper").TimePeriodObject = function(toParse,timeframes
     this.timeframes = [];
     
     this.parsePatternBasedTimePeriod = function(str) {
+        str = str.trim();
+        str = str.replace("\t"," ");
         if(dayPattern.test(str)) {
             this.parseDayPatternTimePeriod(str);
         } else if(weekdayPattern.test(str)) {
@@ -88,8 +90,8 @@ Ext.ns("LConf.Extensions.Helper").TimePeriodObject = function(toParse,timeframes
             DAY : 1, DAY_NR: 2, MONTH: 3, TO_DAY: 5, TO_NR: 6, 
             TO_MONTH : 7, HAS_INTERVAL : 8, INTERVAL : 9
         };
-        var fromPattern = "*("+regexpParts.weekdays+") *(-{0,1}[0-9]+)? *("+regexpParts.months+")?",
-            toPattern = "(- *("+regexpParts.weekdays+") *(-{0,1}[0-9]+)? *("+regexpParts.months+")?)?", // optional
+        var fromPattern = "*("+regexpParts.weekdays+")[\t ]*(-{0,1}[0-9]+)?[\t ]*("+regexpParts.months+")?",
+            toPattern = "(- *("+regexpParts.weekdays+")[\t ]*(-{0,1}[0-9]+)?[\t ]*("+regexpParts.months+")?)?", // optional
             intervalPattern = "(/ *([0-9]+))?";
 
         var weekdayOnly = new RegExp("^ "+fromPattern+" *"+toPattern+" *"+intervalPattern+' +([0-9:,\-]+) *$',"i");
@@ -172,7 +174,8 @@ Ext.ns("LConf.Extensions.Helper").TimePeriodObject = function(toParse,timeframes
     };
     
     this.parseFromString = function(str) {
-        if(isNaN(str[0]))
+        str = str.trim()
+        if(str.charCodeAt(0) <= 48 || str.charCodeAt(0) >= 58)
             this.parsePatternBasedTimePeriod(str);
         else
             this.parseDateBasedTimePeriod(str);
@@ -256,6 +259,7 @@ Ext.ns("LConf.Extensions.Helper").TimePeriodObject = function(toParse,timeframes
     };
 
     if(typeof toParse === "string") {
+          toParse = toParse.trim();
           this.parseFromString(toParse);
           this.parseTimeFrames(timeframes || toParse);
     }

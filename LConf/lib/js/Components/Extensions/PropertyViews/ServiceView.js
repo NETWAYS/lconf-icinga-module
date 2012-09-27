@@ -95,7 +95,11 @@ var getServiceInfoPanel = function(store) {
             }
         },[prefix+"service"]
     );
-    (function() {
+    var fn = function(me) {
+        if(!contactgroupBox.store ||!contactBox.store || !servicegroupBox.store) {
+            me.defer(200,null,[me])
+            return;
+        }
         contactgroupBox.store.setBaseParam("connectionId",store.getConnection());
         contactgroupBox.updateFieldValues = updateFieldValues;
         
@@ -105,7 +109,9 @@ var getServiceInfoPanel = function(store) {
         servicegroupBox.updateFieldValues = updateFieldValues;
             
         
-    }).defer(200);
+    }
+
+    fn.defer(200,null,[fn]);
     return {
         xtype:'form',
         layout: 'form',
@@ -188,6 +194,8 @@ var getCheckPreferences = function(store) {
         },[prefix+"service"]
     );
     (function() {
+        if(!checkCommandBox.store)
+	     return checkCommandBox;  
         checkCommandBox.store.setBaseParam("connectionId",store.getConnection());
         checkCommandBox.updateFieldValues = updateFieldValues;
     }).defer(200);

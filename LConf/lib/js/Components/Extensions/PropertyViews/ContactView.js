@@ -69,10 +69,15 @@ var getContactPanel = function(store) {
     );
     
     // current store is being populated while this field is set, so we have to wait a few ms
-    (function() {
-        contactgroupBox.store.setBaseParam("connectionId",store.getConnection());
-        contactgroupBox.updateFieldValues = updateFieldValues;
-    }).defer(200);
+    var setupFn = function(fn) {
+        if(!contactgroupBox.store) {
+            fn.defer(200,null,[setupFn])
+        } else {
+            contactgroupBox.store.setBaseParam("connectionId",store.getConnection());
+            contactgroupBox.updateFieldValues = updateFieldValues;
+        }
+    }
+    setupFn.defer(200,null,[setupFn]);
     
     return {
         xtype:'form',
@@ -368,6 +373,8 @@ var getContactServiceNotificationPreferences = function(store) {
         },[prefix+"service"]
     );
     (function() {
+        if(!tpCommandBox.store)
+            return null;
         tpCommandBox.store.setBaseParam("connectionId",store.getConnection());
         tpCommandBox.updateFieldValues = updateFieldValues;
     }).defer(200);

@@ -7,8 +7,10 @@ class LConf_LDAPHelperModel extends IcingaLConfBaseModel {
         foreach ($arr as $attribute => $value) {
             if (!is_array($value))
                 continue;
-
+            if (!isset($value["count"]))
+                $value["count"] = 1;
             $valueCount = $value["count"];
+
             if ($valueCount == 1) {
                 $returnArray[$attribute] = $value[0];
             } else {
@@ -17,6 +19,8 @@ class LConf_LDAPHelperModel extends IcingaLConfBaseModel {
                     $returnArray[$attribute][] = $value[$i];
                 }
             }
+            if (is_array($returnArray[$attribute]) && isset($returnArray[$attribute]["value"]))
+                $returnArray[$attribute] = $returnArray[$attribute]["value"];
         }
         return $returnArray;
     }
@@ -118,7 +122,7 @@ class LConf_LDAPHelperModel extends IcingaLConfBaseModel {
         return $resultset;
     }
 
-    static public function validateAliases($resultset,$conn,$base = "") {
+    static public function validateAliases($resultset, $conn, $base = "") {
         if (!is_array($resultset))
             return $resultset;
         foreach ($resultset as &$result) {
@@ -130,23 +134,21 @@ class LConf_LDAPHelperModel extends IcingaLConfBaseModel {
             foreach ($result["objectclass"] as $type) {
                 if ($type == "alias") {
                     $result["valid"] = true;
-                    if(!isset($result["aliasedobjectname"])) {
+                    if (!isset($result["aliasedobjectname"])) {
                         $result["valid"] = false;
                     } else {
-                        $search = explode(",",$result["aliasedobjectname"][0],2);
-                        $rs = @ldap_get_entries($conn,@ldap_search($conn,$search[1],"(".$search[0].")"));
-                        if($rs["count"] == 0)
+                        $search = explode(",", $result["aliasedobjectname"][0], 2);
+                        $rs = @ldap_get_entries($conn, @ldap_search($conn, $search[1], "(" . $search[0] . ")"));
+                        if ($rs["count"] == 0)
                             $result["valid"] = false;
                     }
                     break;
                 }
             }
-            
         }
         return $resultset;
     }
 
-    
     static public function filterTree($elems, array $searchresult) {
         if (!is_array($elems))
             return $elems;

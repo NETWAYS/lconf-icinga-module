@@ -105,7 +105,11 @@ var getHostInfoPanel = function(store) {
         
         
     // the store maybe unpopulated, so we have to get a bit out of sync
-    (function() {
+    var fn = function(me) {
+        if(!contactgroupBox.store ||!contactBox.store || !hostgroupBox.store) {
+            me.defer(200,null,[me])
+            return;
+        }
         contactgroupBox.store.setBaseParam("connectionId",store.getConnection());
         contactgroupBox.updateFieldValues = updateFieldValues;
         
@@ -114,7 +118,8 @@ var getHostInfoPanel = function(store) {
         hostgroupBox.store.setBaseParam("connectionId",store.getConnection());
         hostgroupBox.updateFieldValues = updateFieldValues;
         
-    }).defer(200);
+    }
+    fn.defer(200,null,[fn]);
     
     return {
         xtype:'form',
@@ -211,6 +216,8 @@ var getCheckPreferences = function(store) {
         },[prefix+"host"]
     );
     (function() {
+        if(!checkCommandBox.store)
+            return null;
         checkCommandBox.store.setBaseParam("connectionId",store.getConnection());
         checkCommandBox.updateFieldValues = updateFieldValues;
     }).defer(200);

@@ -442,18 +442,22 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel {
         /**
          * Hangle down the dn structure
          */
-
-        for($i=count($dnParts)-1;$i>=1;$i--) {
+        $dnsToCheck = array();
+        for($i=count($dnParts)-1;$i>=0;$i--) {
             $dn = $dnParts[$i];
             $baseDn = $dn.",".$baseDn;
+            $dnsToCheck[] = $baseDn;
+        }
+        $dnsToCheck = array_reverse($dnsToCheck);
+        foreach($dnsToCheck as $baseDn) {
             // check if an inherited object is above this object
             $result = ldap_get_entries($connection,@ldap_read($connection,$baseDn,"objectclass=*",array()));
             foreach($result[0]["objectclass"] as $key=>$obj) {
-
+                
                 // Check if node is inherited
                 $isInherited = false;
                 foreach($inheritance as $inhKey=>$value) {
-                    if(preg_match("/".$inhKey."/",$obj)) {
+                    if(preg_match("/".$inhKey."/i",$obj)) {
                         $isInherited = true;
                         $obj = $inhKey;
                         break;
@@ -470,7 +474,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel {
 
                     foreach($result[0] as $attribute=>$value) {
 
-                        if(!preg_match("/".$inhAttributes."/",$attribute))
+                        if(!preg_match("/".$inhAttributes."/i",$attribute))
                             continue;
 
                         unset($value["count"]);
@@ -480,10 +484,13 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel {
                         // Copy attributes
                         if(!isset($entries[$attribute])) {
                             $entries[$attribute] = $value;
-                        } else {
-                            if(!$hasOverwrite)
+                        } /*else {
+                            if(!$hasOverwrite) {
+                                $entries[$attribute]["count"]++;
                                 array_push($entries[$attribute],$value);
-                        }
+                            } else if (!is_string($entries[$attribute]))
+                                $entries[$attribute] = $value;
+                        }*/
                     }
                 }
             }
