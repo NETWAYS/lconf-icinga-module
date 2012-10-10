@@ -20,8 +20,15 @@
             Ext.apply(this,cfg);
         
             this.dnSearchField = new LConf.DIT.DNSearchField(cfg);
+            this.progressbar = new Ext.menu.Item({
+                iconCls: 'icinga-icon-throbber',
+                text: _('Ongoing operation...'),
+                width: 16,
+                canActivate:false,
+                hidden:true
+            });
             this.tbar = new Ext.Toolbar({
-                items:[this.dnSearchField]
+                items:[this.dnSearchField,'->',this.progressbar]
             });
 
             Ext.TabPanel.prototype.constructor.apply(this,arguments);
@@ -29,7 +36,7 @@
                 function(tab) {
                     this.setActiveTab(tab.idx);
                 }
-                );
+            );
 
         },
 
@@ -120,6 +127,7 @@
                     urls: this.urls,
                     filterState: this.filterState,
                     icons: this.icons,
+                    progressbar: this.progressbar,
                     wizards: this.wizards,
                     presets: this.presets
                 });

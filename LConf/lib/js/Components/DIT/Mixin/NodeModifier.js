@@ -23,6 +23,7 @@ Ext.ns("LConf.DIT.Mixin").NodeModifier = function() {
             dn.push(this.processDNForServer(id));
         },this);
         var updateNodes = this.getHighestAncestors(nodes);
+        this.progressbar.show();
         Ext.Ajax.request({
             url: this.urls.modifynode,
             params: {
@@ -31,14 +32,14 @@ Ext.ns("LConf.DIT.Mixin").NodeModifier = function() {
                 connectionId: this.connId
             },
             success: function() {
-              
+                this.progressbar.hide();
                 Ext.each(updateNodes,function(node) {
                     if(node)
                         this.refreshNode(node);
                 },this);
             },
             failure: function(resp) {
-                
+                this.progressbar.hide();
                 var err = (resp.responseText.length<50) ? resp.responseText : 'Internal Exception, please check your logs';
                 Ext.Msg.alert(_("Error"),_("Couldn't remove Node:<br/>"+err));
             },
@@ -50,7 +51,7 @@ Ext.ns("LConf.DIT.Mixin").NodeModifier = function() {
     this.refreshNode = function(node,preserveStructure,callback) {
         var tree = node.getOwnerTree();
         var selected = tree.getSelectionModel().getSelectedNodes();
-        var	expandTree;
+        var expandTree;
         if(Ext.isArray(selected))
             selected = selected[0];
 
@@ -151,6 +152,7 @@ Ext.ns("LConf.DIT.Mixin").NodeModifier = function() {
                 "property" : "ou",
                 "value" : from.id.split(",")[0].split("=")[1]
             }];
+            this.progressbar.show();
             Ext.Ajax.request({
                 url: this.urls.modifynode,
                 params: {
@@ -160,10 +162,12 @@ Ext.ns("LConf.DIT.Mixin").NodeModifier = function() {
                     properties: Ext.encode(properties)
                 },
                 failure:function(resp) {
+                    this.progressbar.hide();
                     var err = (resp.responseText.length<1024) ? resp.responseText : 'Internal Exception, please check your logs';
                     Ext.Msg.alert(_("Error"),_("Couldn't create alias node:<br/>"+err));
                 },
                 success: function() {
+                    this.progressbar.hide();
                     if(to.getOwnerTree())
                         this.refreshNode(to.parentNode,true);
                 },
@@ -190,6 +194,7 @@ Ext.ns("LConf.DIT.Mixin").NodeModifier = function() {
                 sourceDN: this.processDNForServer(from.id)
             };
             LConf.Helper.Debug.d("Copying nodes",this,arguments);
+            this.progressbar.show();
             Ext.Ajax.request({
                 url: this.urls.modifynode,
                 params: {
@@ -198,10 +203,12 @@ Ext.ns("LConf.DIT.Mixin").NodeModifier = function() {
                     properties: Ext.encode(copyParams)
                 },
                 failure:function(resp) {
+                    this.progressbar.hide();
                     var err = (resp.responseText.length<1024) ? resp.responseText : 'Internal Exception, please check your logs';
                     Ext.Msg.alert(_("Error"),_("Couldn't copy node:<br/>"+err));
                 },
                 success: function() {
+                    this.progressbar.hide();
                     if(to.getOwnerTree())
                         this.refreshNode(to.parentNode,true);
                     if(from.getOwnerTree())
@@ -218,6 +225,7 @@ Ext.ns("LConf.DIT.Mixin").NodeModifier = function() {
             Ext.Msg.alert(_("Invalid operation"),_("Only aliases can be expanded"));
         }
         var dn = nodeCfg.attributes.dn;
+        this.progressbar.show();
         Ext.Ajax.request({
             url: this.urls.modifynode,
             params: {
@@ -226,10 +234,12 @@ Ext.ns("LConf.DIT.Mixin").NodeModifier = function() {
                 connectionId: this.connId
             },
             success: function() {
+                this.progressbar.hide();
                 this.refreshNode(nodeCfg.parentNode);
 
             },
             failure: function(resp) {
+                this.progressbar.hide();
                 var err = (resp.responseText.length<50) ? resp.responseText : 'Internal Exception, please check your logs';
                 Ext.Msg.alert(_("Error"),_("Couldn't expand Alias:<br/>"+err));
             },
@@ -243,6 +253,7 @@ Ext.ns("LConf.DIT.Mixin").NodeModifier = function() {
             Ext.Msg.alert(_("Invalid operation"),_("Only aliases can be expanded"));
         }
         var dn = nodeCfg.attributes.dn;
+        this.progressbar.show();
         Ext.Ajax.request({
             url: this.urls.modifynode,
             params: {
@@ -251,10 +262,12 @@ Ext.ns("LConf.DIT.Mixin").NodeModifier = function() {
                 connectionId: this.connId
             },
             success: function() {
+                this.progressbar.hide();
                 this.refreshNode(nodeCfg.parentNode);
 
             },
             failure: function(resp) {
+                this.progressbar.hide();
                 var err = (resp.responseText.length<50) ? resp.responseText : 'Internal Exception, please check your logs';
                 Ext.Msg.alert(_("Error"),_("Couldn't expand Alias:<br/>"+err));
             },

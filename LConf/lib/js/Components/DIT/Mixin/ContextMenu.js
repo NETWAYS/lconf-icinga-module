@@ -6,6 +6,7 @@ Ext.ns("LConf.DIT.Mixin").ContextMenu = function() {
         e.preventDefault();
         
         var ctx = new Ext.menu.Menu({
+            ignoreParentClicks: true,
             items: this.getMenuDefinitionForObject(node,justCreate)
         });
         ctx.showAt(e.getXY());
