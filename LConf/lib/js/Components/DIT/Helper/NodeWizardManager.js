@@ -12,9 +12,10 @@ Ext.ns("LConf.DIT.Helper").NodeWizardManager = function(tree) {
             this.wizardWindow = new Ext.Window({
                 id:'newNodeWizardWnd',
                 renderTo: Ext.getBody(),
-                height: 700,
-                width: 800,
+                height: Ext.getBody().getHeight()*0.9,
+                width: Ext.getBody().getWidth()*0.6,
                 centered:true,
+                autoDestroy:true,
                 stateful:false,
                 shadow:false,
                 constrain:true,

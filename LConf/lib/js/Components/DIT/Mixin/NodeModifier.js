@@ -24,7 +24,7 @@ Ext.ns("LConf.DIT.Mixin").NodeModifier = function() {
         },this);
         var updateNodes = this.getHighestAncestors(nodes);
         this.progressbar.show();
-        Ext.Ajax.request({
+          Ext.Ajax.request({
             url: this.urls.modifynode,
             params: {
                 properties: Ext.encode(dn),

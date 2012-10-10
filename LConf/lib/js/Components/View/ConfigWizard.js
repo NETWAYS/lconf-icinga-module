@@ -11,7 +11,7 @@
         enableFb : true,
         isConfigWizard:true,
         presets: {},
-
+        autoDestroy:true,
         constructor: function(config) {
             Ext.apply(this,config);
             this.presets = config.presets;
@@ -38,7 +38,6 @@
                 return null;
 
             // check for pending changes
-        
             this.selectedNode = selectedDN;
             var id = selectedDN.attributes.aliasdn || selectedDN.id;
             id = id.replace(/^\*\d{4}\*/,"");
@@ -100,10 +99,10 @@
                     xtype: 'button',
                     text: _('Save and close'),
                     iconCls: 'icinga-icon-disk',
-                    handler: function() {
-                        document.activeElement.blur();
-                        this.getStore().closeOnSave = true;
-                        this.getStore().save();
+                    handler: function(cmp) {
+                        cmp.focus();
+                        this.getStore().closeOnSave=true;
+                        this.saveChanges.defer(200,this);
                     },
                     scope: this
                 });

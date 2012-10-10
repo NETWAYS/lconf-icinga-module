@@ -29,6 +29,8 @@
                         text: 'Go to aliased node',
                         handler: function() {
                             var rec = store.findProperty("aliasedobjectname")[0];
+                            if (!rec)
+                                return false;
                             store.eventDispatcher.fireCustomEvent("searchDN",rec.get("value"));
                         }
                     }, {
@@ -36,6 +38,8 @@
                         text: 'Show aliased node in tree',
                         handler: function() {
                             var rec = store.findProperty("aliasedobjectname")[0];
+                            if (!rec)
+                                return false;
                             var alias = {
                                 attributes: {
                                     aliasedobjectname: [rec.get("value")]
@@ -47,10 +51,17 @@
                 }]
             });
             store.on("load",function() {
-                var rec = store.findProperty("aliasedobjectname")[0].get("value");
-                p.items.get(0).update("<div style='margin:auto' class='icon-32 icinga-icon-exclamation-white'>"+
+                var rec = store.findProperty("aliasedobjectname")[0];
+                if(!rec)
+                    return false;
+                else 
+                    rec = rec.get("value");
+                var item = p.items.get(0);
+                if (item) {
+                    item.update("<div style='margin:auto' class='icon-32 icinga-icon-exclamation-white'>"+
                         "</div>This is an alias entry to <p>"+
                         "<span style='font-family:monaco,monospace'>"+rec+"</span></p>");
+                }
             },this,{single:true});
             return p;
         }

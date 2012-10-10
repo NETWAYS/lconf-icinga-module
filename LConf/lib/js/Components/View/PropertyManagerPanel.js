@@ -51,7 +51,8 @@
             this.eventDispatcher.addCustomListener("ConnectionClosed",this.disable,this);
             this.eventDispatcher.addCustomListener("invalidNode",this.disable,this);
             this.eventDispatcher.addCustomListener("nodeSelected",function(node) {
-            
+                if(!this.el.dom)
+                    return;
                 this.clearNodeSpecificViews();
                 this.addNodeSpecificViews(node);
                 if(this.hasReferenceEvents()) {
@@ -60,6 +61,7 @@
             }, this,{
                 buffer:true
             });
+            
             Ext.TabPanel.prototype.initEvents.apply(this,arguments);
         },
     
@@ -72,6 +74,7 @@
         },
     
         addNodeSpecificViews: function(node) {
+            
             var mainTab = 0;
             var maxPrio = -1;
             var dialogs = LConf.Extensions.Registry.getMatchingPropertyViews(node,this.getStore());
@@ -102,18 +105,22 @@
                     xtype:'button',
                     text: _('Save Changes'),
                     iconCls: 'icinga-icon-disk',
-                    handler: function () {
-                        document.activeElement.blur();
-                        if(this.getStore().isValid() !== true) {
-                            Ext.Msg.alert(_("Property ")+this.getStore().isValid()+_(" is invalid"),_("Please review your entries "));
-                        }
-                        return this.getStore().saveChanges();
+                    handler: function (cmp) {
+                        cmp.focus();
+                        this.saveChanges.defer(200,this);
                     },
                     scope:this
                 }]
             });
         },
-    
+        
+        saveChanges : function() {
+            if(this.getStore().isValid() !== true) {
+                Ext.Msg.alert(_("Property ")+this.getStore().isValid()+_(" is invalid"),_("Please review your entries "));
+            }
+            return this.getStore().saveChanges();
+        },
+        
         setupPropertyStore: function() {
             this.store =  new LConf.Store.LDAPPropertyStore(this.initCfg);
             if(this.parentNode) {
