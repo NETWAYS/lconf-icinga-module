@@ -62,6 +62,7 @@ Available targets:
 			<fileset dir="${PATH_Icinga}/app/modules/${MODULE_Name}/">
 				<include name="config/*.xml" />
 				<include name="lib/ldapConfig/*.ini" />
+				<include name="lib/js/Components/Configuration.js" />
 			</fileset>
 			<filterchain>
 				<replacetokens beginToken="@@" endToken="@@">
