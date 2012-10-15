@@ -22,14 +22,14 @@ Ext.ns("LConf.Extensions.KVGrid").TestCheckCommand = {
     
     handler: function(grid) {
         var checkValue = this.record.get("value");
-        var checkCmd = checkValue.replace(/^(.*?)!.*/,"$1");
-        var argumentRegExp = /!([^!]*)/g;
+        var splittedCmd = checkValue.split("!");
+        var checkCmd = splittedCmd[0];
         var args = [];
-        var result = argumentRegExp.exec(checkValue);
-        if(result) {
-            args.push(result[1]);
-        }
-        var me =  LConf.PropertyGrid.Extensions.TestCheckCommand;
+       
+        for(var i=1;i<splittedCmd.length;i++)
+            args.push(splittedCmd[i]);
+       
+        var me = LConf.Extensions.KVGrid.TestCheckCommand;
         if(typeof checkValue !== "string")
             return;
         me.grid = grid;
@@ -65,7 +65,7 @@ Ext.ns("LConf.Extensions.KVGrid").TestCheckCommand = {
     showCheckCommandWindow: function(ldapEntry,record, directCheckCmd,args) {
         var commandLine = null;
         var prefix = "";
-        var me = LConf.PropertyGrid.Extensions.TestCheckCommand;
+        var me = LConf.Extensions.KVGrid.TestCheckCommand;
         var dn = "";
         if(ldapEntry === null) {
             commandLine = record.get("value");

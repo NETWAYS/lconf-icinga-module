@@ -42,7 +42,7 @@ Ext.ns("LConf.Views").TestCheckWindow = function(cfg) {
         var insertVars = this.commandLine.match(/(\$.*?\$)/gi);
         var items = [{
             xtype: 'container',
-            html: '<b>Checkcommand: </b><br/> '+this.commandLine
+            html: '<b>Checkcommand (leave fields empty to use defaults from resource.cfg): </b><br/> '+this.commandLine
         }];
         if(insertVars) {
             for(var i =0;i<insertVars.length;i++) {
@@ -190,6 +190,7 @@ Ext.ns("LConf.Views").TestCheckWindow = function(cfg) {
 
     this.resolveToField = function(fieldname) {
         if(/\$ARG(\d*)\$/.test(fieldname)) {
+            AppKit.log(fieldname,this.args);
             return {
                 xtype: 'textfield',
                 fieldLabel: fieldname,

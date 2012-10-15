@@ -57,7 +57,7 @@ class LConf_LConfCheckTestModel extends IcingaBaseModel {
             $commandLine = str_replace($token,$replacement,$commandLine);
         }
         $pathInfo = pathinfo($commandLine);
-        if($pathInfo["dirname"] == ".") {
+        if($pathInfo["dirname"] == "." || $pathInfo["dirname"] == "/") {
             $hosts = $console->getHostName();
             $commandLine = str_replace("*","",
                 AccessConfig::expandSymbol(
@@ -67,7 +67,7 @@ class LConf_LConfCheckTestModel extends IcingaBaseModel {
                 )
             ).$commandLine;
         }
-        
+
         $user = null;
         if(isset($cfg["checkUser"]))
             $user = $cfg["checkUser"];
