@@ -115,7 +115,7 @@
 
             var p = new Ext.Panel({
                 autoScroll: true,
-                priority: 1,
+                priority: 0,
 
                 title: 'Customvariables',
                 iconCls: 'icinga-icon-application',
@@ -139,17 +139,20 @@
     };
     LConf.Extensions.Registry.registerPropertyView({
         objectclass: ".*(host)$",
+        priority: 0,
         handler: getHandler(['host'])
             
     });
     
     LConf.Extensions.Registry.registerPropertyView({
         objectclass: ".*(service)$",
+        priority: 0,
         handler: getHandler(['service'])
     });
     
     LConf.Extensions.Registry.registerPropertyView({
         objectclass: ".*(structuralobject)$",
+        priority: 0,
         handler: getHandler(['service','host'])
     });
 })();
