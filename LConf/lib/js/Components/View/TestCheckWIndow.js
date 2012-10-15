@@ -63,7 +63,7 @@ Ext.ns("LConf.Views").TestCheckWindow = function(cfg) {
 
     this.show = function() {
         var form = this.buildForm();
-
+        AppKit.log(this.grid);
         var formWindow = new Ext.Window({
             closable: true,
             closeaction: 'destroy',
@@ -83,8 +83,8 @@ Ext.ns("LConf.Views").TestCheckWindow = function(cfg) {
                     Ext.Ajax.request({
                         url: this.grid.urls.checkCommand,
                         params: {
-                            connectionId: this.grid.connId,
-                            commandline: this.commandLine,
+                            connectionId: this.grid.baseParams.connectionId,
+                            dn: this.dn,
                             tokens: jsonVals
                         },
                         success: this.showCheckResult,
@@ -190,7 +190,6 @@ Ext.ns("LConf.Views").TestCheckWindow = function(cfg) {
 
     this.resolveToField = function(fieldname) {
         if(/\$ARG(\d*)\$/.test(fieldname)) {
-            AppKit.log(fieldname,this.args);
             return {
                 xtype: 'textfield',
                 fieldLabel: fieldname,
