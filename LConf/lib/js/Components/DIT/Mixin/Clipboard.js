@@ -66,4 +66,4 @@ Ext.ns("LConf.DIT.Mixin").Clipboard = function() {
         }
         return {};
     }
-}
+};
