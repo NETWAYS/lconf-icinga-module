@@ -586,20 +586,22 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel {
                 if(!is_array($alias))
                     continue;
                 $splittedAlias = explode(",",$alias["dn"],2);
-                /**
-                 *  for some reason, he doesn't like modifying aliasedobjectname via modifyNode...
-                 *  That's why it's done the more comprehensive way
-                 */
-                $this->addNode($splittedAlias[1],array(
-                        array("property"=>"objectclass","value"=>"extensibleObject"),
-                        array("property"=>"objectclass","value"=>"alias"),
-                        array("property"=>"aliasedObjectName","value"=>$newDN)
-                ));
-                /**
-                 *  It doesn't matter if the new alias creation has completed or not, as the old alias
-                 *  is useless eitherway. That's why there's no check
-                 */
-                $this->removeNodes(array($alias["dn"]));
+                try {
+                    /**
+                     *  for some reason, he doesn't like modifying aliasedobjectname via modifyNode...
+                     *  That's why it's done the more comprehensive way
+                     */
+                    $this->addNode($splittedAlias[1],array(
+                            array("property"=>"objectclass","value"=>"extensibleObject"),
+                            array("property"=>"objectclass","value"=>"alias"),
+                            array("property"=>"aliasedObjectName","value"=>$newDN)
+                    ));
+                    /**
+                     *  It doesn't matter if the new alias creation has completed or not, as the old alias
+                     *  is useless eitherway. That's why there's no check
+                     */
+                    $this->removeNodes(array($alias["dn"]));
+                } catch(Exception $e) {}
             }
         }
 
@@ -720,11 +722,26 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel {
     }
 
     public function moveNode($sourceDN, $targetDN,$sourceConnId = null) {
-        $this->cloneNode($sourceDN,$targetDN,$sourceConnId);
+        /* cloning nodes can cause problems with constraints etc. */
         if(!$sourceConnId || $sourceConnId == $this->getId()) {
+            /* Local move, rename the node (and subnodes) */
+            $connId = $this->getConnection();
+            $sourceProperties = $this->getNodeProperties($sourceDN);
+            $paramToPreserve = explode(",",$sourceProperties["dn"],2);
+            $newName = $paramToPreserve[0];
+
+            if (!@ldap_rename($connId, $sourceDN, $newName, $targetDN, true)) {
+              /* The rename failed - attempt to clone the node anyway */
+              $this->cloneNode($sourceDN,$targetDN,$sourceConnId);
+              $this->removeNodes(array($sourceDN));
+            }
             $this->rechainAliasesForNode($sourceDN,$targetDN);
+
+        } else {
+						/* Remote move, clone and delete original */
+            $this->cloneNode($sourceDN,$targetDN,$sourceConnId);
+            $this->removeNodes(array($sourceDN));
         }
-        $this->removeNodes(array($sourceDN));
     }
 
     public function searchSnippetOccurences($snippet,$unique = false,$isRegExp = false) {
