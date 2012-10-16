@@ -556,7 +556,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel {
             $newDN = $affectsDN.",".$dnToPreserve;
 
 
-            $this->rechainAliasesForNode($dn,$newDN);
+            
             if(!@ldap_add($connId,$newDN,$properties)) {
                 throw new AgaviException("Could not modify ".$dn. ":".$this->getError());
             }
@@ -566,9 +566,10 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel {
                     if(!is_int($key))
                         continue;
 
-                    $this->cloneNode((isset($child["aliasdn"]) ? $child["aliasdn"] : $child["dn"]),$newDN);
+                    $this->moveNode((isset($child["aliasdn"]) ? $child["aliasdn"] : $child["dn"]),$newDN);
                 }
             }
+            $this->rechainAliasesForNode($dn,$newDN);
             $this->removeNodes($dn);
         } else {
 
@@ -581,27 +582,35 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel {
 
     public function rechainAliasesForNode($dn,$newDN) {
         // Rechain aliases
+        $newName = explode(",",$newDN,2);
+        $newName = $newName[0];
         if($aliases = $this->getReferencesToNode($dn)) {
             foreach($aliases as $key=>$alias) {
                 if(!is_array($alias))
                     continue;
+               
                 $splittedAlias = explode(",",$alias["dn"],2);
                 try {
+                    echo "Moving nodes from ".$dn." to ".$newDN." (".print_r($alias,true).")";
                     /**
                      *  for some reason, he doesn't like modifying aliasedobjectname via modifyNode...
                      *  That's why it's done the more comprehensive way
                      */
-                    $this->addNode($splittedAlias[1],array(
-                            array("property"=>"objectclass","value"=>"extensibleObject"),
-                            array("property"=>"objectclass","value"=>"alias"),
-                            array("property"=>"aliasedObjectName","value"=>$newDN)
-                    ));
-                    /**
+                   /**
                      *  It doesn't matter if the new alias creation has completed or not, as the old alias
                      *  is useless eitherway. That's why there's no check
                      */
                     $this->removeNodes(array($alias["dn"]));
-                } catch(Exception $e) {}
+                    
+                    $this->addNode($newName.",".$splittedAlias[1],array(
+                            array("property"=>"objectclass","value"=>"extensibleObject"),
+                            array("property"=>"objectclass","value"=>"alias"),
+                            array("property"=>"aliasedObjectName","value"=>$newDN)
+                    ));
+                    
+                } catch(Exception $e) {
+                    print_r($e->getMessage());
+                }
             }
         }
 
@@ -735,7 +744,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel {
               $this->cloneNode($sourceDN,$targetDN,$sourceConnId);
               $this->removeNodes(array($sourceDN));
             }
-            $this->rechainAliasesForNode($sourceDN,$targetDN);
+            $this->rechainAliasesForNode($sourceDN,$newName.",".$targetDN);
 
         } else {
 						/* Remote move, clone and delete original */
