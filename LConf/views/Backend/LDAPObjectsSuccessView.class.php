@@ -45,6 +45,7 @@ class LConf_Backend_LDAPObjectsSuccessView extends IcingaLConfBaseView
 			}
 		}
 		$response = array();
+		asort($result);
 		if($asTree) {
 			$response = $this->buildTreeResponse($field,$result);
 		} else {	
