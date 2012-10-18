@@ -672,6 +672,10 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel {
         $connId = $this->getConnection();
         
         $sourceProperties = $this->getNodeProperties($sourceDN);
+        if(!isset($sourceProperties["dn"])) {
+            throw new AppKitException("Clone failed: Source not found!");
+        }
+            
         $paramToPreserve = explode(",",$sourceProperties["dn"],2);
         $this->helper->cleanResult($sourceProperties);
         $newDN = $newName.",".$targetDN;
@@ -855,7 +859,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel {
         return $cl;
     }
 
-    public function disableStoring() {
+    public function Storing() {
         $this->dontStoreFlag = true;
     }
     public function enableStoring() {
