@@ -65,7 +65,7 @@
                     bstore.remove(bstore.findProperty(ns+type+"customvar"),true);
                     
                     gridstore.each(function(record) {
-                       bstore.setProperty(ns+type+"customvar",record.get('cv_name')+" _"+record.get('cv_value'),true);
+                       bstore.setProperty(ns+type+"customvar","_"+record.get('cv_name')+" "+record.get('cv_value'),true);
                     },this);
                 }
             }
