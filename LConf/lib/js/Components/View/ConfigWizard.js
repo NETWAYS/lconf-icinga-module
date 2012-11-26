@@ -69,7 +69,6 @@
                             this.ownerCt.hide();
                         this.getStore().closeOnSave = false;
 
-                        this.eventDispatcher.fireCustomEvent("refreshTree");
                     }
                     return true;
                 },this);
