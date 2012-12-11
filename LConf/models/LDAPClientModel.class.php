@@ -42,15 +42,15 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel {
      * The connection resource over which communication is handled
      * @var resource
      */
-    private $connection		= false;
+    private $connection        = false;
     /**
      * ldap_options, see @link http://de2.php.net/manual/en/ref.ldap.php
      * @var array
      */
     private $ldap_options = array (
-            LDAP_OPT_REFERRALS			=> 0,
-            LDAP_OPT_DEREF				=> LDAP_DEREF_NEVER,
-            LDAP_OPT_PROTOCOL_VERSION	=> 3
+            LDAP_OPT_REFERRALS            => 0,
+            LDAP_OPT_DEREF                => LDAP_DEREF_NEVER,
+            LDAP_OPT_PROTOCOL_VERSION    => 3
     );
 
     /**
@@ -500,9 +500,9 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel {
     /**
      * Modifies a node $dn so that it's parameters will match $newParams
      * $newParams must be an associative array with the fields
-     * 'id'	 		an id with the format %KEYNAME%_%ENTRYNR%
-     * 'property' 	the new property name
-     * 'value' 		the new value name
+     * 'id'             an id with the format %KEYNAME%_%ENTRYNR%
+     * 'property'     the new property name
+     * 'value'         the new value name
      *
      * @TODO: Yep. like in the add function ldap_mod_replace would make life easier.
      * @TODO: Split it up!
@@ -647,7 +647,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel {
         }
         foreach($properties as &$arr) {
             if(is_array($arr))
-                $arr = 	 array_values($arr);
+                $arr =      array_values($arr);
         }
         if(!@ldap_modify($connId,$dn,$properties)) {
             throw new AgaviException("Could not modify ".$dn. ":".$this->getError());
@@ -751,7 +751,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel {
             $this->rechainAliasesForNode($sourceDN,$newName.",".$targetDN);
 
         } else {
-						/* Remote move, clone and delete original */
+            /* Remote move, clone and delete original */
             $this->cloneNode($sourceDN,$targetDN,$sourceConnId);
             $this->removeNodes(array($sourceDN));
         }

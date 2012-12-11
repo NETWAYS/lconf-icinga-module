@@ -195,7 +195,7 @@ var getCheckPreferences = function(store) {
     );
     (function() {
         if(!checkCommandBox.store)
-	     return checkCommandBox;  
+         return checkCommandBox;  
         checkCommandBox.store.setBaseParam("connectionId",store.getConnection());
         checkCommandBox.updateFieldValues = updateFieldValues;
     }).defer(200);

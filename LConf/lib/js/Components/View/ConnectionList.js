@@ -130,7 +130,7 @@
         },
         
         // handles creation and display of the context menu
-        handleContext : function(dView,index,node,_e)	{
+        handleContext : function(dView,index,node,_e)    {
             _e.preventDefault();
             if(!this.ctxMenu)
                 this.ctxMenu = {};
