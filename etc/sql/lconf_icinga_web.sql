@@ -85,7 +85,6 @@ CREATE TABLE `lconf_filter` (
 
 LOCK TABLES `lconf_filter` WRITE;
 /*!40000 ALTER TABLE `lconf_filter` DISABLE KEYS */;
-INSERT INTO `lconf_filter` VALUES (2,1,'ONLY Timeperiods','{\"AND\":[{\"filter_negated\":false,\"filter_attribute\":\"objectclass\",\"filter_type\":1,\"filter_value\":\"lconfTimeperiod\"}]}',1),(3,1,'ONLY Commands','{\"AND\":[{\"filter_negated\":false,\"filter_attribute\":\"objectclass\",\"filter_type\":1,\"filter_value\":\"lconfCommand\"}]}',1),(4,1,'ONLY Contacts','{\"AND\":[{\"filter_negated\":false,\"filter_attribute\":\"objectclass\",\"filter_type\":1,\"filter_value\":\"lconfContact\"}]}',1),(6,1,'ONLY Contactgroups','{\"AND\":[{\"filter_negated\":false,\"filter_attribute\":\"objectclass\",\"filter_type\":1,\"filter_value\":\"lconfContactgroup\"}]}',1),(7,1,'ONLY Hosts','{\"AND\":[{\"filter_negated\":false,\"filter_attribute\":\"objectclass\",\"filter_type\":1,\"filter_value\":\"lconfHost\"}]}',1),(8,1,'ONLY Hostgroups','{\"AND\":[{\"filter_negated\":false,\"filter_attribute\":\"objectclass\",\"filter_type\":1,\"filter_value\":\"lconfHostgroup\"}]}',1),(9,1,'ONLY Services','{\"AND\":[{\"filter_negated\":false,\"filter_attribute\":\"objectclass\",\"filter_type\":1,\"filter_value\":\"lconfService\"}]}',1),(10,1,'ONLY Servicegroups','{\"AND\":[{\"filter_negated\":false,\"filter_attribute\":\"objectclass\",\"filter_type\":1,\"filter_value\":\"lconfServicegroup\"}]}',1);
 /*!40000 ALTER TABLE `lconf_filter` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -117,7 +116,6 @@ CREATE TABLE `lconf_principal` (
 
 LOCK TABLES `lconf_principal` WRITE;
 /*!40000 ALTER TABLE `lconf_principal` DISABLE KEYS */;
-INSERT INTO `lconf_principal` VALUES (1,1,NULL,1);
 /*!40000 ALTER TABLE `lconf_principal` ENABLE KEYS */;
 UNLOCK TABLES;
 
