@@ -1,0 +1,25 @@
+README for SuSE Packages
+
+This package only contains the Icinga Web module for LConf.
+
+After installing the package, you are required to manually import the schema
+adaptions to your icinga_web db which are provided in
+/usr/share/doc/packages/lconf-icinga-web/sql
+
+import lconf_icinga_web.sql and credentials.sql like
+
+# mysql -u root -p icinga_web < lconf_icinga_web.sql
+# mysql -u root -p icinga_web < credentials.sql
+
+You need to manually enable users for the LConf module, for further settings
+please assign the now added LConf permissions in the Icinga Web User Principal
+editor (and logout/login afterwards).
+
+The configuration files for the module will be installed in
+/usr/share/icinga-web/app/modules/LConf/config/
+and not overwritten on package upgrades.
+
+If you made any changes to the XML configuration, run the Icinga Web clearcache script afterwards to put them into effect.
+
+/usr/share/icinga-web/bin/clearcache.sh
+
