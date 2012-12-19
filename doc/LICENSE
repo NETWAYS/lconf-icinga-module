@@ -3,23 +3,23 @@
 
 icinga-lconf-mod
 
-LConf LDAP manager module for icinga-web
+LConf LDAP manager module for Icinga Web
 
-Copyright (c) 2010, NETWAYS GmbH
+Copyright (c) 2010-2013, NETWAYS GmbH
 All rights reserved.
 
 http://www.netways.de
 
-The icinga-heatmap-mod frontend is licensed under the terms of
+The icinga-lconf-mod frontend is licensed under the terms of
 the Open Source GPL 2 license.
 
 --------------------------------------------------------
 
 Opensource License:
 
-icinga-lconf-mod A heatmap generation plugin for icinga-web
+icinga-lconf-mod A LConf LDAP manager module for Icinga Web
 
-Copyright (C) 2010 NETWAYS GmbH
+Copyright (C) 2010-2013 NETWAYS GmbH
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
