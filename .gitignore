@@ -1,3 +1,4 @@
+etc/sql/credentials.sql
 src/app/modules/LConf/lib/ldapConfig/staticObjects.ini
 .meta/*
 .DS_Store
