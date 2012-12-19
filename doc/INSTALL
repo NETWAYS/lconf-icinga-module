@@ -31,5 +31,7 @@ Note for Package(r)s:
    1) The manual schema is located in etc/sql/lconf_icinga_web.sql and needs to be imported into the existing icinga_web database after install, like
       # mysql -u root -p icinga_web < etc/sql/lconf_icinga_web.sql
 
-   2) The schema contains already the principals for the user id 1 which is by default the root user. If you do not like that, change the permissions
-      within Icinga Web's principal editor.
+   2) The LConf schema credentials need to be imported into icinga web as well. Furthermore, you need to manually assign the privilges to your users
+      in the Icinga Web GUI.
+      # mysql -u root -p icinga_web < etc/sql/credentials.sql
+      
