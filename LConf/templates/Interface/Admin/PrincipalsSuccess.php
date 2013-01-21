@@ -1,386 +1,427 @@
-<script type='text/javascript'>
-Ext.Msg.minWidth = 200;
-Ext.onReady(function() {
-    Ext.ns("lconf.Admin");
-    <?php echo $t["js_editWindow"]; ?>        
+Ext.ns("lconf.Admin");
 
-    lconf.Admin.connectionTbar = function() {
-        var tbar = new Ext.Toolbar({
-            items: [{
-                text:_('Remove connections'),
-                iconCls: 'icinga-icon-cancel',
-                handler: lconf.Admin.removeSelected
-            }]
-        });
-        return tbar;        
+(function() {
+var __instance;
+
+var getCompatibilityFieldMapping = function(legacyField, newField) {
+    return {
+        name: legacyField,
+        convert: function(v,record) {
+            if(typeof record[legacyField] !== "undefined") {
+                return record[legacyField];
+            } else {
+                return record[newField];
+            }
+        }
     }
-    
-    /**
-     * The connection listing dataview
-     * 
-     * @return Ext.DataView 
-     *
-     **/
-    lconf.Admin.connectionList = new function() {
-        var recordSkeleton = Ext.data.Record.create([
-            'connection_id','connection_name','connection_description','connection_binddn',
-            'connection_bindpass','connection_host','connection_port','connection_basedn','connection_tls', 
-            'connection_ldaps','connection_default'
-        ]);
-        
-        this.addConnection = function(values) {
-            var record = new recordSkeleton(values);
-            if(!values.connection_ldaps)
-                values.connection_ldaps = false;
-            this.dStore.add([record]);
-            this.dStore.save();
-        }
-        
-        this.testConnection = function(values) {
-            if(this.ld_mask)
-                this.ld_mask.hide();
-            
-            this.ld_mask = new Ext.LoadMask(Ext.getBody(), {msg:_("Please wait...")});
-            this.ld_mask.show();
-            Ext.Ajax.request({
-                url:"<?php echo $ro->gen('modules.lconf.data.connect')?>",
-                params: {
-                    testOnly:true,
-                    connection: Ext.encode(values)
-                },
-                success: function(response) {
-                    if(this.ld_mask)
-                        this.ld_mask.hide();            
-                    Ext.MessageBox.alert(_("Success"),_("Connecting succeeded!"));
-                },
-                failure: function(response) {
-                    if(this.ld_mask)
-                        this.ld_mask.hide();
-                    Ext.Msg.minWidth = 500;
-                    Ext.MessageBox.alert(_("Error"),_("Connecting failed!<br/><br/>")+response.responseText);
-                    Ext.Msg.minWidth = 200;
-                },
-                scope:this
-            });
-        }
-        
-        this.restProxy = new Ext.data.HttpProxy({
-            method:'GET',
-            restful:true,
-            url: "<?php echo $ro->gen('modules.lconf.data.connectionlisting'); ?>"
+}
 
+lconf.Admin.getPrincipalEditor = function() {
+    if(<?php echo ($us->hasCredential('lconf.admin') ? 'false' : 'true') ?>)
+        return null;
+    if(__instance)
+        return __instance;
+
+
+
+    /**
+     * Excludes records selected in store.sourceStore from this store
+     * 
+     * @param {Ext.data.Store} store
+     */
+    this.excludeSelectedRecords = function(store) {
+        var primary = store.idProperty;
+        // sourcestore is an id
+        if(Ext.isString(store.sourceStore))
+            store.sourceStore = Ext.StoreMgr.lookup(store.sourceStore);
+        var toRemove = [];
+        store.each(function(record) {
+            var index = store.sourceStore.find(primary,record.get(primary));
+            if(index != -1)
+                if(!store.isStaticSource)
+                    store.sourceStore.removeAt(index);
+                else
+                    toRemove.push(record)
         });
+        Ext.iterate(toRemove,function(i) {
+            store.remove(i);
+        });
+    }
+
+    this.populate = function(connection_id) {
+        Ext.iterate(this.storeCollection,function(s) {
+            s.setBaseParam('connection_id',connection_id);
+            s.load();
+        });
+    }
+
+    /**
+     * There are always to pairs of stores: Available users/groups and selected users/groups
+     */
+    this.groupStore = new Ext.data.JsonStore({
+        autoDestroy: true,
+        isStaticSource: true,
+        storeId: 'groupListStore',
+        sourceStore: 'groupListSelectedStore',
+        idProperty: 'role_id',
+        remoteSort: true,
+        root:'roles',
+        fields: [
+            getCompatibilityFieldMapping('role_id','id'),
+            getCompatibilityFieldMapping('role_name','name')
+        ],
+        listeners: {
+            // function to filter out already selected values from the available view
+            load:this.excludeSelectedRecords,
+            scope:this
+        },
+        proxy: new Ext.data.HttpProxy({
+            api: {
+                read: {
+                    method: 'GET',
+                    url: '<?php echo $ro->gen("modules.appkit.data.groups")?>'
+                }
+            }
+        }),
+        baseParams: {
+            hideDisabled: false,
+            start: 0,
+            limit: 25
+        },
         
-        this.dStore = new Ext.data.JsonStore({
-            autoLoad:true,
-            autoSave: false,
-            root:'result',
-            listeners: {
-                // Check for errors
-                exception : function(prox,type,action,options,response,arg) {
-                    if(this.ld_mask)
-                        this.ld_mask.hide();
-                    if(response.status == 200)
-                        return true;
-                    response = Ext.decode(response.responseText);
-                    if(response.error.length > 100)
-                        response.error = _("A critical error occured, please check your logs");
-                    Ext.Msg.alert("Error", response.error);
-                },
-                load: function() {
-                    
-                },
-                beforeLoad: function() {
-                    
-                },
-                save: function(store) {
-                    if(this.ld_mask)
-                        this.ld_mask.hide();
-                    store.load();
-                }, 
-                
-                beforesave: function() {
-                    if(this.ld_mask)
-                        this.ld_mask.hide();
-                
-                    this.ld_mask = new Ext.LoadMask(Ext.getBody(), {msg:_("Please wait...")});
-                    this.ld_mask.show();    
-                    
-                },
-                scope: this
-            },
-            autoDestroy:true,
-            fields: [
-                'connection_id','connection_name','connection_description','connection_binddn',
-                'connection_bindpass','connection_host','connection_port','connection_basedn','connection_tls',
-                'connection_ldaps','connection_default','is_owner'
+    })
+    
+    this.selectedGroupsStore = new Ext.data.JsonStore({
+        autoDestroy:false,
+        autoSave: false,
+        storeId: 'groupListSelectedStore',
+        idProperty: 'role_id',
+        sourceStore: this.groupStore,
+        root:'groups',
+        url: '<?php echo $ro->gen("modules.lconf.data.principals") ?>',
+        baseParams: {
+            target: 'groups'
+        },
+        fields: [
+            getCompatibilityFieldMapping('role_id','id'),
+            getCompatibilityFieldMapping('role_name','name')
+        ],
+        writer: new Ext.data.JsonWriter({
+            encode:true
+        }),
+        proxy: new Ext.data.HttpProxy({
+            url:'<?php echo $ro->gen("modules.lconf.data.principals") ?>'
+        }),
+        listeners: {
+            // function to filter out already selected values from the available view
+            load:this.excludeSelectedRecords,
+            save: function(s) {s.load()},
+            scope:this
+        }
+    })
+    
+    
+    this.userStore = new Ext.data.JsonStore({
+        autoDestroy: true,
+        storeId: 'userListStore',
+        sourceStore: 'userListSelectedStore',
+        totalProperty: 'totalCount',
+        isStaticSource: true,
+        root: 'users',
+        autoLoad: true,
+        idProperty: 'user_id',
+        proxy: new Ext.data.HttpProxy({
+            api: {
+                read: {
+                    method: 'GET',
+                    url:'<?php echo $ro->gen("modules.appkit.data.users")?>',
+                }
+            }
+        }),
+        baseParams: {
+            hideDisabled: false,
+            start: 0,
+            limit: 25
+        },
+        remoteSort: true,
+        fields: [
+            getCompatibilityFieldMapping('user_id','id'),
+            getCompatibilityFieldMapping('user_name','name')
+        ],
+        listeners: {
+            // function to filter out already selected values from the available view
+            load:this.excludeSelectedRecords,
+            scope:this
+        }
+    })
+    
+    
+    this.selectedUsersStore = new Ext.data.JsonStore({
+        autoDestroy:false,
+        autoSave: false,
+        storeId: 'userListSelectedStore',
+        sourceStore: this.userStore,
+        idProperty: 'user_id',
+        root:'users',
+        url: '<?php echo $ro->gen("modules.lconf.data.principals") ?>',
+        baseParams: {
+            target: 'users'    
+        },
+        fields: [
+            getCompatibilityFieldMapping('user_id','id'),
+            getCompatibilityFieldMapping('user_name','name')
+        ],
+        writer: new Ext.data.JsonWriter({
+            encode:true
+        }),
+        proxy: new Ext.data.HttpProxy({
+            url:'<?php echo $ro->gen("modules.lconf.data.principals") ?>'
+        }),
+        listeners: {
+            // function to filter out already selected values from the available view
+            load: this.excludeSelectedRecords,
+            save: function(s) {s.load()}
+        }
+    })
+    
+    
+    this.getPrincipalTabbar = function() {
+        var usersTab = lconf.Admin.itemGranter({
+            targetStore: this.selectedUsersStore,
+            store: this.userStore,    
+            iconCls: 'icinga-icon-user',
+            title: _('Users'),
+            id: "userPanel",
+            columns:[
+                {header:_('Id'),name:'user_id'},
+                {header:_('User'),name:'user_name'}
             ],
-            writer:new Ext.data.JsonWriter({encode: true}),
-            idProperty:'connection_id',
-            root: 'connections',
-            proxy: this.restProxy
+            targetColumns:[
+                {header:_('Id'),name:'user_id',dataIndex:'user_id'},
+                {header:_('User'),name:'user_name',dataIndex:'user_name'}
+            ]
+            
+        })
+        var groupTab = lconf.Admin.itemGranter({
+            targetStore: this.selectedGroupsStore,
+            store: this.groupStore,    
+            title: _('Groups'),
+            iconCls: 'icinga-icon-users',
+            id: "groupPanel",
+            columns: [
+                {header:_('Id'),name:'role_id'},
+                {header:_('Group'),name:'role_name'}
+            ],
+            targetColumns:[
+                {header:_('Id'),name:'role_id',dataIndex:'role_id'},
+                {header:_('Group'),name:'role_name',dataIndex:'role_name'}
+            ]
+        })
+
+        return new Ext.TabPanel({
+            activeTab: 0,
+            items: [
+                usersTab,
+                groupTab
+            ]
         })
         
-        var _t = this.dStore.reader.realize 
-        this.dStore.reader.realize = function() {
-            try {
-                _t.realize(arguments);
-            } catch(e) {}
-        }
-        
-        this.tpl =new Ext.XTemplate(
-            '<tpl for=".">',
-                '<tpl if="is_owner == true">',
-                '<div class="ldap-connection-float {icon}" ext:qtip="{connection_description}" id="conn_{connection_id}">',
-                    '<div class="thumb lconf-icon-{icon}"></div>',
-                    '<span class="X-editable"><b>{connection_name}</b></span><br/>',                    
-                    '<span class="X-editable">',
-                    '<tpl if="connection_ldaps == true">ldaps://</tpl>',
-                    '{connection_host} {connection_port}</span><br/>',    
-                '</div>',
-                '</tpl>',
-            '</tpl>'
-        );
-        
-        this.dView = new Ext.DataView({
-            store:this.dStore,
-            tpl:this.tpl,
-            multiSelect: true,
-            overClass:'x-view-over',
-            selectedClass:'x-view-select',
-            itemSelector: 'div.ldap-connection-float',
-            emptyText: _('No connections defined yet'),
-            listeners: {
-                click : function(dview,index,htmlNode,event) {
-                    var record = dview.getStore().getAt(index);
-                    lconf.Admin.container.layout.east.panel.setDisabled(false);    
-                    if(lconf.Admin.getPrincipalEditor()) {
-                        lconf.Admin.getPrincipalEditor().ownerCt.ownerCt.show();
-                        if(record.get("connection_id") > -1)
-                            lconf.Admin.getPrincipalEditor().cmp.populate(record.get("connection_id"));
-                    }
-                    Ext.getCmp('form_lconfUserPanel').items.items[0].getForm().setValues(record.data);
-                },
-                scope: this
-            }
-        });
-        
-        this.dStore.on("load",function() {
-            // prepend "Add Connection"
-            var el = this.dView.getTemplateTarget();
-            var added = this.dView.tpl.insertBefore(el, {connection_id: -1, connection_name: _('Add new connection'), icon: 'plus', connection_ldaps: false, is_owner:true  },true);
-            added.on("click",function() {
-                //lconf.Admin.getPrincipalEditor().cmp.populate(-1);
-                lconf.Admin.container.layout.east.panel.setDisabled(false);
-                if(lconf.Admin.getPrincipalEditor())
-                    lconf.Admin.getPrincipalEditor().ownerCt.ownerCt.hide();
+    }
+    var id = Ext.id;
+    
+    return new Ext.Panel({
+        layout:'fit',
+        autoScroll:true,    
+        id: "wnd_"+id,
+        items: this.getPrincipalTabbar(),
+        title: '<b>'+('Access')+'</b>',
+        iconCls: 'icinga-icon-user',
+        buttons: [{
+            text:_('Save changes'),
+            iconCls: 'icinga-icon-disk',
+            handler: function(btn) {
+                this.selectedUsersStore.save();
+                this.selectedGroupsStore.save();
                 
-                Ext.getCmp('form_lconfUserPanel').items.items[0].getForm().reset();
-                Ext.getCmp('form_lconfUserPanel').items.items[0].getForm().setValues({connection_id: -1,connection_name:_('New connection'),is_owner:true});
-                return false;
-            })
-        }, this, {single:true});
-    }
-    
-    lconf.Admin.removeSelected = function() {
-        var records = lconf.Admin.connectionList.dView.getSelectedRecords();
-        if(records.length == 0) {
-            Ext.MessageBox.alert(_("Error"),_("No connection selected"));
-            return false;
-        }
-        Ext.MessageBox.confirm(
-            _("Delete selected connections"),
-            _("Do you really want to delete this ")+records.length+_(" connection(s)?"),
-            function(btn) {
-                if(btn != "yes")
-                    return false;
-                var store = this[0].store;
-
-                Ext.each(this,function(record) {
-                    store.remove(record);
-                    store.save();
-                });
+                
             },
-            records
-        );
-    }
-    
-    /**
-     * Displays the user interface panel for adding connections
-     * 
-     * @return void
-     */
-    lconf.Admin.getUserPanel = function(defaults) {
-
-        var _id = "lconfUserPanel";
-        if(this.userPanel)
-            return this.userPanel;
-
-        this.userPanel = new Ext.Panel({
-            width:500,
-            layout:'form',
-            padding:5,
-            id: 'form_'+_id,
-            monitorValid:true,
-            title:'<b>'+_('Connection detail')+'</b>',
-            iconCls: 'icinga-icon-application-edit',
-            items: [{
-                xtype: 'form',
-                border:false,
-                id: _id,
-                bodyStyle:'background:none',
-                items: [
-                {
-                    xtype:'hidden',
-                    name: 'connection_id'
-                },
-                {    
-                    xtype:'fieldset',
-                    title: _('General details'),
-                    defaults: {
-                        xtype:'textfield'
-                    },
-                    items: [{
-                        fieldLabel: _('Connection Name'),
-                        name: 'connection_name',
-                        anchor:'95%',
-                        allowBlank:false
-                    }, {
-                        xtype:'textarea',
-                        fieldLabel: _('Connection Description'),
-                        name: 'connection_description',
-                        anchor: '95%',
-                        height: 100
-                    }]
-                },{
-                    xtype:'fieldset',
-                    title:_('Authorization'),
-                    defaults: {
-                        xtype:'textfield'
-                    },
-                    items: [{
-                        fieldLabel:_('Bind DN'),
-                        name: 'connection_binddn',
-                        anchor:'70%'
-                    },{
-                        fieldLabel:_('Bind Pass'),    
-                        name: 'connection_bindpass',
-                        anchor:'70%',
-                        inputType:'password'
-                    }]
-                },{
-                    xtype:'fieldset',
-                    title:_('Connection Details'),
-                    defaults: {
-                        xtype:'textfield'
-                    },
-                    items: [{
-            
-                        xtype:'textfield',
-                        fieldLabel:_('Host'),
-                        allowBlank: false,
-                        name: 'connection_host',
-                        layout:'form',
-                        anchor:'70%'
-                    },{
-                        xtype:'numberfield',
-                        fieldLabel:_('Port'),
-                        allowBlank:false,
-                        name: 'connection_port',
-                        defaultValue: 389,                
-                        layout:'form',
-                        anchor:'70%'
-                    },{
-                        fieldLabel:_('Root DN'),
-                        name: 'connection_basedn',
-                        anchor:'70%'
-                    }, {
-                        xtype:'checkbox',
-                        name: 'connection_tls',
-                        fieldLabel: _('Use TLS')
-                        
-                    },{
-                        xtype:'checkbox',
-                        name: 'connection_ldaps',
-                        fieldLabel: _('Enable SSL (ldaps://)')
-                        
-                    }]
-                }]
-            }],
-            buttons: [{
-                text: _('Check connection'),
-                iconCls: 'icinga-icon-world',
-                parentId: _id,
-                handler: function(btn,e) {
-                    var form = Ext.getCmp(btn.parentId);
-                    if(!form.getForm().isValid()) 
-                        return false;
-                    var values = form.getForm().getValues();
-                    values.is_owner = true;
-                    lconf.Admin.connectionList.testConnection(values);
-                    
-                }
-            }, {
-                text: _('Save'),
-                iconCls: 'icinga-icon-disk',    
-                formBind:true,
-                parentId: _id,
-                handler: function(btn,e) {
-                    var form = Ext.getCmp(btn.parentId);
-                    if(!form.getForm().isValid()) 
-                        return false;
-                    var values = form.getForm().getValues();
-                    values.is_owner = true;
-                    lconf.Admin.connectionList.addConnection(values);
-            
-                }
-            }]
-        });
-        return this.userPanel;    
-    }
-    
-    
-
-    var modItems =  [
-        lconf.Admin.getUserPanel(), 
-        lconf.Admin.getPrincipalEditor()
-    ]
-    lconf.Admin.container = new Ext.Panel({
-        layout:'border',
-        id: 'view-container',
-        items: [{
-            title: _('Connections'),
-            region: 'center',
-            id: 'connection-frame',
-            layout: 'fit',
-            margins:'5 0 5 5',
-            cls: false,
-            autoScroll:true,
-            tbar: lconf.Admin.connectionTbar(),
-            items: lconf.Admin.connectionList.dView
-        },{
-            region: 'east',
-            id: 'user-frame',
-            disabled:true,
-            //collapsible: true,
-            split:true,
-            margins:'5 5 5 0',
-            activeItem:0,
-            xtype: 'panel',
-            layout: 'fit',
-            items: {
-                xtype: 'panel',
-                layout: 'accordion',
-                items: modItems.remove(null)            
-            },
-            width:"50%"
+            scope: this
         }]
-    });
+    })
+    
+}
+
+lconf.GridDropZone = function(grid, config) {
+    this.grid = grid;
+    lconf.GridDropZone.superclass.constructor.call(this, grid.view.scroller.dom, config);
+};
+
+Ext.extend(lconf.GridDropZone, Ext.dd.DropZone, {
+    onContainerOver:function(dd, e, data) {
+        return (!this.grid.disabled && (dd.grid !== this.grid)) 
+                    ? this.dropAllowed : this.dropNotAllowed;
+    },
+    
+    onContainerDrop:function(dd, e, data) {
+        if(!this.grid.disabled && dd.grid !== this.grid) {
+            // Move the records between the stores on drop
+        
+            Ext.each(data.selections,function(r) {
+                var rec = r.copy();
+                Ext.data.Record.id(rec);
+                this.grid.store.add(rec);
+                dd.grid.store.remove(r);
+            },this)
+            
+            return true;
+        } 
+        return false;
+    },
+    containerScroll:true
+});
+
+lconf.Admin.itemGranter = function(config) {
+    this._interface = null;
+    Ext.apply(this,config);
+    
+    this.notifySelected = function(where) {
+        if(where == "available")
+            target = this.gridSelected;
+        else 
+            target = this.gridAvailable;
+
+        if(target.getSelectionModel().hasSelection()) {
+            target.getSelectionModel().clearSelections();
+        }
+    }
+    
+    this.gridAvailable =  new Ext.grid.GridPanel({
+        title: _("Available"),    
+        
+        store: this.store,
+        columnWidth: .5,
+        colModel: new Ext.grid.ColumnModel({
+            defaults: {
+                width:100,
+                sortable: true
+            },
+            columns: this.columns
+        }),
+        
+        bbar: new Ext.PagingToolbar({
+            pageSize: 25,
+            store: this.store,
+            displayInfo: true,
+            displayMsg: _('Showing ')+' {0} - {1} '+_('of')+' {2}',
+            emptyMsg: _('Nothing to display')
+        }),    
+        layout: 'fit',
+        enableDragDrop: true,        
+        sm: new Ext.grid.RowSelectionModel({
+            singleSelect:false
+        }),
+        listeners: {
+            render: function(grid) {
+                this.dz = new lconf.GridDropZone(grid,{ddGroup:grid.ddGroup || 'GridDD'});
+                grid.getStore().load();
+            }
+            
+        }
+    });    
+    
+    
+    this.gridSelected = new Ext.grid.GridPanel({
+        title: _("Selected"),
+        store: this.targetStore,
+        colModel: new Ext.grid.ColumnModel({
+            defaults: {
+                width:100,
+                sortable: true
+            },
+            columns: this.targetColumns
+        }),
+        columnWidth: .5,
+        layout: 'fit',
+        enableDragDrop: true,
+        sm: new Ext.grid.RowSelectionModel({
+            singleSelect:false    
+        }),
+        listeners: {
+            render: function(grid) {
+                this.dz = new lconf.GridDropZone(grid,{ddGroup:grid.ddGroup || 'GridDD'});
+            }    
+        }
+    });    
+
+    this.addSelectedItems = function(from,to) {
+        // check selection
+        if(!from.getSelectionModel().hasSelection())
+            Ext.MessageBox.alert(_("Error"),_("You haven't selected anything."));
+        Ext.each(from.getSelectionModel().getSelections(),function(r) {
+            var rec = r.copy();
+            Ext.data.Record.id(rec);
+            to.getStore().add(rec);
+            from.getStore().remove(r);
+            });
+    }
+
+    this.buildInterface = function() {
+        var available = this.gridAvailable;
+        var selected =  this.gridSelected;
+        this._interface = new Ext.Panel({
+            layout:'column',    
+            title:this.title,
+            defaults: {
+                cellCls: 'middleAlign'
+            },
+            items: [    
+                available,
+                {
+                    width:50,
+                    style: 'margin-top:50%',
+                    cls: 'middleAlign',
+                    items:[{
+                        xtype:'button',
+                        text: '<<',
+                        width:50,
+                        handler: function() {this.addSelectedItems(selected,available)},
+                        scope: this
+                    },{
+                        xtype:'button',
+                        text: '>>',
+                        width:50,
+                        handler: function() {this.addSelectedItems(available,selected)},
+                        scope: this
+                    }]    
+                    
+                },
+                selected
+            ],
+            listeners: {
+                resize: function(el) {
+                    el.suspendEvents();
+                    Ext.iterate(el.items.items,function(item) {
+                        item.setHeight(el.getHeight());
+                    });
+                    el.resumeEvents();
+                }
+            }
+        })        
+
+    }
+
+    this.storeCollection = [
+        this.selectedGroupsStore,
+        this.selectedUsersStore
+    ]
+    
+    this.selectedUsersStore.on("load",function() {this.sourceStore.load();},this.selectedUsersStore);    
+    this.selectedGroupsStore.on("load",function() {this.sourceStore.load();},this.selectedGroupsStore);
     
 
-    
-    AppKit.util.Layout.getCenter().add(lconf.Admin.container);
-    AppKit.util.Layout.doLayout();
-
-})
-</script>
+    this.buildInterface();
+    this._interface.cmp = this;
+    __instance = this._interface;
+    return this._interface;
+}
+})();
