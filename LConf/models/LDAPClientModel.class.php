@@ -582,11 +582,14 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel {
 
     public function rechainAliasesForNode($dn,$newDN) {
         // Rechain aliases
+        $newName = explode(",",$newDN,2);
+        $newName = $newName[0];
         if($aliases = $this->getReferencesToNode($dn)) {
             foreach($aliases as $key=>$alias) {
                 if(!is_array($alias))
                     continue;
                
+                $splittedAlias = explode(",",$alias["dn"],2);
                 try {
                     echo "Moving nodes from ".$dn." to ".$newDN." (".print_r($alias,true).")";
                     /**
@@ -599,7 +602,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel {
                      */
                     $this->removeNodes(array($alias["dn"]));
                     
-                    $this->addNode($alias["dn"],array(
+                    $this->addNode($newName.",".$splittedAlias[1],array(
                             array("property"=>"objectclass","value"=>"extensibleObject"),
                             array("property"=>"objectclass","value"=>"alias"),
                             array("property"=>"aliasedObjectName","value"=>$newDN)
