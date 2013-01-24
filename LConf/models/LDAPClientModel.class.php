@@ -605,12 +605,22 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel {
                      *  It doesn't matter if the new alias creation has completed or not, as the old alias
                      *  is useless eitherway. That's why there's no check
                      */
-                    
-                    $this->addNode($newAliasDN, array(
+
+                    if ($alias["dn"] == $newAliasDN) {
+                        // just set property
+                        $connId = $this->getConnection();
+                        if(!@ldap_mod_replace($connId, $alias["dn"], array("aliasedObjectName" => $newDN))) {
+                            throw new AgaviException("Could not modify ".$alias["dn"]. ":".$this->getError());
+                        }
+                     }
+                    else {
+                        // create a new node
+                        $this->addNode($newAliasDN, array(
                             array("property"=>"objectclass","value"=>"extensibleObject"),
                             array("property"=>"objectclass","value"=>"alias"),
                             array("property"=>"aliasedObjectName","value"=>$newDN)
-                    ));
+                        ));
+                    }
                     
                 } catch(Exception $e) {
                     // catching error, but throwing it to Agavi
@@ -619,7 +629,10 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel {
                 }
 
                 // remove alias when no error has occured
-                $this->removeNodes(array($alias["dn"]));
+                // but only if new name
+                if ($alias["dn"] != $newAliasDN) {
+                    $this->removeNodes(array($alias["dn"]));
+                }
             }
         }
 
