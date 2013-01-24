@@ -768,7 +768,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel {
             if (!@ldap_rename($connId, $sourceDN, $newName, $targetDN, true)) {
               /* The rename failed - attempt to clone the node anyway */
               $this->cloneNode($sourceDN,$targetDN,$sourceConnId);
-              $this->removeNodes(array($sourceDN));
+              $this->removeNodes(array($sourceDN), false); // do not remove aliases here
             }
             $this->rechainAliasesForNode($sourceDN,$newName.",".$targetDN);
 
