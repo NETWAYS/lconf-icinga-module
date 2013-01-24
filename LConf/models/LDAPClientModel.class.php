@@ -570,7 +570,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel {
                 }
             }
             $this->rechainAliasesForNode($dn,$newDN);
-            $this->removeNodes($dn);
+            $this->removeNodes($dn, false); // leave broken aliases for safety
         } else {
 
             if(!@ldap_modify($connId,$dn,$properties)) {
@@ -580,37 +580,46 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel {
         return $dn;
     }
 
+    /**
+     * @TODO: Rename the alias only if the name of the alias matched the old linked
+              node (this would allow to keep a special name for an alias)
+     */
     public function rechainAliasesForNode($dn,$newDN) {
         // Rechain aliases
-        $newName = explode(",",$newDN,2);
-        $newName = $newName[0];
+        $newName = substr($newDN, 0, strpos($newDN, ",")); # get the top name from the dn path
+        $newName = substr($newName, strpos($newName, "=") + 1); # get only the real name without type
         if($aliases = $this->getReferencesToNode($dn)) {
             foreach($aliases as $key=>$alias) {
                 if(!is_array($alias))
                     continue;
                
-                $splittedAlias = explode(",",$alias["dn"],2);
+                $aliasLocation = substr($alias["dn"], strpos($alias["dn"], ",") + 1);
                 try {
-                    echo "Moving nodes from ".$dn." to ".$newDN." (".print_r($alias,true).")";
+                    $newAliasDN = "ou=".$newName.",".$aliasLocation;
+                    AppKitLogger::debug("Updating alias %s to %s for target %s", $alias["dn"], $newAliasDN, $newDN);
                     /**
                      *  for some reason, he doesn't like modifying aliasedobjectname via modifyNode...
                      *  That's why it's done the more comprehensive way
                      */
-                   /**
+                    /**
                      *  It doesn't matter if the new alias creation has completed or not, as the old alias
                      *  is useless eitherway. That's why there's no check
                      */
-                    $this->removeNodes(array($alias["dn"]));
                     
-                    $this->addNode($newName.",".$splittedAlias[1],array(
+                    $this->addNode($newAliasDN, array(
                             array("property"=>"objectclass","value"=>"extensibleObject"),
                             array("property"=>"objectclass","value"=>"alias"),
                             array("property"=>"aliasedObjectName","value"=>$newDN)
                     ));
                     
                 } catch(Exception $e) {
-                    print_r($e->getMessage());
+                    // catching error, but throwing it to Agavi
+                    AppKitLogger::error("Exception occured during rechainAliasForNode: %s", var_export($e->getMessage(), true));
+                    throw $e;
                 }
+
+                // remove alias when no error has occured
+                $this->removeNodes(array($alias["dn"]));
             }
         }
 
