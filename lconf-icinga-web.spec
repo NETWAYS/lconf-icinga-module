@@ -30,15 +30,14 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 %if "%{_vendor}" == "suse"
 %define		apacheuser wwwrun
 %define		apachegroup www
-%define		docdir %{_defaultdocdir}
 %endif
-%if "%{_vendor}" == "rhel"
+%if "%{_vendor}" == "redhat"
 %define		apacheuser apache
 %define		apachegroup apache
-%define		docdir %{_defaultdocdir}
 %endif
 %define 	icingawebdir /usr/share/icinga-web
-%define 	clearcache %{_sbindir}/icinga-web-clearcache
+%define 	clearcache %{_bindir}/icinga-web-clearcache
+%define		docdir %{_defaultdocdir}
 
 %description
 LConf is a LDAP based configuration tool for Icinga® and Nagios®. All
@@ -68,10 +67,10 @@ sed -i 's/@@SCHEMA_PREFIX@@/lconf/g' %{buildroot}%{icingawebdir}/app/modules/LCo
 sed -i 's/@@SCHEMA_PREFIX@@/lconf/g' %{buildroot}%{icingawebdir}/app/modules/LConf/lib/ldapConfig/objectDefaultAttributes.ini
 
 %post
-if [[ -x %{clearcache} ]]; then %{clearcache}; fi
+if [ -x %{clearcache} ]; then %{clearcache}; fi
 
 %postun
-if [[ -x %{clearcache} ]]; then %{clearcache}; fi
+if [ -x %{clearcache} ]; then %{clearcache}; fi
 
 
 %clean
@@ -82,13 +81,15 @@ rm -rf %{buildroot}
 
 %defattr(-,root,root,-)
 %if "%{_vendor}" == "redhat"
-%doc etc/sql doc/AUTHORS doc/LICENSE doc/INSTALL doc/README.RHEL
+%doc doc/AUTHORS doc/LICENSE doc/INSTALL doc/README.RHEL
 %endif
 %if "%{_vendor}" == "suse"
-%doc etc/sql doc/AUTHORS doc/LICENSE doc/INSTALL doc/README.SUSE
+%doc doc/AUTHORS doc/LICENSE doc/INSTALL doc/README.SUSE
 %endif
 
 %defattr(-,root,root)
+%dir %{docdir}/%{name}/sql
+%{docdir}/%{name}/sql/*
 %attr(0755,%{apacheuser},%{apachegroup}) %{_datadir}/icinga-web/app/modules/LConf/views/
 %attr(0755,%{apacheuser},%{apachegroup}) %{_datadir}/icinga-web/app/modules/LConf/templates/
 %{_datadir}/icinga-web/app/modules/LConf
@@ -104,6 +105,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Fri Jan 15 2013 christian.dengler@netways.de
+- fix typo; remove sql-templates from distribution differentiation
+
 * Wed Dec 19 2012 michael.friedrich@netways.de
 - initial creation, for suse and rhel
 

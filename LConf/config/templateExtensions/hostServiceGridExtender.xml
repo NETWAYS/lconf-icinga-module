@@ -25,7 +25,7 @@
                             <parameter name="url">modules/lconf/cronk/dns</parameter>
                             <parameter name="ldapRoute">modules/lconf/main</parameter>
                             <parameter name="attr">
-                                <parameter name="ext:qtip">Go to Event DB</parameter>
+                                <parameter name="ext:qtip">Go to LConf</parameter>
                             </parameter>
                         </parameter>    
                     </parameter>
