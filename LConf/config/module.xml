@@ -413,7 +413,6 @@
                 
 
                 <setting name="lconfExport">
-                    <ae:parameter name="lconfConsoleInstance">localhost</ae:parameter>
                     <!-- DN which should be used for exporting
                          Will be prepended to the connections base dn. For example:
 
