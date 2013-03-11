@@ -10,7 +10,7 @@
 Name:           lconf-icinga-web
 Summary:        Icinga Web Module for LConf
 Version:        1.3.1rc
-Release:        1
+Release:        2
 Url:            https://www.netways.org/projects/lconf-for-icinga
 License:        GPL v2 or later
 Group:          System/Monitoring
@@ -52,19 +52,18 @@ This is the Icinga Web Module Integration package only, and requires Icinga Web 
 
 %build
 
-%install
-%{__mkdir_p} %{buildroot}%{docdir}/%{name}/
-%{__cp} -r etc/sql %{buildroot}%{docdir}/%{name}/
-%{__mv} %{buildroot}%{docdir}/%{name}/sql/credentials.sql.in %{buildroot}%{docdir}/%{name}/sql/credentials.sql
+# Replace SCHEMA_PREFIX where needed
+sed -i 's/@@SCHEMA_PREFIX@@/lconf/g' etc/sql/credentials.sql.in
+mv etc/sql/credentials.sql.in etc/sql/credentials.sql
+sed -i 's/@@SCHEMA_PREFIX@@/lconf/g' LConf/lib/js/Components/Configuration.js
+sed -i 's/@@SCHEMA_PREFIX@@/lconf/g' LConf/config/module.xml
+sed -i 's/@@SCHEMA_PREFIX@@/lconf/g' LConf/lib/ldapConfig/staticObjects.ini
+sed -i 's/@@SCHEMA_PREFIX@@/lconf/g' LConf/lib/ldapConfig/objectDefaultAttributes.ini
 
+
+%install
 %{__mkdir_p} %{buildroot}%{icingawebdir}/app/modules
 %{__cp} -r LConf %{buildroot}%{icingawebdir}/app/modules/
-
-sed -i 's/@@SCHEMA_PREFIX@@/lconf/g' %{buildroot}%{docdir}/%{name}/sql/credentials.sql
-sed -i 's/@@SCHEMA_PREFIX@@/lconf/g' %{buildroot}%{icingawebdir}/app/modules/LConf/lib/js/Components/Configuration.js
-sed -i 's/@@SCHEMA_PREFIX@@/lconf/g' %{buildroot}%{icingawebdir}/app/modules/LConf/config/module.xml
-sed -i 's/@@SCHEMA_PREFIX@@/lconf/g' %{buildroot}%{icingawebdir}/app/modules/LConf/lib/ldapConfig/staticObjects.ini
-sed -i 's/@@SCHEMA_PREFIX@@/lconf/g' %{buildroot}%{icingawebdir}/app/modules/LConf/lib/ldapConfig/objectDefaultAttributes.ini
 
 %post
 if [ -x %{clearcache} ]; then %{clearcache}; fi
@@ -79,32 +78,34 @@ rm -rf %{buildroot}
 %files
 # FIXME - README.SUSE with the schema explainations (changes to dc=local)????
 
+%doc etc/sql doc/AUTHORS doc/LICENSE doc/INSTALL
+
 %defattr(-,root,root,-)
 %if "%{_vendor}" == "redhat"
-%doc doc/AUTHORS doc/LICENSE doc/INSTALL doc/README.RHEL
+%doc doc/README.RHEL
 %endif
 %if "%{_vendor}" == "suse"
-%doc doc/AUTHORS doc/LICENSE doc/INSTALL doc/README.SUSE
+%doc doc/README.SUSE
 %endif
 
-%defattr(-,root,root)
-%dir %{docdir}/%{name}/sql
-%{docdir}/%{name}/sql/*
-%attr(0755,%{apacheuser},%{apachegroup}) %{_datadir}/icinga-web/app/modules/LConf/views/
-%attr(0755,%{apacheuser},%{apachegroup}) %{_datadir}/icinga-web/app/modules/LConf/templates/
-%{_datadir}/icinga-web/app/modules/LConf
-%config(noreplace) %{_datadir}/icinga-web/app/modules/LConf/config/access.xml
-%config(noreplace) %{_datadir}/icinga-web/app/modules/LConf/config/autoload.xml
-%config(noreplace) %{_datadir}/icinga-web/app/modules/LConf/config/config_handlers.xml
-%config(noreplace) %{_datadir}/icinga-web/app/modules/LConf/config/css.xml
-%config(noreplace) %{_datadir}/icinga-web/app/modules/LConf/config/javascript.xml
-%config(noreplace) %{_datadir}/icinga-web/app/modules/LConf/config/menu.xml
-%config(noreplace) %{_datadir}/icinga-web/app/modules/LConf/config/module.xml
-%config(noreplace) %{_datadir}/icinga-web/app/modules/LConf/config/routing.xml
-%config(noreplace) %{_datadir}/icinga-web/app/modules/LConf/config/validators.xml
+%config(noreplace) %{_datadir}/icinga-web/app/modules/LConf/config
+
+%{_datadir}/icinga-web/app/modules/LConf/actions
+%{_datadir}/icinga-web/app/modules/LConf/lib
+%{_datadir}/icinga-web/app/modules/LConf/manifest.xml
+%{_datadir}/icinga-web/app/modules/LConf/models
+%{_datadir}/icinga-web/app/modules/LConf/pub
+%{_datadir}/icinga-web/app/modules/LConf/templates
+%{_datadir}/icinga-web/app/modules/LConf/validate
+%{_datadir}/icinga-web/app/modules/LConf/views
 
 
 %changelog
+* Wed Feb 27 2013 Markus Frosch <markus.frosch@netways.de>
+- Fixes for %doc handling on SuSE (sql scripts where missing)
+- cleaner %install, moved stuff to %build
+- avoid file double listing
+
 * Fri Jan 15 2013 christian.dengler@netways.de
 - fix typo; remove sql-templates from distribution differentiation
 

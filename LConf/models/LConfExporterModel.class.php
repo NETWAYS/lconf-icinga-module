@@ -21,7 +21,7 @@ class LConf_LConfExporterModel extends IcingaLConfBaseModel
 
     public function getConsole($instance) {
         if(!$this->lconfConsole)
-            $this->lconfConsole = AgaviContext::getInstance()->getModel('Console.ConsoleInterface',"Api",array("host"=>$instance));
+            $this->lconfConsole = AgaviContext::getInstance()->getModel('Console.ConsoleInterface',"Api",array("icingaInstance"=>$instance));
         return $this->lconfConsole;
     }
 
@@ -43,11 +43,20 @@ class LConf_LConfExporterModel extends IcingaLConfBaseModel
         //$satellites = $this->fetchExportSatellites($ldap_config);    
 
         $ctx = $this->getContext();
-        $this->log("Export started for connection ".$ldap_config->getConnectionName());
-        $lconfExportInstance = AgaviConfig::get('modules.lconf.lconfExport.lconfConsoleInstance');
+        $accessconfig = include AgaviConfigCache::checkConfig(AgaviToolkit::expandDirectives('%core.module_dir%/Api/config/access.xml'));
+
+        $connectionname = $ldap_config->getConnectionName();
+
+        $this->log("Export started for connection ".$connectionname);
         $this->prefix = AgaviConfig::get('modules.lconf.prefix');
-        $this->log("Setting up consolehandler for ".$lconfExportInstance);
-        $console = $this->getConsole($lconfExportInstance);
+        $this->log("Setting up consolehandler for ".$connectionname);
+
+        if (isset($accessconfig["instances"]) && isset($accessconfig["instances"][$connectionname])) {
+            $console = $this->getConsole($connectionname);
+        } else {
+            $console = $this->getConsole(null);
+        }
+
         $this->tm = $ctx->getTranslationManager();
         
         $exportCmd =  $ctx->getModel(
