@@ -10,7 +10,7 @@
 Name:           lconf-icinga-web
 Summary:        Icinga Web Module for LConf
 Version:        1.3.1rc
-Release:        2
+Release:        3%{?dist}%{?custom}
 Url:            https://www.netways.org/projects/lconf-for-icinga
 License:        GPL v2 or later
 Group:          System/Monitoring
@@ -102,8 +102,8 @@ rm -rf %{buildroot}
 
 %changelog
 * Wed Feb 27 2013 Markus Frosch <markus.frosch@netways.de>
-- Fixes for %doc handling on SuSE (sql scripts where missing)
-- cleaner %install, moved stuff to %build
+- Fixes for doc-section handling on SuSE (sql scripts where missing)
+- cleaner install-section, moved stuff to build-section
 - avoid file double listing
 
 * Fri Jan 15 2013 christian.dengler@netways.de
