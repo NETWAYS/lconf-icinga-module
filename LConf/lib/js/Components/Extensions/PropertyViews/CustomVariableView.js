@@ -86,14 +86,15 @@
                 continue;
             if(!Ext.isArray(value))
                 value = [value];
+            AppKit.log(value);
             for(var x=0;x<value.length;x++) {
                 
                 var cv = value[x].split(" ");
-                if(cv.length !== 2)
+                if(cv.length < 2)
                     continue;
                 data.push(new store.recordType({
-                    cv_name: cv[0].trim().substr(1),
-                    cv_value: cv[1].trim()
+                    cv_name: cv.shift().trim().substr(1),
+                    cv_value: cv.join(" ").trim()
                 }));
             }
         }
