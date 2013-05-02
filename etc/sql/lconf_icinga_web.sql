@@ -19,7 +19,6 @@ CREATE TABLE `lconf_connection` (
   `connection_ldaps` int(11) DEFAULT '0',
   PRIMARY KEY (`connection_id`),
   KEY `owner_idx` (`owner`),
-  CONSTRAINT `lconf_connection_owner_nsm_user_user_id` FOREIGN KEY (`owner`) REFERENCES `nsm_user` (`user_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -47,7 +46,6 @@ CREATE TABLE `lconf_defaultconnection` (
   UNIQUE KEY `defaultconn_unique_idx` (`user_id`),
   KEY `connection_id_idx` (`connection_id`),
   CONSTRAINT `lclc` FOREIGN KEY (`connection_id`) REFERENCES `lconf_connection` (`connection_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `lconf_defaultconnection_user_id_nsm_user_user_id` FOREIGN KEY (`user_id`) REFERENCES `nsm_user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -75,7 +73,6 @@ CREATE TABLE `lconf_filter` (
   `filter_isglobal` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`filter_id`),
   KEY `user_id_idx` (`user_id`),
-  CONSTRAINT `lconf_filter_user_id_nsm_user_user_id` FOREIGN KEY (`user_id`) REFERENCES `nsm_user` (`user_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
