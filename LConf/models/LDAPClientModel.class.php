@@ -410,8 +410,9 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel {
      * @param string $dn
      * @return array
      */
-    public function getNodeProperties($dn,$fields=array(),$checkInheritance = false) {
-        $connection = $this->getConnection();
+    public function getNodeProperties($dn,$fields=array(),$checkInheritance = false, $connection = null) {
+        if (empty($connection))
+            $connection = $this->getConnection();
         $result = @ldap_read($connection,$dn,"objectclass=*",$fields);
         if(!$result)
             return array();
@@ -705,9 +706,13 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel {
             $paramToPreserve = $paramToPreserve[0];
             $newDN = $paramToPreserve.",".$targetDN;
         }
-        // check if it's on the same level
+        /**
+         * Check if it's on the same level, and rename the object to copy_of_object
+         * If we're performing a copy/paste to another connection do not attempt
+         * to rename, as the user will expect an "already exists" error in this case
+         */
 
-        if($this->listDN($newDN)) {
+        if($this->listDN($newDN) && (!$sourceConnId || $sourceConnId == $this->getId())) {
             $ctr = 0;
             do { // Increase copy counter if there is already a copy of this node
                 
@@ -737,10 +742,10 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel {
             if(!$client)
                 throw new AgaviException("Target connection not found!");
             $id = $client->getConnection();
-            $existCheck = $this->getNodeProperties($newDN);
+            $existCheck = $this->getNodeProperties($newDN, array(), false, $id);
 
             if(!empty($existCheck))
-                throw new AgaviException("<br/>DN alredy exists");
+                throw new AgaviException("<br/>DN already exists");
             if(!@ldap_add($id,$newDN,$sourceProperties)) {
                 throw new AgaviException("Could not add ".$newDN. ":".$this->getError());
             }
