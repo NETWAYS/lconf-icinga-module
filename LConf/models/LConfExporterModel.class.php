@@ -229,7 +229,7 @@ class LConf_LConfExporterModel extends IcingaLConfBaseModel
                     continue;
                 $matches = array();
     
-                preg_match_all('/^LCONF->EXPORT->CLUSTER[\t ]*?=[\t ]*?(?P<satellite>[\w ]+?[ \t]*?$)/i',$val,$matches);
+                preg_match_all('/^LCONF->EXPORT->CLUSTER[\t ]*?=[\t ]*?(?P<satellite>[\w \.]+?[ \t]*?$)/i',$val,$matches);
             
                 if(is_array($matches['satellite'])) {
                     foreach($matches['satellite'] as &$s) {
