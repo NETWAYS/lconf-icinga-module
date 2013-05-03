@@ -2,10 +2,9 @@
 -- Table structure for table `lconf_connection`
 --
 
-DROP TABLE IF EXISTS `lconf_connection`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `lconf_connection` (
+CREATE TABLE IF NOT EXISTS `lconf_connection` (
   `connection_id` int(11) NOT NULL AUTO_INCREMENT,
   `connection_name` varchar(32) NOT NULL,
   `connection_description` text,
@@ -18,7 +17,7 @@ CREATE TABLE `lconf_connection` (
   `connection_tls` int(11) DEFAULT '0',
   `connection_ldaps` int(11) DEFAULT '0',
   PRIMARY KEY (`connection_id`),
-  KEY `owner_idx` (`owner`),
+  KEY `owner_idx` (`owner`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -35,17 +34,16 @@ UNLOCK TABLES;
 -- Table structure for table `lconf_defaultconnection`
 --
 
-DROP TABLE IF EXISTS `lconf_defaultconnection`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `lconf_defaultconnection` (
+CREATE TABLE IF NOT EXISTS `lconf_defaultconnection` (
   `defaultconnection_id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL,
   `connection_id` int(11) NOT NULL,
   PRIMARY KEY (`defaultconnection_id`),
   UNIQUE KEY `defaultconn_unique_idx` (`user_id`),
   KEY `connection_id_idx` (`connection_id`),
-  CONSTRAINT `lclc` FOREIGN KEY (`connection_id`) REFERENCES `lconf_connection` (`connection_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `lclc` FOREIGN KEY (`connection_id`) REFERENCES `lconf_connection` (`connection_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -62,17 +60,16 @@ UNLOCK TABLES;
 -- Table structure for table `lconf_filter`
 --
 
-DROP TABLE IF EXISTS `lconf_filter`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `lconf_filter` (
+CREATE TABLE IF NOT EXISTS `lconf_filter` (
   `filter_id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL DEFAULT '-1',
   `filter_name` varchar(127) NOT NULL,
   `filter_json` text NOT NULL,
   `filter_isglobal` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`filter_id`),
-  KEY `user_id_idx` (`user_id`),
+  KEY `user_id_idx` (`user_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -89,10 +86,9 @@ UNLOCK TABLES;
 -- Table structure for table `lconf_principal`
 --
 
-DROP TABLE IF EXISTS `lconf_principal`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `lconf_principal` (
+CREATE TABLE IF NOT EXISTS `lconf_principal` (
   `principal_id` int(11) NOT NULL AUTO_INCREMENT,
   `principal_user_id` int(11) DEFAULT NULL,
   `principal_role_id` int(11) DEFAULT NULL,
