@@ -1,0 +1,62 @@
+;
+;    These are the default attributes displayed for for the customDialogs 
+;    Feel free to modify them until they suit your needs!
+;
+
+[Command]
+objectclass            = "@ldap_prefix@Command"
+cn                = ""
+@ldap_prefix@Commandline        = ""
+
+[Contact]
+objectclass            = "@ldap_prefix@Contact"
+cn                = ""
+@ldap_prefix@Alias            = ""
+
+[Contactgroup]
+objectclass            = "@ldap_prefix@Contactgroup"
+cn                = ""
+@ldap_prefix@Alias            = ""
+
+[Host]
+objectclass            = "@ldap_prefix@Host"
+cn                = ""
+@ldap_prefix@Address            = ""
+
+[Hostescalation]
+objectclass            = "@ldap_prefix@HostEscalation"
+cn                = ""
+@ldap_prefix@HostEscalationFirstNotification = ""
+@ldap_prefix@HostEscalationLastNotification = ""
+@ldap_prefix@HostEscalationNotificationInterval = ""
+
+[Hostgroup]
+objectclass            = "@ldap_prefix@Hostgroup"
+cn                = ""
+@ldap_prefix@Alias            = ""
+
+[Service]
+objectclass            = "@ldap_prefix@Service"
+cn                = ""
+@ldap_prefix@ServiceCheckcommand    = ""
+
+[Serviceescalation]
+objectclass            = "@ldap_prefix@ServiceEscalation"
+cn                = ""
+@ldap_prefix@ServiceEscalationFirstNotification = ""
+@ldap_prefix@ServiceEscalationLastNotification = ""
+@ldap_prefix@ServiceEscalationNotificationInterval = ""
+
+[Servicegroup]
+objectclass            = "@ldap_prefix@Servicegroup"
+cn                = ""
+@ldap_prefix@Alias            = ""
+
+[StructuralObject]
+objectclass            = "@ldap_prefix@StructuralObject"
+ou                = ""
+
+[Timeperiod]
+objectclass            = "@ldap_prefix@Timeperiod"
+cn                = ""
+@ldap_prefix@Alias            = ""
