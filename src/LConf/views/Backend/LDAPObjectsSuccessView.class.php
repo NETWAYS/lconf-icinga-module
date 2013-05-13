@@ -3,6 +3,10 @@
 class LConf_Backend_LDAPObjectsSuccessView extends IcingaLConfBaseView
 {
 
+    public function sortEntries($a,$b) {
+        return strnatcasecmp($a["entry"],$b["entry"]);
+    }
+
     public function executeJson(AgaviRequestDataHolder $rd) {
         $field = json_decode($rd->getParameter("field"),true);
         $limit = $rd->getParameter("limit",0);
@@ -21,6 +25,7 @@ class LConf_Backend_LDAPObjectsSuccessView extends IcingaLConfBaseView
                 foreach($result as &$entry)
                     $entry = array("entry"=>$entry);
             }
+
         } else if(isset($field["LDAP"])) {
             $connectionId = $rd->getParameter("connectionId");
             $ctx->getModel("LDAPClient","LConf");
@@ -44,13 +49,17 @@ class LConf_Backend_LDAPObjectsSuccessView extends IcingaLConfBaseView
 
             }
         }
+        usort($result,array($this,"sortEntries"));
+
+
         $response = array();
-        asort($result);
         if($asTree) {
             $response = $this->buildTreeResponse($field,$result);
         } else {    
             $response = $this->buildResponse($field,$result,$limit,$offset);
         }
+
+
         return json_encode($response);
     }
     
@@ -62,7 +71,7 @@ class LConf_Backend_LDAPObjectsSuccessView extends IcingaLConfBaseView
         $categoryListing = array();
         foreach($cats as $name=>$currentCategory) {
             $viewAndPattern = explode("|",$currentCategory);
-            $objClassDefault = count($viewAndPattern) > 1 ? explode(';',$viewAndPattern[0]) : array();
+            $objClassDefault = count($viewAndPattern) > 1 ? explode(    ';',$viewAndPattern[0]) : array();
             $patterns = explode(";",$viewAndPattern[count($viewAndPattern)-1]);
             $matches = array();
             foreach($patterns as $pattern) {
