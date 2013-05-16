@@ -1,5 +1,5 @@
 Ext.ns("LConf").Configuration = {
-    prefix : @ldap_prefix@
+    prefix : '@ldap_prefix@'
     
 };
 
