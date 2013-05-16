@@ -49,7 +49,8 @@ class LConf_Backend_LDAPObjectsSuccessView extends IcingaLConfBaseView
 
             }
         }
-        usort($result,array($this,"sortEntries"));
+        if(count($result) > 0 && isset($result[0]["entry"]))
+            usort($result,array($this,"sortEntries"));
 
 
         $response = array();

@@ -2169,7 +2169,7 @@ INSTALL_OPTS="-o $bin_user -g $bin_group"
 
 
 
-ac_config_files="$ac_config_files Makefile src/LConf/lib/ldapConfig/objectDefaultAttributes.ini src/LConf/lib/ldapConfig/staticObjects.ini src/LConf/config/module.xml src/LConf/config/access.xml etc/sql/credentials.sql"
+ac_config_files="$ac_config_files Makefile src/LConf/lib/ldapConfig/objectDefaultAttributes.ini src/LConf/lib/ldapConfig/staticObjects.ini src/LConf/config/module.xml src/LConf/config/access.xml src/LConf/lib/js/Components/Configuration.js etc/sql/credentials.sql"
 
 
 # Checks for library functions.
@@ -2885,6 +2885,7 @@ do
     "src/LConf/lib/ldapConfig/staticObjects.ini") CONFIG_FILES="$CONFIG_FILES src/LConf/lib/ldapConfig/staticObjects.ini" ;;
     "src/LConf/config/module.xml") CONFIG_FILES="$CONFIG_FILES src/LConf/config/module.xml" ;;
     "src/LConf/config/access.xml") CONFIG_FILES="$CONFIG_FILES src/LConf/config/access.xml" ;;
+    "src/LConf/lib/js/Components/Configuration.js") CONFIG_FILES="$CONFIG_FILES src/LConf/lib/js/Components/Configuration.js" ;;
     "etc/sql/credentials.sql") CONFIG_FILES="$CONFIG_FILES etc/sql/credentials.sql" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5 ;;

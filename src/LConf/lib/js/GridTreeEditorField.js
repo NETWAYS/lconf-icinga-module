@@ -97,6 +97,7 @@ Ext.onReady(function() {
                 rootVisible: false,
                 enableDD: false,
                 containerScroll:true,
+
                 autoScroll:true,
                 layout:'fit',
                 border: true,

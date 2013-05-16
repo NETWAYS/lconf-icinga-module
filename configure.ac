@@ -110,6 +110,7 @@ AC_CONFIG_FILES([
     src/LConf/lib/ldapConfig/staticObjects.ini
     src/LConf/config/module.xml
     src/LConf/config/access.xml
+    src/LConf/lib/js/Components/Configuration.js
     etc/sql/credentials.sql
 ])
 
