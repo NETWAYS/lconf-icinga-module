@@ -18,11 +18,11 @@ install:
 	cd src &&\
 		find . -type d |\
 		grep -v "\/\."|\
-		xargs -I{} ${INSTALL} -d -C ${INSTALL_OPTS} ${INSTALL_PATH}/{};
+		xargs -I{} ${INSTALL} -d -C ${INSTALL_OPTS} $(DESTDIR)${INSTALL_PATH}/{};
 	cd src &&\
 		find . -type f -name '*.php' -or -name '*.ini' -or -name '*.css' -or -name '*.xml' -or -name '*.js' -or -name '*.png' -or -name '*.jpg'|\
 		grep -v "\/\." |\
-		xargs -I{} ${INSTALL} ${INSTALL_OPTS} {} ${INSTALL_PATH}/{};
+		xargs -I{} ${INSTALL} ${INSTALL_OPTS} {} $(DESTDIR)${INSTALL_PATH}/{};
 	make clear-cache
 	@echo "If you *haven't created* your db scheme yet, call 'make install-db' (might purge existing lconf data!), if you only want to update look if there's an sql update under etc/sql/updates for your version"
 
