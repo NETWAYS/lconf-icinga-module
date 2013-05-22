@@ -6,9 +6,9 @@ After installing the package, you are required to manually import the schema
 adaptions to your icinga_web db which are provided in
 /usr/share/doc/packages/lconf-icinga-web/sql
 
-import lconf_icinga_web.sql and credentials.sql like
+import lconf_icinga_web_mysql.sql (or appropriate rdbms) and credentials.sql like
 
-# mysql -u root -p icinga_web < lconf_icinga_web.sql
+# mysql -u root -p icinga_web < lconf_icinga_web_mysql.sql
 # mysql -u root -p icinga_web < credentials.sql
 
 You need to manually enable users for the LConf module, for further settings

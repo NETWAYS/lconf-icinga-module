@@ -3,17 +3,16 @@
 
 - php5 with ldap and a running icinga-web instance
 - an ldap server
-Phing is required for installation but shipped with this module (see phing.php at the root folder)
 
 
 
-2) Installing the module
+2) Installing and Updating the module
+   1) Call ./configure. See ./configure --help for installation options
 
-   1) Change the settings in db.ini to fit to your db-settings.
- 
-   2) Install the module by calling ./install.sh and answering the questions. 
-      If anything should go wrong check the error messages and read the FAQ, perhaps this can help you.
+   2) Install the module by calling make install 
    
+   3) When installing for the first time, type 'make install-db' to setup your database, otherwise look at the etc/sql/updates folder if there's an update for your current version avaialale
+      
    3) Add the principals for the users who should be allowed to use the lconf module (Admin->Users->select user->add Principal)
    
    4) Now you should see a "LConf" Entry in the main toolbar. If not, try to clear the cache by typing "rm -r /path-to-icinga/app/cache/*"

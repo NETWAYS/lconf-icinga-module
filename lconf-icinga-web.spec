@@ -9,35 +9,35 @@
 
 Name:           lconf-icinga-web
 Summary:        Icinga Web Module for LConf
-Version:        1.3.1rc
+Version:        1.3.2
 Release:        1
 Url:            https://www.netways.org/projects/lconf-for-icinga
 License:        GPL v2 or later
-Group:          System/Monitoring
+Group:          Applications/System
 %if "%{_vendor}" == "suse"
 %if 0%{?suse_version} > 1020
 BuildRequires:  fdupes
 %endif
-PreReq:         apache2 
 %endif
-Requires:	LConf >= 1.3rc
-Requires:	icinga-web >= 1.7.0
+Requires:       LConf >= 1.3rc
+Requires:       icinga-web >= 1.7.0
 #Source0:        %name-%version.tar.gz
-Source0:        lconf-icinga-module-master.tar.gz
+Source0:        lconf-icinga-module-%{version}.tar.gz
 BuildArch:      noarch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %if "%{_vendor}" == "suse"
-%define		apacheuser wwwrun
-%define		apachegroup www
+%define         apacheuser wwwrun
+%define         apachegroup www
 %endif
 %if "%{_vendor}" == "redhat"
-%define		apacheuser apache
-%define		apachegroup apache
+%define         apacheuser apache
+%define         apachegroup apache
 %endif
-%define 	icingawebdir /usr/share/icinga-web
-%define 	clearcache %{_bindir}/icinga-web-clearcache
-%define		docdir %{_defaultdocdir}
+%define         icingawebdir /usr/share/icinga-web
+%define         clearcache %{_bindir}/icinga-web-clearcache
+%define         docdir %{_defaultdocdir}
+%define         ldapprefix lconf
 
 %description
 LConf is a LDAP based configuration tool for Icinga® and Nagios®. All
@@ -48,23 +48,22 @@ work independent from the LDAP during runtime.
 This is the Icinga Web Module Integration package only, and requires Icinga Web as well as LConf already installed.
 
 %prep
-%setup -q -n lconf-icinga-module
+#%setup -q -n lconf-icinga-module
+%setup -q -n lconf-icinga-module-%{version}
 
 %build
+%configure \
+        --with-icinga-web-path="%{icingawebdir}" \
+        --with-ldap-prefix="%{ldapprefix}"
 
 %install
-%{__mkdir_p} %{buildroot}%{docdir}/%{name}/
-%{__cp} -r etc/sql %{buildroot}%{docdir}/%{name}/
-%{__mv} %{buildroot}%{docdir}/%{name}/sql/credentials.sql.in %{buildroot}%{docdir}/%{name}/sql/credentials.sql
-
-%{__mkdir_p} %{buildroot}%{icingawebdir}/app/modules
-%{__cp} -r LConf %{buildroot}%{icingawebdir}/app/modules/
-
-sed -i 's/@@SCHEMA_PREFIX@@/lconf/g' %{buildroot}%{docdir}/%{name}/sql/credentials.sql
-sed -i 's/@@SCHEMA_PREFIX@@/lconf/g' %{buildroot}%{icingawebdir}/app/modules/LConf/lib/js/Components/Configuration.js
-sed -i 's/@@SCHEMA_PREFIX@@/lconf/g' %{buildroot}%{icingawebdir}/app/modules/LConf/config/module.xml
-sed -i 's/@@SCHEMA_PREFIX@@/lconf/g' %{buildroot}%{icingawebdir}/app/modules/LConf/lib/ldapConfig/staticObjects.ini
-sed -i 's/@@SCHEMA_PREFIX@@/lconf/g' %{buildroot}%{icingawebdir}/app/modules/LConf/lib/ldapConfig/objectDefaultAttributes.ini
+%{__rm} -rf %{buildroot}
+# install will clear the cache, which we will do in post
+%{__make} install-basic \
+    DESTDIR="%{buildroot}" \
+    INSTALL_OPTS="" \
+    COMMAND_OPTS="" \
+    INIT_OPTS=""
 
 %post
 if [ -x %{clearcache} ]; then %{clearcache}; fi
@@ -74,37 +73,41 @@ if [ -x %{clearcache} ]; then %{clearcache}; fi
 
 
 %clean
-rm -rf %{buildroot}
+%{__rm} -rf %{buildroot}
 
 %files
-# FIXME - README.SUSE with the schema explainations (changes to dc=local)????
-
+%defattr(-,root,root,-)
+%doc etc/sql doc/AUTHORS doc/LICENSE doc/INSTALL
 %defattr(-,root,root,-)
 %if "%{_vendor}" == "redhat"
-%doc doc/AUTHORS doc/LICENSE doc/INSTALL doc/README.RHEL
+%doc doc/README.RHEL
 %endif
 %if "%{_vendor}" == "suse"
-%doc doc/AUTHORS doc/LICENSE doc/INSTALL doc/README.SUSE
+%doc doc/README.SUSE
 %endif
-
-%defattr(-,root,root)
-%dir %{docdir}/%{name}/sql
-%{docdir}/%{name}/sql/*
-%attr(0755,%{apacheuser},%{apachegroup}) %{_datadir}/icinga-web/app/modules/LConf/views/
-%attr(0755,%{apacheuser},%{apachegroup}) %{_datadir}/icinga-web/app/modules/LConf/templates/
-%{_datadir}/icinga-web/app/modules/LConf
-%config(noreplace) %{_datadir}/icinga-web/app/modules/LConf/config/access.xml
-%config(noreplace) %{_datadir}/icinga-web/app/modules/LConf/config/autoload.xml
-%config(noreplace) %{_datadir}/icinga-web/app/modules/LConf/config/config_handlers.xml
-%config(noreplace) %{_datadir}/icinga-web/app/modules/LConf/config/css.xml
-%config(noreplace) %{_datadir}/icinga-web/app/modules/LConf/config/javascript.xml
-%config(noreplace) %{_datadir}/icinga-web/app/modules/LConf/config/menu.xml
-%config(noreplace) %{_datadir}/icinga-web/app/modules/LConf/config/module.xml
-%config(noreplace) %{_datadir}/icinga-web/app/modules/LConf/config/routing.xml
-%config(noreplace) %{_datadir}/icinga-web/app/modules/LConf/config/validators.xml
+%config(noreplace) %{_datadir}/icinga-web/app/modules/LConf/config
+%{_datadir}/icinga-web/app/modules/LConf/actions
+%{_datadir}/icinga-web/app/modules/LConf/lib
+%{_datadir}/icinga-web/app/modules/LConf/manifest.xml
+%{_datadir}/icinga-web/app/modules/LConf/models
+%{_datadir}/icinga-web/app/modules/LConf/pub
+%{_datadir}/icinga-web/app/modules/LConf/templates
+%{_datadir}/icinga-web/app/modules/LConf/validate
+%{_datadir}/icinga-web/app/modules/LConf/views
 
 
 %changelog
+* Thu May 16 2013 michael.friedrich@netways.de
+- rewrite for configure/make
+- use make install-basic without clearcache
+- ldapprefix is now 'lconf', no more sed
+- fix rpmplint errors from macro usage in Changelog
+
+* Wed Feb 27 2013 Markus Frosch <markus.frosch@netways.de>
+- Fixes for doc handling on SuSE (sql scripts where missing)
+- cleaner install, moved stuff to build
+- avoid file double listing
+
 * Fri Jan 15 2013 christian.dengler@netways.de
 - fix typo; remove sql-templates from distribution differentiation
 

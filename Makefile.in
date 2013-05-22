@@ -1,0 +1,55 @@
+INSTALL_PATH=@icinga_web_path@/app/modules/
+INSTALL_OPTS=-o root -g bin
+INSTALL=/usr/bin/install -c
+CLEAR_BIN=@icinga_web_cache_bin@
+DB_USER=@db_user@
+DB_PASS=@db_pass@
+DB_NAME=@db_name@
+DB_HOST=@db_host@
+DB_PORT=@db_port@
+
+none:
+	@printf "Please supply a command line argument (i.e. 'make install').\n\n"
+	@printf "Generic targets: install \n"
+	@printf "Build targets: install-basic \n"
+	@printf "To setup a new database scheme call make install-db\n"
+
+install: install-basic clear-cache
+
+install-basic:
+	cd src &&\
+		find . -type d |\
+		grep -v "\/\."|\
+		xargs -I{} ${INSTALL} -d -C ${INSTALL_OPTS} $(DESTDIR)${INSTALL_PATH}/{};
+	cd src &&\
+		find . -type f -name '*.php' -or -name '*.ini' -or -name '*.css' -or -name '*.xml' -or -name '*.js' -or -name '*.png' -or -name '*.jpg'|\
+		grep -v "\/\." |\
+		xargs -I{} ${INSTALL} ${INSTALL_OPTS} {} $(DESTDIR)${INSTALL_PATH}/{};
+	@echo "If you *haven't created* your db scheme yet, call 'make install-db' (might purge existing lconf data!), if you only want to update look if there's an sql update under etc/sql/updates for your version"
+
+clear-cache:
+	@echo "Clearing cache"
+	${CLEAR_BIN}
+
+install-db: setup-db-scheme-@db_type@
+	@echo "Database has been created successfully"
+	make populate-db-@db_type@
+	@echo "Initial database setup succeeded"
+
+setup-db-scheme-mysql:
+	@mysql -u${DB_USER} -p${DB_PASS} -P${DB_PORT} -h${DB_HOST} ${DB_NAME} < etc/sql/lconf_icinga_web_mysql.sql
+
+setup-db-scheme-pgsql:
+	@psql -U ${DB_USER} -d ${DB_NAME} -h${DB_HOST} -p${DB_PORT} < etc/sql/lconf_icinga_web_psql.sql
+
+setup-db-scheme-oracle:
+	@echo "Don't forget to setup your database scheme with the oracle scheme underneath /etc/sql/ and the credentials.sql"
+
+populate-db-mysql:
+	@mysql -u${DB_USER} -p${DB_PASS} -P${DB_PORT} -h${DB_HOST} ${DB_NAME} < etc/sql/credentials.sql
+
+populate-db-pgsql:
+	@psql -U ${DB_USER} -d ${DB_NAME} -h${DB_HOST} -p${DB_PORT} < etc/sql/credentials.sql
+
+populate-db-oracle:
+	@echo ""
