@@ -315,16 +315,28 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel {
         if($list) {
             $result = true;
             foreach($list as $subEntries) {
-                $result = $result && $this->recursiveRemoveNode($subEntries["dn"]);
+                $result = $result && $this->recursiveRemoveNode($subEntries["dn"],
+                                        false /* do not work on alias in recursion */);
             }
         }
+        // this should only be called for the toplevel node
         if($killAliases) {
-            if($aliases = $this->getReferencesToNode($dn)) {
-                AppKitLogger::debug("Removing node aliases for %s: %s",$dn,$aliases);
+            AppKitLogger::debug("Retrieving all aliases for trying to kill aliases pointing under node %s",$dn);
+            if($aliases = $this->getReferencesToNode("*")) {
+                $dnlength = strlen($dn);
                 foreach($aliases as $key=>$alias) {
                     if(!is_array($alias))
                         continue;
-                    $this->removeNodes(array($alias["dn"]));
+                    foreach ($alias as $attribute => $value) {
+                        if (strtolower($attribute) === "aliasedobjectname"
+                            and isset($value["0"])
+                            and substr($value["0"], -$dnlength) === $dn)
+                        {
+                            AppKitLogger::debug("Removing node aliases for %s: %s",$dn,$alias);
+                            $this->removeNodes(array($alias["dn"]));
+                            break;
+                        }
+                    }
                 }
             }
         }
@@ -352,7 +364,7 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel {
         $aliasTargetFilter = $ctx->getModel("LDAPFilter","LConf",array("aliasedobjectname",$dnToCheck,false,"exact"));
         $filterGroup->addFilter($objectClassFilter);
         $filterGroup->addFilter($aliasTargetFilter);
-        $result = $this->searchEntries($filterGroup,$this->getBaseDN());
+        $result = $this->searchEntries($filterGroup,$this->getBaseDN(), array("aliasedObjectName"));
 
         if(isset($result["count"]))
             return $result;
