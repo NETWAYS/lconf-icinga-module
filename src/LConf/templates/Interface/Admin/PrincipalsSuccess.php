@@ -388,6 +388,37 @@ lconf.Admin.itemGranter = function(config) {
             },
             columns: this.targetColumns
         }),
+
+        bbar: ['->',{
+            xtype: "textfield",
+            emptyText: _('Type to search'),
+            enableKeyEvents: true,
+            validationDelay: 300,
+            allowBlank: true,
+            listeners: {
+                focus: function(field) {
+                    field.selectText();
+                },
+                valid: function(field) {
+                    grid = this.ownerCt.ownerCt;
+                    var searchVal = field.getValue();
+                    AppKit.log("search", searchVal);
+                    if(!searchVal) grid.store.clearFilter();
+                    else grid.store.filterBy(function(record) {
+                        if (record.get('user_id')) {
+                            if (record.get('user_name').match(searchVal)) return true;
+                            else if (record.get('user_lastname').match(searchVal)) return true;
+                            else if (record.get('user_firstname').match(searchVal)) return true;
+                            return false;
+                        }
+                        else if (record.get('role_id')) {
+                            if (record.get('role_name').match(searchVal)) return true;
+                            return false;
+                        }
+                    });
+                }
+            }
+        }],
         columnWidth: .5,
         layout: 'fit',
         enableDragDrop: true,
