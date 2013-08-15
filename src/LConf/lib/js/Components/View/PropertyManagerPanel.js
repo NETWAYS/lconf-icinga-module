@@ -9,7 +9,7 @@
         initCfg: null,
         reloadOnSave: true,
         deferredRender: false,
-        autoScroll:true,
+        autoScroll:false,
         enableTabScroll:true,
 
         eventDispatcher: null,
@@ -25,7 +25,7 @@
         constructor: function(cfg) {
             Ext.apply(this,cfg || {});
             this.initCfg = cfg;
-            cfg.autoScroll = true;
+            cfg.autoScroll = false;
             this.setupFooter();
             Ext.TabPanel.prototype.constructor.call(this,cfg);
         },
