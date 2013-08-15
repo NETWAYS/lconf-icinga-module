@@ -22,7 +22,7 @@ BuildRequires:  fdupes
 Requires:       LConf >= 1.3rc
 Requires:       icinga-web >= 1.7.0
 #Source0:        %name-%version.tar.gz
-Source0:        lconf-icinga-module-%{version}.tar.gz
+Source0:        lconf-icinga-mod-%{version}.tar.gz
 BuildArch:      noarch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
