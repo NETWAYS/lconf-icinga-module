@@ -10,6 +10,7 @@
         reloadOnSave: true,
         deferredRender: false,
         autoScroll:true,
+        enableTabScroll:true,
 
         eventDispatcher: null,
         referenceEvents: true,
