@@ -3,8 +3,10 @@ Ext.ns("lconf.Admin");
 (function() {
 var __instance;
 
-var getCompatibilityFieldMapping = function(legacyField, newField) {
-    return {
+var getCompatibilityFieldMapping = function(legacyField, newField, config) {
+    obj = {};
+    Ext.apply(obj, config);
+    Ext.apply(obj, {
         name: legacyField,
         convert: function(v,record) {
             if(typeof record[legacyField] !== "undefined") {
@@ -13,8 +15,9 @@ var getCompatibilityFieldMapping = function(legacyField, newField) {
                 return record[newField];
             }
         }
-    }
-}
+    }, config);
+    return obj;
+};
 
 lconf.Admin.getPrincipalEditor = function() {
     if(<?php echo ($us->hasCredential('lconf.admin') ? 'false' : 'true') ?>)
@@ -26,7 +29,7 @@ lconf.Admin.getPrincipalEditor = function() {
 
     /**
      * Excludes records selected in store.sourceStore from this store
-     * 
+     *
      * @param {Ext.data.Store} store
      */
     this.excludeSelectedRecords = function(store) {
@@ -64,12 +67,15 @@ lconf.Admin.getPrincipalEditor = function() {
         storeId: 'groupListStore',
         sourceStore: 'groupListSelectedStore',
         idProperty: 'role_id',
-        remoteSort: true,
         root:'roles',
         fields: [
             getCompatibilityFieldMapping('role_id','id'),
             getCompatibilityFieldMapping('role_name','name')
         ],
+        sortInfo: {
+            field: 'role_name',
+            direction: 'ASC'
+        },
         listeners: {
             // function to filter out already selected values from the available view
             load:this.excludeSelectedRecords,
@@ -85,12 +91,11 @@ lconf.Admin.getPrincipalEditor = function() {
         }),
         baseParams: {
             hideDisabled: false,
-            start: 0,
-            limit: 25
+            start: 0
         },
-        
+
     })
-    
+
     this.selectedGroupsStore = new Ext.data.JsonStore({
         autoDestroy:false,
         autoSave: false,
@@ -106,6 +111,10 @@ lconf.Admin.getPrincipalEditor = function() {
             getCompatibilityFieldMapping('role_id','id'),
             getCompatibilityFieldMapping('role_name','name')
         ],
+        sortInfo: {
+            field: 'role_name',
+            direction: 'ASC'
+        },
         writer: new Ext.data.JsonWriter({
             encode:true
         }),
@@ -119,8 +128,8 @@ lconf.Admin.getPrincipalEditor = function() {
             scope:this
         }
     })
-    
-    
+
+
     this.userStore = new Ext.data.JsonStore({
         autoDestroy: true,
         storeId: 'userListStore',
@@ -140,22 +149,26 @@ lconf.Admin.getPrincipalEditor = function() {
         }),
         baseParams: {
             hideDisabled: false,
-            start: 0,
-            limit: 25
+            start: 0
         },
-        remoteSort: true,
         fields: [
-            getCompatibilityFieldMapping('user_id','id'),
-            getCompatibilityFieldMapping('user_name','name')
+            getCompatibilityFieldMapping('user_name','name'),
+            getCompatibilityFieldMapping('user_lastname','lastname'),
+            getCompatibilityFieldMapping('user_firstname','firstname'),
+            getCompatibilityFieldMapping('user_id','id')
         ],
+        sortInfo: {
+            field: 'user_name',
+            direction: 'ASC'
+        },
         listeners: {
             // function to filter out already selected values from the available view
             load:this.excludeSelectedRecords,
             scope:this
         }
     })
-    
-    
+
+
     this.selectedUsersStore = new Ext.data.JsonStore({
         autoDestroy:false,
         autoSave: false,
@@ -165,12 +178,18 @@ lconf.Admin.getPrincipalEditor = function() {
         root:'users',
         url: '<?php echo $ro->gen("modules.lconf.data.principals") ?>',
         baseParams: {
-            target: 'users'    
+            target: 'users'
         },
         fields: [
-            getCompatibilityFieldMapping('user_id','id'),
-            getCompatibilityFieldMapping('user_name','name')
+            getCompatibilityFieldMapping('user_name','name'),
+            getCompatibilityFieldMapping('user_lastname','lastname'),
+            getCompatibilityFieldMapping('user_firstname','firstname'),
+            getCompatibilityFieldMapping('user_id','id')
         ],
+        sortInfo: {
+            field: 'user_name',
+            direction: 'ASC'
+        },
         writer: new Ext.data.JsonWriter({
             encode:true
         }),
@@ -183,34 +202,38 @@ lconf.Admin.getPrincipalEditor = function() {
             save: function(s) {s.load()}
         }
     })
-    
-    
+
+
     this.getPrincipalTabbar = function() {
         var usersTab = lconf.Admin.itemGranter({
             targetStore: this.selectedUsersStore,
-            store: this.userStore,    
+            store: this.userStore,
             iconCls: 'icinga-icon-user',
             title: _('Users'),
             id: "userPanel",
             columns:[
-                {header:_('Id'),name:'user_id'},
-                {header:_('User'),name:'user_name'}
+                {header:_('User'),name:'user_name',dataIndex:'user_name'},
+                {header:_('lastname'),name:'user_lastname',dataIndex:'user_lastname'},
+                {header:_('firstname'),name:'user_firstname',dataIndex:'user_firstname'},
+                {header:_('Id'),name:'user_id',dataIndex:'user_id', width: 40}
             ],
             targetColumns:[
-                {header:_('Id'),name:'user_id',dataIndex:'user_id'},
-                {header:_('User'),name:'user_name',dataIndex:'user_name'}
+                {header:_('User'),name:'user_name',dataIndex:'user_name'},
+                {header:_('lastname'),name:'user_lastname',dataIndex:'user_lastname'},
+                {header:_('firstname'),name:'user_firstname',dataIndex:'user_firstname'},
+                {header:_('Id'),name:'user_id',dataIndex:'user_id', width: 40}
             ]
-            
+
         })
         var groupTab = lconf.Admin.itemGranter({
             targetStore: this.selectedGroupsStore,
-            store: this.groupStore,    
+            store: this.groupStore,
             title: _('Groups'),
-            iconCls: 'icinga-icon-users',
+            iconCls: 'icinga-icon-group',
             id: "groupPanel",
             columns: [
-                {header:_('Id'),name:'role_id'},
-                {header:_('Group'),name:'role_name'}
+                {header:_('Id'),name:'role_id',dataIndex:'role_id'},
+                {header:_('Group'),name:'role_name',dataIndex:'role_name'}
             ],
             targetColumns:[
                 {header:_('Id'),name:'role_id',dataIndex:'role_id'},
@@ -225,13 +248,13 @@ lconf.Admin.getPrincipalEditor = function() {
                 groupTab
             ]
         })
-        
+
     }
     var id = Ext.id;
-    
+
     return new Ext.Panel({
         layout:'fit',
-        autoScroll:true,    
+        autoScroll:false,
         id: "wnd_"+id,
         items: this.getPrincipalTabbar(),
         title: '<b>'+('Access')+'</b>',
@@ -242,13 +265,11 @@ lconf.Admin.getPrincipalEditor = function() {
             handler: function(btn) {
                 this.selectedUsersStore.save();
                 this.selectedGroupsStore.save();
-                
-                
             },
             scope: this
         }]
     })
-    
+
 }
 
 lconf.GridDropZone = function(grid, config) {
@@ -258,23 +279,23 @@ lconf.GridDropZone = function(grid, config) {
 
 Ext.extend(lconf.GridDropZone, Ext.dd.DropZone, {
     onContainerOver:function(dd, e, data) {
-        return (!this.grid.disabled && (dd.grid !== this.grid)) 
+        return (!this.grid.disabled && (dd.grid !== this.grid))
                     ? this.dropAllowed : this.dropNotAllowed;
     },
-    
+
     onContainerDrop:function(dd, e, data) {
         if(!this.grid.disabled && dd.grid !== this.grid) {
             // Move the records between the stores on drop
-        
+
             Ext.each(data.selections,function(r) {
                 var rec = r.copy();
                 Ext.data.Record.id(rec);
                 this.grid.store.add(rec);
                 dd.grid.store.remove(r);
             },this)
-            
+
             return true;
-        } 
+        }
         return false;
     },
     containerScroll:true
@@ -283,21 +304,20 @@ Ext.extend(lconf.GridDropZone, Ext.dd.DropZone, {
 lconf.Admin.itemGranter = function(config) {
     this._interface = null;
     Ext.apply(this,config);
-    
+
     this.notifySelected = function(where) {
         if(where == "available")
             target = this.gridSelected;
-        else 
+        else
             target = this.gridAvailable;
 
         if(target.getSelectionModel().hasSelection()) {
             target.getSelectionModel().clearSelections();
         }
     }
-    
+
     this.gridAvailable =  new Ext.grid.GridPanel({
-        title: _("Available"),    
-        
+        title: _("Available"),
         store: this.store,
         columnWidth: .5,
         colModel: new Ext.grid.ColumnModel({
@@ -307,16 +327,45 @@ lconf.Admin.itemGranter = function(config) {
             },
             columns: this.columns
         }),
-        
-        bbar: new Ext.PagingToolbar({
-            pageSize: 25,
-            store: this.store,
-            displayInfo: true,
-            displayMsg: _('Showing ')+' {0} - {1} '+_('of')+' {2}',
-            emptyMsg: _('Nothing to display')
-        }),    
+
+        bbar: [{
+            text: _('Reload'),
+            iconCls: 'icinga-icon-arrow-refresh',
+            handler: function (b, e) {
+                this.ownerCt.ownerCt.store.reload();
+            }
+        },'->',{
+            xtype: "textfield",
+            name: "query",
+            emptyText: _('Type to search'),
+            enableKeyEvents: true,
+            validationDelay: 300,
+            allowBlank: true,
+            listeners: {
+                focus: function(field) {
+                    field.selectText();
+                },
+                valid: function(field) {
+                    grid = this.ownerCt.ownerCt;
+                    var searchVal = field.getValue();
+                    if(!searchVal) grid.store.clearFilter();
+                    else grid.store.filterBy(function(record) {
+                        if (record.get('user_id')) {
+                            if (record.get('user_name').match(searchVal)) return true;
+                            else if (record.get('user_lastname').match(searchVal)) return true;
+                            else if (record.get('user_firstname').match(searchVal)) return true;
+                            return false;
+                        }
+                        else if (record.get('role_id')) {
+                            if (record.get('role_name').match(searchVal)) return true;
+                            return false;
+                        }
+                    });
+                }
+            }
+        }],
         layout: 'fit',
-        enableDragDrop: true,        
+        enableDragDrop: true,
         sm: new Ext.grid.RowSelectionModel({
             singleSelect:false
         }),
@@ -325,11 +374,10 @@ lconf.Admin.itemGranter = function(config) {
                 this.dz = new lconf.GridDropZone(grid,{ddGroup:grid.ddGroup || 'GridDD'});
                 grid.getStore().load();
             }
-            
         }
-    });    
-    
-    
+    });
+
+
     this.gridSelected = new Ext.grid.GridPanel({
         title: _("Selected"),
         store: this.targetStore,
@@ -344,14 +392,14 @@ lconf.Admin.itemGranter = function(config) {
         layout: 'fit',
         enableDragDrop: true,
         sm: new Ext.grid.RowSelectionModel({
-            singleSelect:false    
+            singleSelect:false
         }),
         listeners: {
             render: function(grid) {
                 this.dz = new lconf.GridDropZone(grid,{ddGroup:grid.ddGroup || 'GridDD'});
-            }    
+            }
         }
-    });    
+    });
 
     this.addSelectedItems = function(from,to) {
         // check selection
@@ -369,31 +417,40 @@ lconf.Admin.itemGranter = function(config) {
         var available = this.gridAvailable;
         var selected =  this.gridSelected;
         this._interface = new Ext.Panel({
-            layout:'column',    
+            layout:'column',
             title:this.title,
-            defaults: {
-                cellCls: 'middleAlign'
-            },
-            items: [    
+            iconCls:this.iconCls,
+            items: [
                 available,
                 {
-                    width:50,
-                    style: 'margin-top:50%',
-                    cls: 'middleAlign',
-                    items:[{
-                        xtype:'button',
-                        text: '<<',
-                        width:50,
-                        handler: function() {this.addSelectedItems(selected,available)},
-                        scope: this
-                    },{
-                        xtype:'button',
-                        text: '>>',
-                        width:50,
-                        handler: function() {this.addSelectedItems(available,selected)},
-                        scope: this
-                    }]    
-                    
+                    xtype: 'panel',
+                    layout: {
+                        type: 'vbox',
+                        align: 'stretch',
+                        pack: 'start',
+                    },
+                    defaults: {
+                        border: false,
+                        bodyBorder: false,
+                        flex: 1
+                    },
+                    width:25,
+                    items:[{/* just a filler */},{
+                        height: 300,
+                        defaults: {
+                            xtype:'button',
+                            width: 23,
+                            height: 150,
+                            scope: this,
+                        },
+                        items: [{
+                            iconCls: 'icinga-icon-arrow-right',
+                            handler: function() {this.addSelectedItems(available,selected)},
+                        },{
+                            iconCls: 'icinga-icon-arrow-left',
+                            handler: function() {this.addSelectedItems(selected,available)},
+                        }]
+                    },{/* just a filler */}]
                 },
                 selected
             ],
@@ -406,7 +463,7 @@ lconf.Admin.itemGranter = function(config) {
                     el.resumeEvents();
                 }
             }
-        })        
+        })
 
     }
 
@@ -414,10 +471,10 @@ lconf.Admin.itemGranter = function(config) {
         this.selectedGroupsStore,
         this.selectedUsersStore
     ]
-    
-    this.selectedUsersStore.on("load",function() {this.sourceStore.load();},this.selectedUsersStore);    
+
+    this.selectedUsersStore.on("load",function() {this.sourceStore.load();},this.selectedUsersStore);
     this.selectedGroupsStore.on("load",function() {this.sourceStore.load();},this.selectedGroupsStore);
-    
+
 
     this.buildInterface();
     this._interface.cmp = this;

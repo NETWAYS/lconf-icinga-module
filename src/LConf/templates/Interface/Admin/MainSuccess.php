@@ -373,7 +373,7 @@ Ext.onReady(function() {
                 layout: 'accordion',
                 items: modItems.remove(null)            
             },
-            width:"50%"
+            width:"850"
         }]
     });
     
