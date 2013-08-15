@@ -547,7 +547,8 @@ var getContactServiceNotificationPreferences = function(store) {
 var updateFormValues = function() {
     var ldapMap = {};
     this.store.each(function(r) {
-        ldapMap[r.get('property').toLowerCase()] = r.get('value');
+        if (r.get('property'))
+            ldapMap[r.get('property').toLowerCase()] = r.get('value');
     });
     if(this.rendered) {
         

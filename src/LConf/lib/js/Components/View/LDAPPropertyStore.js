@@ -99,7 +99,7 @@
                 if(active && rec.store === null)
                     return true;
                 var prop = rec.get("property");
-                if(prop.toLowerCase() === key.toLowerCase()) {
+                if(prop && prop.toLowerCase() === key.toLowerCase()) {
                     result.push(rec);
                 }
             });

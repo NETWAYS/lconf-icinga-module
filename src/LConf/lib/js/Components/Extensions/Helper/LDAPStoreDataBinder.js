@@ -161,6 +161,8 @@ Ext.ns("LConf.Extensions.Helper").LDAPStoreDataBinder = function() {
         this.inSync = true;
         var ldapMap = {};
         this.store.each(function(r) {
+            if (!r.get('property')) return;
+
             if(typeof ldapMap[r.get('property').toLowerCase()] === "string") {
                 ldapMap[r.get('property').toLowerCase()]  = [ldapMap[r.get('property').toLowerCase()]];
             } 
