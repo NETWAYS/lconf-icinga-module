@@ -67,7 +67,7 @@
             {
                 id:'property',
                 header:'Property',
-                width:300,
+                width:200,
                 sortable:true,
                 dataIndex:'property',
                 editor:Ext.form.TextField

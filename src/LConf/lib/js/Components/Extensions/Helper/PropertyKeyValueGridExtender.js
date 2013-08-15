@@ -21,6 +21,7 @@ Ext.ns("LConf.Extensions.Helper").PropertyKeyValueGridExtender = function(colMod
         if(Ext.isArray(this.actionColumns)) {
             this.colModel.push({
                 xtype: 'actioncolumn',
+                width: 45,
                 items: this.actionColumns
             });
         }
