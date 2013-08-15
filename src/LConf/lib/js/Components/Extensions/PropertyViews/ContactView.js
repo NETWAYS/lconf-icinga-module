@@ -575,7 +575,7 @@ var updateFormValues = function() {
 
 LConf.Extensions.Registry.registerPropertyView({
 
-    objectclass: ".*(structuralobject|contact)$",
+    objectclass: ".*contact$",
     handler: function(store) {
         var p = new Ext.Panel({
             autoScroll: true,
