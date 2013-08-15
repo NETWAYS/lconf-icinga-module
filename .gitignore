@@ -1,8 +1,11 @@
 etc/sql/credentials.sql
+src/LConf/lib/js/Components/Configuration.js
 src/LConf/lib/ldapConfig/staticObjects.ini
 src/LConf/lib/ldapConfig/objectDefaultAttributes.ini
 src/LConf/config/module.xml
 src/LConf/config/access.xml
+config.status
+config.log
 Makefile
 src/LConf/.idea
 .meta/*
