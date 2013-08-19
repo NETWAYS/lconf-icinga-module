@@ -18,6 +18,22 @@ Group:          Applications/System
 %if 0%{?suse_version} > 1020
 BuildRequires:  fdupes
 %endif
+BuildRequires:  php5
+BuildRequires:  php5-ldap
+Requires:  	php5
+Requires:  	php5-ldap
+%else
+%if 0%{?el5}
+BuildRequires:  php53
+BuildRequires:  php53-ldap
+Requires:  	php53
+Requires:  	php53-ldap
+%else
+BuildRequires:  php
+BuildRequires:  php-ldap
+Requires:  	php
+Requires:  	php-ldap
+%endif
 %endif
 Requires:       LConf >= 1.3rc
 Requires:       icinga-web >= 1.7.0
