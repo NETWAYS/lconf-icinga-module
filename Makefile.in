@@ -21,7 +21,7 @@ install-basic:
 	cd src &&\
 		find . -type d |\
 		grep -v "\/\."|\
-		xargs -I{} ${INSTALL} -d -C ${INSTALL_OPTS} $(DESTDIR)${INSTALL_PATH}/{};
+		xargs -I{} ${INSTALL} -d ${INSTALL_OPTS} $(DESTDIR)${INSTALL_PATH}/{};
 	cd src &&\
 		find . -type f -name '*.php' -or -name '*.ini' -or -name '*.css' -or -name '*.xml' -or -name '*.js' -or -name '*.png' -or -name '*.jpg'|\
 		grep -v "\/\." |\
