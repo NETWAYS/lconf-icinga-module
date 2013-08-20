@@ -10,7 +10,7 @@
 Name:           lconf-icinga-web
 Summary:        Icinga Web Module for LConf
 Version:        1.3.2
-Release:        1
+Release:        1%{?dist}%{?custom}
 Url:            https://www.netways.org/projects/lconf-for-icinga
 License:        GPL v2 or later
 Group:          Applications/System
