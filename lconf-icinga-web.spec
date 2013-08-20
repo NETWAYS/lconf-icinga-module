@@ -22,7 +22,8 @@ BuildRequires:  php5
 BuildRequires:  php5-ldap
 Requires:  	php5
 Requires:  	php5-ldap
-%else
+%endif
+%if "%{_vendor}" == "redhat"
 %if 0%{?el5}
 BuildRequires:  php53
 BuildRequires:  php53-ldap
@@ -35,9 +36,8 @@ Requires:  	php
 Requires:  	php-ldap
 %endif
 %endif
-Requires:       LConf >= 1.3rc
+Requires:       LConf >= 1.3.0
 Requires:       icinga-web >= 1.7.0
-#Source0:        %name-%version.tar.gz
 Source0:        lconf-icinga-mod-%{version}.tar.gz
 BuildArch:      noarch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
