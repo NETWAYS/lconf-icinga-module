@@ -24,7 +24,8 @@ Requires:  	php5
 Requires:  	php5-ldap
 %endif
 %if "%{_vendor}" == "redhat"
-%if 0%{?el5}
+# el5 requires newer php53 rather than php (5.1)
+%if 0%{?el5} || 0%{?rhel} == 5 || "%{?dist}" == ".el5"
 BuildRequires:  php53
 BuildRequires:  php53-ldap
 Requires:  	php53
