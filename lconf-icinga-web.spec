@@ -1,47 +1,26 @@
 #
 # spec file for package lconf-icinga-web
 #
-# (c) 2012 Netways GmbH
+# (c) 2012-2013 Netways GmbH
 #
 # This file and all modifications and additions to the pristine
 # package are under the same license as the package itself.
 #
 
-Name:           lconf-icinga-web
-Summary:        Icinga Web Module for LConf
-Version:        1.3.2
-Release:        1%{?dist}%{?custom}
-Url:            https://www.netways.org/projects/lconf-for-icinga
-License:        GPL v2 or later
-Group:          Applications/System
-%if "%{_vendor}" == "suse"
-%if 0%{?suse_version} > 1020
-BuildRequires:  fdupes
-%endif
-BuildRequires:  php5
-BuildRequires:  php5-ldap
-Requires:  	php5
-Requires:  	php5-ldap
-%endif
-%if "%{_vendor}" == "redhat"
+%define revision 1
+
+%define phpname php
+
 # el5 requires newer php53 rather than php (5.1)
 %if 0%{?el5} || 0%{?rhel} == 5 || "%{?dist}" == ".el5"
-BuildRequires:  php53
-BuildRequires:  php53-ldap
-Requires:  	php53
-Requires:  	php53-ldap
-%else
-BuildRequires:  php
-BuildRequires:  php-ldap
-Requires:  	php
-Requires:  	php-ldap
+%define phpname php53
 %endif
+
+%define phpbuildname %{phpname}
+
+%if "%{_vendor}" == "suse"
+%define phpbuildname php5
 %endif
-Requires:       LConf >= 1.3.0
-Requires:       icinga-web >= 1.7.0
-Source0:        lconf-icinga-mod-%{version}.tar.gz
-BuildArch:      noarch
-BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %if "%{_vendor}" == "suse"
 %define         apacheuser wwwrun
@@ -55,6 +34,37 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 %define         clearcache %{_bindir}/icinga-web-clearcache
 %define         docdir %{_defaultdocdir}
 %define         ldapprefix lconf
+
+Name:           lconf-icinga-web
+Summary:        Icinga Web Module for LConf
+Version:        1.3.2
+Release:        1%{?dist}%{?custom}
+Url:            https://www.netways.org/projects/lconf-for-icinga
+License:        GPL v2 or later
+Group:          Applications/System
+BuildArch:      noarch
+
+%if "%{_vendor}" == "suse"
+%if 0%{?suse_version} > 1020
+BuildRequires:  fdupes
+%endif
+%endif
+
+%if "%{_vendor}" == "suse"
+AutoReqProv:    Off
+%endif
+
+Source0:        lconf-icinga-mod-%{version}.tar.gz
+
+BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+
+BuildRequires:  %{phpbuildname} >= 5.2.3
+BuildRequires:  %{phpbuildname}-ldap
+Requires:  	%{phpname} >= 5.2.3
+Requires:       %{phpname}-ldap
+Requires:       LConf >= 1.3.0
+Requires:       icinga-web >= 1.7.0
+
 
 %description
 LConf is a LDAP based configuration tool for Icinga® and Nagios®. All
