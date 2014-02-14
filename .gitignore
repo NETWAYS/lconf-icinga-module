@@ -10,4 +10,5 @@ Makefile
 src/LConf/.idea
 .meta/*
 .DS_Store
+.idea
 *.swp

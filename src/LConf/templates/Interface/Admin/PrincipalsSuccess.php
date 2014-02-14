@@ -66,6 +66,7 @@ lconf.Admin.getPrincipalEditor = function() {
         idProperty: 'role_id',
         remoteSort: true,
         root:'roles',
+        totalProperty:'totalCount',
         fields: [
             getCompatibilityFieldMapping('role_id','id'),
             getCompatibilityFieldMapping('role_name','name')
