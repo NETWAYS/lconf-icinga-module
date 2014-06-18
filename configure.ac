@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.67])
-AC_INIT([lconf-icinga-module], [1.3.2], [www.netways.org/projects/lconf-for-icinga])
+AC_INIT([lconf-icinga-module], [1.4.0], [www.netways.org/projects/lconf-for-icinga])
 
 # Checks for programs.
 AC_PREFIX_DEFAULT(/usr/local/icinga-web/)

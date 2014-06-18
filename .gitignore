@@ -12,3 +12,4 @@ src/LConf/.idea
 .DS_Store
 .idea
 *.swp
+autom4te.cache
