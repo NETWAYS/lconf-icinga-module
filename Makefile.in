@@ -59,3 +59,13 @@ create-tarball:
 	$(eval version := $(shell git describe --tags HEAD | sed 's/^v//'))
 	git archive -o "../${TARBALL_NAME}-$(version).tar.gz" --prefix="${TARBALL_NAME}-$(version)/" HEAD
 	@echo "You find your tarball here: ../${TARBALL_NAME}-$(version).tar.gz"
+
+clean:
+	rm -f Makefile
+	rm -f src/LConf/lib/ldapConfig/objectDefaultAttributes.ini
+	rm -f src/LConf/lib/ldapConfig/staticObjects.ini
+	rm -f src/LConf/config/module.xml
+	rm -f src/LConf/config/access.xml
+	rm -f src/LConf/lib/js/Components/Configuration.js
+	rm -f etc/sql/credentials.sql
+
