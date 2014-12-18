@@ -119,6 +119,15 @@ var getHostInfoPanel = function(store) {
         hostgroupBox.updateFieldValues = updateFieldValues;
         
     }
+
+    var onTristateToggle = function(cmp,state) {
+        if(state === "true") {
+            store.setProperty(this.lconfProperty,"1");
+        } else {
+            store.deleteProperties(store.findProperty(this.lconfProperty));
+        }
+    };
+
     fn.defer(200,null,[fn]);
     
     return {
@@ -167,7 +176,24 @@ var getHostInfoPanel = function(store) {
             },
             hostgroupBox,
             contactgroupBox ,
-            contactBox]
+            contactBox,
+            {
+                xtype: 'tristatebutton',
+                enableToggle: true,
+                pressed: "disabled",
+                fieldLabel: "Disable",
+                text: 'Default',
+                stateText: {
+                    "true": 'Yes',
+                    "false": 'No',
+                    "disabled": 'Default'
+                },
+                lconfProperty: prefix+'HostDisable',
+                updateFieldValues: updateTristateButtonValues,
+                listeners: {
+                    toggle: onTristateToggle
+                }
+            }]
         }
     };
     
