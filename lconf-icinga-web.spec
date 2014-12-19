@@ -104,7 +104,7 @@ if [ -x %{clearcache} ]; then %{clearcache}; fi
 
 %files
 %defattr(-,root,root,-)
-%doc etc/sql doc/AUTHORS doc/LICENSE doc/INSTALL
+%doc etc/sql doc/AUTHORS doc/LICENSE doc/install.md
 %defattr(-,root,root,-)
 %if "%{_vendor}" == "redhat"
 %doc doc/README.RHEL
