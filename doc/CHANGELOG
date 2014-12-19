@@ -5,7 +5,16 @@
 
 ### FIXES
 
-
+* Bug #2002: graphical tab does not ask for host for service group host
+* Bug #2175: LCONF->EXPORT->CLUSTER only allows [a-zA-Z0-9_]
+* Bug #2396: Contact notification settings for service are wrong
+* Bug #2421: Unsupported contact settings on Structural Objects: Remove Properties & Contact Settings Tab
+* Bug #2619: LDAP search string not encoded correctly
+* Bug #2688: Validation of icinga2 output fails
+* Bug #2799: lconfHostEscalation- and lconfServiceEscalation-properties cause Object class violation
+* Bug #2801: Missing host display_name attribute: wrong lconfHostDisplayNotes
+* Feature #2330: Disabling hosts and services / GUI
+* Feature #2497: Add notes, notes_url, action_url as additional fields in graphical tab
 
 ## 1.4.0 - 18/06/2014
 
