@@ -77,6 +77,6 @@ Update version
 
 Create tarball
 
-    VERSION=1.4.0
+    VERSION=1.4.1
     git archive --format=tar --prefix=lconf-icinga-mod-$VERSION/ tags/v$VERSION | gzip >lconf-icinga-mod-$VERSION.tar.gz
 
