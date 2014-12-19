@@ -402,12 +402,16 @@ var getContactServiceNotificationPreferences = function(store) {
         disabled: true,
         border: false,
         items: [{
-            text: 'Down',
-            notificationType: 'd',
+            text: 'Warning',
+            notificationType: 'w',
             enableToggle: true
         },{
-            text: 'Unreachable',
+            text: 'Unknown',
             notificationType: 'u',
+            enableToggle: true
+        },{
+            text: 'Critical',
+            notificationType: 'c',
             enableToggle: true
         },{
             text: 'Recovery',
