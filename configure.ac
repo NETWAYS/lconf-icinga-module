@@ -1,8 +1,18 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.67])
-AC_INIT([lconf-icinga-module], [1.4.0], [www.netways.org/projects/lconf-for-icinga])
+# include some meta
+m4_include([etc/make/version.m4])
+
+# Which version of AC
+AC_PREREQ(2.67)
+
+# Init project
+AC_INIT(lconf-icinga-module, [LCONF_ICINGAWEB_VERSION], [www.netways.org/projects/lconf-for-icinga])
+
+# Release date
+RELEASE_DATE=LCONF_ICINGAWEB_RELEASE_DATE
+
 
 # Checks for programs.
 AC_PREFIX_DEFAULT(/usr/local/icinga-web/)

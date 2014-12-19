@@ -72,7 +72,7 @@ Update `doc/AUTHORS` and `.mailmap` file
 
 Update version
 
-    vim configure.ac
+    vim etc/make/version.m4
     autoconf
 
 Create tarball
