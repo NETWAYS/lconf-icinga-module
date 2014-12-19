@@ -3,12 +3,20 @@
 
 ## 1.4.1 - 19/12/2014
 
+### CHANGES
+
+* Bug #2421: Structural Objects: Remove Contact Settings Tab
+* Bug #2688: Properly parse the Icinga2 output and present a nice table
+* Bug #2002: Remove servicegroup members from settings (broken feature)
+* Feature #2330: Add button for disabling hosts and services
+* Feature #2497: Add additional fields: notes, notes_url, action_url
+
 ### FIXES
 
 * Bug #2002: graphical tab does not ask for host for service group host
 * Bug #2175: LCONF->EXPORT->CLUSTER only allows [a-zA-Z0-9_]
 * Bug #2396: Contact notification settings for service are wrong
-* Bug #2421: Unsupported contact settings on Structural Objects: Remove Properties & Contact Settings Tab
+* Bug #2421: Unsupported contact settings on Structural Objects: Remove Contact Settings Tab
 * Bug #2619: LDAP search string not encoded correctly
 * Bug #2688: Validation of icinga2 output fails
 * Bug #2799: lconfHostEscalation- and lconfServiceEscalation-properties cause Object class violation
