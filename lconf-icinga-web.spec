@@ -37,7 +37,7 @@
 
 Name:           lconf-icinga-web
 Summary:        Icinga Web Module for LConf
-Version:        1.4.0
+Version:        1.4.1
 Release:        1%{?dist}%{?custom}
 Url:            https://www.netways.org/projects/lconf-for-icinga
 License:        GPL v2 or later
@@ -104,7 +104,7 @@ if [ -x %{clearcache} ]; then %{clearcache}; fi
 
 %files
 %defattr(-,root,root,-)
-%doc etc/sql doc/AUTHORS doc/LICENSE doc/INSTALL
+%doc etc/sql doc/AUTHORS doc/LICENSE doc/install.md
 %defattr(-,root,root,-)
 %if "%{_vendor}" == "redhat"
 %doc doc/README.RHEL
@@ -124,23 +124,3 @@ if [ -x %{clearcache} ]; then %{clearcache}; fi
 
 
 %changelog
-* Wed Jun 18 2014 michael.friedrich@netways.de
-- bump 1.4.0
-
-* Thu May 16 2013 michael.friedrich@netways.de
-- rewrite for configure/make
-- use make install-basic without clearcache
-- ldapprefix is now 'lconf', no more sed
-- fix rpmplint errors from macro usage in Changelog
-
-* Wed Feb 27 2013 Markus Frosch <markus.frosch@netways.de>
-- Fixes for doc handling on SuSE (sql scripts where missing)
-- cleaner install, moved stuff to build
-- avoid file double listing
-
-* Fri Jan 15 2013 christian.dengler@netways.de
-- fix typo; remove sql-templates from distribution differentiation
-
-* Wed Dec 19 2012 michael.friedrich@netways.de
-- initial creation, for suse and rhel
-
