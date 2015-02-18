@@ -86,6 +86,8 @@ properties[] = "@ldap_prefix@HostProcessPerfData"
 properties[] = "@ldap_prefix@Parent"
 properties[] = "@ldap_prefix@HostLowFlapThreshold"
 properties[] = "@ldap_prefix@HostHighFlapThreshold"
+properties[] = "@ldap_prefix@HostIconImage"
+properties[] = "@ldap_prefix@HostIconImageAlt"
 
 ; service attributes
 ;properties[] = "@ldap_prefix@Checkcommand"
@@ -121,6 +123,8 @@ properties[] = "@ldap_prefix@ServicePassiveChecksEnabled"
 properties[] = "@ldap_prefix@ServiceProcessPerfData"
 properties[] = "@ldap_prefix@ServiceLowFlapThreshold"
 properties[] = "@ldap_prefix@ServiceHighFlapThreshold"
+properties[] = "@ldap_prefix@ServiceIconImage"
+properties[] = "@ldap_prefix@ServiceIconImageAlt"
 
 ; host escalation attributes
 properties[] = "@ldap_prefix@HostEscalationContacts"
