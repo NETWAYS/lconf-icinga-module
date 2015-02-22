@@ -1,6 +1,17 @@
 # LConf Icinga Web Changelog
 
 
+## 1.5.0 - XX/YY/2015
+
+### CHANGES
+
+* #424: Add icon_image and icon_image_alt to ldap schema
+
+### FEATURES
+
+### FIXES
+
+
 ## 1.4.1 - 19/12/2014
 
 ### CHANGES
