@@ -294,6 +294,11 @@
                         <ae:parameter name="parameter">{"LDAP":["objectclass=@ldap_prefix@Timeperiod"],"Attr": "cn"}</ae:parameter>
                     </ae:parameter>
 
+                    <ae:parameter name="@ldap_prefix@HostEscalationHostGroups">
+                        <ae:parameter name="factory">Set</ae:parameter>
+                        <ae:parameter name="parameter">{"LDAP":["objectclass=@ldap_prefix@Hostgroup"],"Attr": "cn"}</ae:parameter>
+                    </ae:parameter>
+
                     <!-- serviceescalations -->
                     <ae:parameter name="@ldap_prefix@ServiceEscalationContacts">
                         <ae:parameter name="factory">Set</ae:parameter>
@@ -308,6 +313,16 @@
                     <ae:parameter name="@ldap_prefix@ServiceEscalationPeriod">
                         <ae:parameter name="factory">ComboBox</ae:parameter>
                         <ae:parameter name="parameter">{"LDAP":["objectclass=@ldap_prefix@Timeperiod"],"Attr": "cn"}</ae:parameter>
+                    </ae:parameter>
+
+                    <ae:parameter name="@ldap_prefix@ServiceEscalationHostGroups">
+                        <ae:parameter name="factory">Set</ae:parameter>
+                        <ae:parameter name="parameter">{"LDAP":["objectclass=@ldap_prefix@Hostgroup"],"Attr": "cn"}</ae:parameter>
+                    </ae:parameter>
+
+                    <ae:parameter name="@ldap_prefix@ServiceEscalationServiceGroups">
+                        <ae:parameter name="factory">Set</ae:parameter>
+                        <ae:parameter name="parameter">{"LDAP":["objectclass=@ldap_prefix@Servicegroup"],"Attr": "cn"}</ae:parameter>
                     </ae:parameter>
 
                 </setting>
