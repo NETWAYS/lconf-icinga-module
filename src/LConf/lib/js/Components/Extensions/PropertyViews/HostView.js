@@ -173,6 +173,12 @@ var getHostInfoPanel = function(store) {
                 xtype: 'textfield',
                 lconfProperty: prefix+"Address",
                 anchor: '90%'
+            },{
+                fieldLabel: 'Address6',
+                hideOn: 'structuralObject',
+                xtype: 'textfield',
+                lconfProperty: prefix+"Address6",
+                anchor: '90%'
             },
             hostgroupBox,
             contactgroupBox ,

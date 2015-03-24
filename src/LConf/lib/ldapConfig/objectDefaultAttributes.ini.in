@@ -12,6 +12,12 @@ cn                = ""
 objectclass            = "@ldap_prefix@Contact"
 cn                = ""
 @ldap_prefix@Alias            = ""
+@ldap_prefix@ContactAddress1  = ""
+@ldap_prefix@ContactAddress2  = ""
+@ldap_prefix@ContactAddress3  = ""
+@ldap_prefix@ContactAddress4  = ""
+@ldap_prefix@ContactAddress5  = ""
+@ldap_prefix@ContactAddress6  = ""
 
 [Contactgroup]
 objectclass            = "@ldap_prefix@Contactgroup"
@@ -22,6 +28,7 @@ cn                = ""
 objectclass            = "@ldap_prefix@Host"
 cn                = ""
 @ldap_prefix@Address            = ""
+@ldap_prefix@Address6           = ""
 
 [Hostescalation]
 objectclass            = "@ldap_prefix@HostEscalation"
