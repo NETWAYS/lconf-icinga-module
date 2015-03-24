@@ -5,6 +5,8 @@
 
 ### CHANGES
 
+* Requires LConf Backend 1.5.x!
+
 * #424: Add icon_image and icon_image_alt to ldap schema
 
 ### FEATURES
