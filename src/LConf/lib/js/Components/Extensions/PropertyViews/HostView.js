@@ -67,6 +67,19 @@ var getHostInfoPanel = function(store) {
         }
     };
 
+     var onAdditiveChange = function(cmp,value) {
+        if(value === "") {
+            var val = "mygroups"; //get the cmp.lconfProperty value
+            store.setProperty(cmp.lconfProperty,val.replace(/[^+]/, ''));
+        } else {
+            var val = "mygroups"; //get the cmp.lconfProperty value
+            if (val.charAt[0] !== "+") {
+                val = "+" + val;
+            }
+            store.setProperty(cmp.lconfProperty,val);
+        }
+    };
+
     //
     // Define specific comboboxes for groups with the fatory classes
     var contactgroupBox = LConf.Editors.EditorFieldManager.getEditorFieldForProperty(
@@ -99,6 +112,19 @@ var getHostInfoPanel = function(store) {
             anchor: '90%' ,
             listeners: {
                 change: onFieldChange
+            }
+        },[prefix+"host"]
+    );
+
+    var hostgroupAdditiveBox = LConf.Editors.EditorFieldManager.getEditorFieldForProperty(
+        prefix+"Hostgroups",{
+            fieldLabel: '',
+            boxLabel: 'A',
+            inputValue: 'a',
+            lconfProperty: prefix+"Hostgroups",
+            xtype: 'checkbox',
+            listeners: {
+                change: onAdditiveChange
             }
         },[prefix+"host"]
     );
@@ -194,6 +220,7 @@ var getHostInfoPanel = function(store) {
                 anchor: '90%'
             },
             hostgroupBox,
+            hostgroupAdditiveBox,
             contactgroupBox ,
             contactBox,
             parentBox,

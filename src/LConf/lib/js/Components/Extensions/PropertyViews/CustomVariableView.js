@@ -2,11 +2,11 @@
 /*global Ext:true, LConf: true */
 (function() {
     "use strict";
-    
-    
+
+
     var getCVGrid = function(bstore,type) {
         var ns = Ext.ns("LConf").Configuration.prefix;
-        
+
         var grid = new Ext.grid.EditorGridPanel({
             bindId: 'cvpanel_'+type,
             bindType: type,
@@ -47,7 +47,7 @@
                 }]
             }),
             sm: new Ext.grid.RowSelectionModel({
-                
+
             }),
             viewConfig:{
                 forceFit:true
@@ -56,14 +56,14 @@
                 data: {},
                 idProperty:'id',
                 fields: ['id','cv_name','cv_value']
-                
+
             }),
             listeners: {
-                'afteredit': function(e) {
+                'afteredit' : function(e) {
                     var gridstore = e.grid.getStore();
-                    
+
                     bstore.remove(bstore.findProperty(ns+type+"customvar"),true);
-                    
+
                     gridstore.each(function(record) {
                        bstore.setProperty(ns+type+"customvar","_"+record.get('cv_name')+" "+record.get('cv_value'),true);
                     },this);
@@ -72,7 +72,7 @@
         });
         return grid;
     };
-    
+
     var LConfCVToCVGrid = function(values,grid) {
         var regexp = new RegExp("\w*"+grid.bindType+"customvar","i");
         var store = grid.getStore();
@@ -88,7 +88,7 @@
                 value = [value];
             AppKit.log(value);
             for(var x=0;x<value.length;x++) {
-                
+
                 var cv = value[x].split(" ");
                 if(cv.length < 2)
                     continue;
@@ -98,11 +98,12 @@
                 }));
             }
         }
-        
+
         store.add(data);
     };
-    
+
     var CVGridToLConfCV = function() {
+        AppKit.log(this,arguments)
     };
     var getHandler = function(type) {
         return function(store) {
@@ -125,18 +126,18 @@
                 defaults: {
                     flex: 1,
                     border: false
-                },             
+                },
                 items: items
             });
-            
+
             var getMatchfn = function(matchType) {
                 return function(cmp) {
                     return (cmp.bindId === "cvpanel_"+matchType);
                 }
             };
-            
+
             for(var i=0;i<type.length;i++) {
-                binder.registerCustomBinding(getMatchfn(type[i]),CVGridToLConfCV,LConfCVToCVGrid); 
+                binder.registerCustomBinding(getMatchfn(type[i]),CVGridToLConfCV,LConfCVToCVGrid);
             }
             binder.bindCmp(p,true);
             p.addListener("destroy",function() {
@@ -149,15 +150,15 @@
         objectclass: ".*(host)$",
         priority: 0,
         handler: getHandler(['host'])
-            
+
     });
-    
+
     LConf.Extensions.Registry.registerPropertyView({
         objectclass: ".*(service)$",
         priority: 0,
         handler: getHandler(['service'])
     });
-    
+
     LConf.Extensions.Registry.registerPropertyView({
         objectclass: ".*(structuralobject)$",
         priority: 0,
