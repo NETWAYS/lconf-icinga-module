@@ -306,7 +306,7 @@ var getCheckPreferences = function(store) {
                     xtype: 'numberfield',
                     fieldLabel:'Check Interval',
                     lconfProperty: prefix+'HostCheckInterval',
-                    width: 30
+                    width: 35
                 },{
                     xtype: 'label',
                     text: 'Retry Interval',
@@ -316,7 +316,17 @@ var getCheckPreferences = function(store) {
                 },{
                     xtype: 'numberfield',
                     lconfProperty: prefix+'HostCheckRetryInterval',
-                    width: 30
+                    width: 35
+                },{
+                    xtype: 'label',
+                    text: 'Max Check Attempts',
+                    style: {
+                        'margin-top' : "4px"
+                    }
+                },{
+                    xtype: 'numberfield',
+                    lconfProperty: prefix+'HostCheckMaxCheckAttempts',
+                    width: 35
                 }]
             },{
                 // Little hack for populating buttons, as they are not defined in the items list
@@ -339,7 +349,7 @@ var getCheckPreferences = function(store) {
                 fieldLabel:'Freshness threshold',
                 lconfProperty: prefix+'HostFreshnessThreshold',
                 updateFieldValues: updateFieldValues,
-                width: 30
+                width: 35
             },{
                 xtype: 'tristatebutton',
                 enableToggle: true,
@@ -609,7 +619,7 @@ var getNotificationPreferences = function(store) {
                 },
                 lconfProperty: prefix+'HostNotificationInterval',
 
-                width:30
+                width:35
             },{
                 xtype: 'tristatebutton',
                 fieldLabel: 'Enable notifications',
@@ -800,7 +810,7 @@ var getFlappingPreferences = function(store) {
                     xtype:'numberfield',
                     id: 'txtnumberfield_min',
                     value:0,
-                    width:30,
+                    width:35,
                     listeners: {
                         change: function(cmp,val) {
                             Ext.getCmp('txtnumberfield_sld').thumbs[0].value = val;
@@ -828,7 +838,7 @@ var getFlappingPreferences = function(store) {
                     xtype:'numberfield',
                     id: 'txtnumberfield_max',
                     value:0,
-                    width:30,
+                    width:35,
                     listeners:{
                         change: function(cmp,val) {
                             Ext.getCmp('txtnumberfield_sld').thumbs[1].value = val;

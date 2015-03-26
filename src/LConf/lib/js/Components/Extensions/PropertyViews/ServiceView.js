@@ -1,6 +1,6 @@
 /**
  * The simple editor for service information. Contains most parameters that are appliable for hosts
- * 
+ *
  * @TODO: Almost excatly the same as the Hostview, refactor
  **/
 /*jshint browser:true, curly:false */
@@ -13,10 +13,10 @@ var prefix = LConf.Configuration.prefix;
 
 /**
  * Eventhandler function for syncing properties defined in the ldap editor with this editor
- * 
+ *
  * @param {Object} a (lconf-)property->value map
  **/
-var updateFieldValues = function(map) {   
+var updateFieldValues = function(map) {
     if(!this.lconfProperty) {
         return;
     }
@@ -35,7 +35,7 @@ var updateFieldValues = function(map) {
 
 /**
  * Special helper for syncing TriStateButtons
- * 
+ *
  * @param {Object} a (lconf-)property->value map
  **/
 var updateTristateButtonValues = function(map) {
@@ -67,7 +67,7 @@ var getServiceInfoPanel = function(store) {
             lconfProperty: prefix+"ServiceContactgroups",
             xtype: 'combo',
             anchor: '90%',
-            
+
             listeners: {
                 change: onFieldChange
             }
@@ -102,13 +102,13 @@ var getServiceInfoPanel = function(store) {
         }
         contactgroupBox.store.setBaseParam("connectionId",store.getConnection());
         contactgroupBox.updateFieldValues = updateFieldValues;
-        
+
         contactBox.store.setBaseParam("connectionId",store.getConnection());
         contactBox.updateFieldValues = updateFieldValues;
         servicegroupBox.store.setBaseParam("connectionId",store.getConnection());
         servicegroupBox.updateFieldValues = updateFieldValues;
-            
-        
+
+
     }
 
     var onTristateToggle = function(cmp,state) {
@@ -174,18 +174,18 @@ var getServiceInfoPanel = function(store) {
 	    }]
         }
     };
-    
+
 };
 
 /**
- * Returns the general host information FormPanel 
- * 
+ * Returns the general host information FormPanel
+ *
  * @param {Ext.data.Store}  The (possibly yet unpopulated) store containing the hosts information
- * 
+ *
  * @return {Ext.form.FormPanel}
  **/
 var getCheckPreferences = function(store) {
-    
+
     // these helperfunctions are defined inline as we need the store
     // @TODO: not nice and a lot of copy&paste
     var onFieldChange = function(cmp,value) {
@@ -195,7 +195,7 @@ var getCheckPreferences = function(store) {
             store.setProperty(cmp.lconfProperty,value);
         }
     };
-    
+
     var onTristateToggle = function(cmp,state) {
         if(state === "true") {
             store.setProperty(this.lconfProperty,"1");
@@ -212,7 +212,7 @@ var getCheckPreferences = function(store) {
             lconfProperty: prefix+"ServiceCheckCommand",
             xtype: 'combo',
             emptyText: 'Default service check command',
-            anchor: '90%',            
+            anchor: '90%',
             listeners: {
                 change: onFieldChange
             }
@@ -220,7 +220,7 @@ var getCheckPreferences = function(store) {
     );
     (function() {
         if(!checkCommandBox.store)
-         return checkCommandBox;  
+         return checkCommandBox;
         checkCommandBox.store.setBaseParam("connectionId",store.getConnection());
         checkCommandBox.updateFieldValues = updateFieldValues;
     }).defer(200);
@@ -240,7 +240,7 @@ var getCheckPreferences = function(store) {
                 listeners: {
                     change: onFieldChange
                 }
-                
+
             },
             items: [checkCommandBox,{
                 xtype:'compositefield',
@@ -248,10 +248,10 @@ var getCheckPreferences = function(store) {
                 anchor: '90%',
                 defaults: {
                     updateFieldValues: updateFieldValues,
-                    listeners: {    
+                    listeners: {
                         change: onFieldChange
                     }
-                
+
                 },
                 updateFieldValues: function(ldapMap) {
                     this.items.each(function(field) {
@@ -263,7 +263,7 @@ var getCheckPreferences = function(store) {
                     xtype: 'numberfield',
                     fieldLabel:'Check Interval',
                     lconfProperty: prefix+'ServiceCheckInterval',
-                    width: 30
+                    width: 35
                 },{
                     xtype: 'label',
                     text: 'Retry Interval',
@@ -273,7 +273,17 @@ var getCheckPreferences = function(store) {
                 },{
                     xtype: 'numberfield',
                     lconfProperty: prefix+'ServiceCheckRetryInterval',
-                    width: 30                      
+                    width: 35
+                },{
+                    xtype: 'label',
+                    text: 'Max Check Attempts',
+                    style: {
+                        'margin-top' : "4px"
+                    }
+                },{
+                    xtype: 'numberfield',
+                    lconfProperty: prefix+'ServiceCheckMaxCheckAttempts',
+                    width: 35
                 }]
             },{
                 xtype: 'hidden',
@@ -283,7 +293,7 @@ var getCheckPreferences = function(store) {
                     for(var i=0;i<btnGroups.length;i++) {
                         btnGroups[i].updateFieldValues.apply(btnGroups[i],arguments);
                     }
-                
+
                     var tristateBtns = this.ownerCt.findByType('tristatebutton');
                     for(i=0;i<tristateBtns.length;i++) {
                         tristateBtns[i].updateFieldValues.apply(tristateBtns[i],arguments);
@@ -294,7 +304,7 @@ var getCheckPreferences = function(store) {
                 fieldLabel:'Freshness threshold',
                 lconfProperty: prefix+'ServiceFreshnessThreshold',
                 updateFieldValues: updateFieldValues,
-                width: 30
+                width: 35
             },{
                 xtype: 'tristatebutton',
                 enableToggle: true,
@@ -308,11 +318,11 @@ var getCheckPreferences = function(store) {
                 },
                 lconfProperty: prefix+'ServiceCheckFreshness',
                 updateFieldValues: updateTristateButtonValues,
-                listeners: {    
+                listeners: {
                     toggle: onTristateToggle
                 }
-            },{ 
-                xtype:'buttongroup',     
+            },{
+                xtype:'buttongroup',
                 anchor: '90%',
                 labelwidth: 100,
                 align: 'center',
@@ -322,10 +332,10 @@ var getCheckPreferences = function(store) {
                 defaults: {
                     updateFieldValues: updateFieldValues,
                     border: false,
-                    listeners: {    
+                    listeners: {
                         change: onFieldChange
                     }
-                
+
                 },
                 items: [{
                     xtype: 'tristatebutton',
@@ -337,7 +347,7 @@ var getCheckPreferences = function(store) {
                         "disabled": 'Active: Default'
                     },
                     updateFieldValues: updateTristateButtonValues,
-                    listeners: {    
+                    listeners: {
                         toggle: onTristateToggle
                     },
                     pressed: "disabled",
@@ -353,7 +363,7 @@ var getCheckPreferences = function(store) {
                         "disabled": 'Passive: Default'
                     },
                     updateFieldValues: updateTristateButtonValues,
-                    listeners: {    
+                    listeners: {
                         toggle: onTristateToggle
                     },
                     pressed: "disabled",
@@ -364,7 +374,7 @@ var getCheckPreferences = function(store) {
                     text: 'Perfdata: Default',
                     width:100,
                     updateFieldValues: updateTristateButtonValues,
-                    listeners: {    
+                    listeners: {
                         toggle: onTristateToggle
                     },
                     stateText: {
@@ -380,9 +390,9 @@ var getCheckPreferences = function(store) {
         }]
     };
 };
-    
+
 var getNotificationPreferences = function(store) {
-        
+
     var onFieldChange = function(cmp,value) {
         if(value === "") {
             store.deleteProperties(store.findProperty(cmp.lconfProperty));
@@ -406,7 +416,7 @@ var getNotificationPreferences = function(store) {
             lconfProperty: prefix+"ServiceNotificationPeriod",
             xtype: 'combo',
             emptyText: 'Default service check command',
-            anchor: '90%',         
+            anchor: '90%',
             listeners: {
                 change: onFieldChange
             }
@@ -418,7 +428,7 @@ var getNotificationPreferences = function(store) {
         tpCommandBox.store.setBaseParam("connectionId",store.getConnection());
         tpCommandBox.updateFieldValues = updateFieldValues;
     }).defer(200);
-    
+
     var btnGroup = new Ext.ButtonGroup({
         xtype: 'buttongroup',
         autoHeight: true,
@@ -487,8 +497,8 @@ var getNotificationPreferences = function(store) {
             }
         },this);
     };
-    
-    
+
+
     var defaultBtn =  new Ext.Button({
         xtype: 'button',
         text: 'Use default rules',
@@ -497,7 +507,7 @@ var getNotificationPreferences = function(store) {
         enableToggle: true,
         lconfProperty: prefix+'ServiceNotificationOptions',
         toggleHandler: function(btn,state) {
-            
+
             for(var i=1;i<this.ownerCt.items.length;i++) {
                 this.ownerCt.items.items[1].setDisabled(state);
             }
@@ -511,24 +521,24 @@ var getNotificationPreferences = function(store) {
         updateFieldValues: function(map) {
             if(typeof map[this.lconfProperty.toLowerCase()] === "undefined") {
                 this.toggle(true,true);
-                
+
                 btnGroup.setDisabled(true);
-                
+
             } else {
-                this.toggle(false,true); 
+                this.toggle(false,true);
                 btnGroup.setDisabled(false);
-                
+
             }
         }
     });
 
     return {
         xtype:'form',
-        autoHeight: true,        
+        autoHeight: true,
         flex: 1,
         layout: 'form',
         padding: "1em 1em 1em 1em",
-        
+
         items: {
             xtype: 'fieldset',
             flex:1,
@@ -537,11 +547,11 @@ var getNotificationPreferences = function(store) {
             border: true,
             anchor: '90%',
             defaults: {
-               
+
                 listeners: {
                     change: onFieldChange
                 }
-        
+
             },
             items: [
                 defaultBtn,
@@ -554,7 +564,7 @@ var getNotificationPreferences = function(store) {
                     for(var i=0;i<btnGroups.length;i++) {
                         btnGroups[i].updateFieldValues.apply(btnGroups[i],arguments);
                     }
-                
+
                     var tristateBtns = this.ownerCt.findByType('tristatebutton');
                     for(i=0;i<tristateBtns.length;i++) {
                         tristateBtns[i].updateFieldValues.apply(tristateBtns[i],arguments);
@@ -574,7 +584,7 @@ var getNotificationPreferences = function(store) {
                 },
                 lconfProperty: prefix+'ServiceNotificationInterval',
 
-                width:30
+                width:35
             },{
                 xtype: 'tristatebutton',
                 fieldLabel: 'Enable notifications',
@@ -586,7 +596,7 @@ var getNotificationPreferences = function(store) {
                     "disabled": 'Use default'
                 },
                 updateFieldValues: updateTristateButtonValues,
-                listeners: {    
+                listeners: {
                     toggle: onTristateToggle
                 },
                 pressed: 'disabled'
@@ -621,7 +631,7 @@ var getFlappingPreferences = function(store) {
             xtype: 'button',
             width:75,
             bubbleEvents: ["toggle","change"]
-        }, 
+        },
         lconfProperty: prefix+'ServiceFlapDetectionOptions',
         listeners: {
             toggle: function() {
@@ -653,7 +663,7 @@ var getFlappingPreferences = function(store) {
             enableToggle: true
         }]
     });
-    
+
     btnGroup.updateFieldValues = function(map) {
         var p = this.lconfProperty.toLowerCase();
         if(typeof map[p] === "undefined")
@@ -667,7 +677,7 @@ var getFlappingPreferences = function(store) {
             }
         },this);
     };
-    
+
     var defaultBtn = new Ext.Button({
         xtype: 'button',
         text: 'Use default rules',
@@ -676,9 +686,9 @@ var getFlappingPreferences = function(store) {
         lconfProperty: prefix+'ServiceFlapDetectionOptions',
         enableToggle: true,
         toggleHandler: function(btn,state) {
-            this.ownerCt.items.items[1].setDisabled(state);     
+            this.ownerCt.items.items[1].setDisabled(state);
             if(state === false) {
-                btnGroup.items.each(function(btn) { 
+                btnGroup.items.each(function(btn) {
                     btn.toggle(false,true);
                 });
                 store.deleteProperties(store.findProperty(btn.lconfProperty));
@@ -688,18 +698,18 @@ var getFlappingPreferences = function(store) {
             if(typeof map[this.lconfProperty.toLowerCase()] === "undefined") {
                 this.toggle(true,true);
                 btnGroup.setDisabled(true);
-                
+
             } else {
-                this.toggle(false,true); 
+                this.toggle(false,true);
                 btnGroup.setDisabled(false);
-                
+
             }
         }
     });
-    
-    return {   
+
+    return {
         xtype:'form',
-        height: 400,
+        height: 350,
         flex: 1,
         padding: "1em 1em 1em 1em",
         items: [{
@@ -709,12 +719,12 @@ var getFlappingPreferences = function(store) {
             title: 'Flap detection',
             border: true,
             anchor: '90%',
-            defaults: {                
+            defaults: {
                 listeners: {
                     change: onFieldChange
                 },
                 border: false
-        
+
             },
             items: [{
                 // buttons are ignored by forms...
@@ -724,7 +734,7 @@ var getFlappingPreferences = function(store) {
                     this.ownerCt.cascade(function() {
                         if(this.xtype !== 'hidden' && this.updateFieldValues)
                             this.updateFieldValues.apply(this,args);
-                        
+
                     });
                 }
             },{
@@ -739,7 +749,7 @@ var getFlappingPreferences = function(store) {
                     "disabled": 'Use default'
                 },
                 updateFieldValues: updateTristateButtonValues,
-                listeners: {    
+                listeners: {
                     toggle: onTristateToggle
                 },
                 pressed: 'disabled'
@@ -751,7 +761,7 @@ var getFlappingPreferences = function(store) {
                     for(var i=0;i<btnGroups.length;i++) {
                         btnGroups[i].updateFieldValues.apply(btnGroups[i],arguments);
                     }
-                
+
                     var tristateBtns = this.ownerCt.findByType('tristatebutton');
                     for(i=0;i<tristateBtns.length;i++) {
                         tristateBtns[i].updateFieldValues.apply(tristateBtns[i],arguments);
@@ -765,7 +775,7 @@ var getFlappingPreferences = function(store) {
                     listeners: {
                         change: onFieldChange
                     }
-            
+
                 },
                 items: [defaultBtn,btnGroup]
             }/* Not implemented in lconf backend
@@ -776,7 +786,7 @@ var getFlappingPreferences = function(store) {
                     xtype:'numberfield',
                     id: 'txtnumberfield_min',
                     value:0,
-                    width:30,
+                    width:35,
                     listeners: {
                         change: function(cmp,val) {
                             Ext.getCmp('txtnumberfield_sld').thumbs[0].value = val;
@@ -793,7 +803,7 @@ var getFlappingPreferences = function(store) {
                     values: [0,100],
                     constrainThumbs: true,
                     listeners: {
-               
+
                         drag: function(cmp,x) {
                             console.log(cmp);
                             Ext.getCmp('txtnumberfield_min').setValue(cmp.thumbs[0].value);
@@ -804,7 +814,7 @@ var getFlappingPreferences = function(store) {
                     xtype:'numberfield',
                     id: 'txtnumberfield_max',
                     value:0,
-                    width:30,
+                    width:35,
                     listeners:{
                         change: function(cmp,val) {
                             Ext.getCmp('txtnumberfield_sld').thumbs[1].value = val;
@@ -812,7 +822,7 @@ var getFlappingPreferences = function(store) {
                         }
                     }
                 }]
-            }*/]        
+            }*/]
         }]
     };
 };
@@ -823,7 +833,7 @@ var updateFormValues = function() {
         ldapMap[r.get('property').toLowerCase()] = r.get('value');
     });
     if(this.rendered) {
-        
+
         this.items.each(function(item) {
             if(!item)
                 return false;
@@ -866,7 +876,7 @@ LConf.Extensions.Registry.registerPropertyView({
                 getFlappingPreferences(store)
             ]
         });
- 
+
         p.store = store;
         var storeFn = updateFormValues.createDelegate(p);
         store.on("update",storeFn);
