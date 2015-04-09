@@ -60,6 +60,9 @@ var getHostInfoPanel = function(store) {
     // these helperfunctions are defined inline as we need the store
     // @TODO: not nice and a lot of copy&paste
     var onFieldChange = function(cmp,value) {
+
+        additiveInheritanceBox.updateStates();
+
         if(value === "" && cmp.allowBlank !== false) {
             store.deleteProperties(store.findProperty(cmp.lconfProperty));
         } else {
@@ -115,6 +118,79 @@ var getHostInfoPanel = function(store) {
         },[prefix+"host"]
     );
 
+    var additiveInheritanceBox = new Ext.ButtonGroup({
+        xtype: 'buttongroup',
+        fieldLabel: 'Additive Inheritance',
+        listeners: {
+            toggle: function(button) {
+
+                if (! button.box.getValue() || 0 === button.box.getValue().length) {
+                    button.toggle(false, false);
+                    return;
+                }
+
+                var values = button.box.getValue().split(",");
+
+                for (var i in values) {
+                    var value = Ext.util.Format.trim(values[i]);
+
+                    if (value.charAt(0) != "+" && value.length > 0 && button.pressed == true) {
+                        values[i] = "+" + value;
+                    }
+
+                    if (value.charAt(0) == "+" && value.length > 0 && button.pressed == false) {
+                        values[i] = value.substring(1);
+                    }
+                }
+
+                var valuesString = values.join(",");
+
+                button.box.setValue(valuesString);
+                store.setProperty(button.box.lconfProperty, valuesString);
+            },
+            render: function() {
+                this.items.each(function(button) {
+                    if ( /\+/i.test(button.box.getValue()) ) {
+                        button.toggle(true, true);
+                    }
+                });
+            }
+        },
+        autoHeight: true,
+        anchor: '90%',
+        defaults: {
+            bubbleEvents: ["toggle","change"],
+            xtype: 'button'
+        },
+        layout: 'column',
+        disabled: false,
+        border: false,
+        items: [{
+            text: 'Hostgroups',
+            style: 'margin-right:2px',
+            enableToggle: true,
+            box: hostgroupBox
+        },{
+            text: 'Contactgroups',
+            style: 'margin-right:2px',
+            enableToggle: true,
+            box: contactgroupBox
+        },{
+            text: 'Contacts',
+            style: 'margin-right:2px',
+            enableToggle: true,
+            box: contactBox
+        }],
+        updateStates: function() {
+            this.items.each(function(button) {
+                if ( /\+/i.test(button.box.getValue()) ) {
+                    button.toggle(true, true);
+                } else {
+                    button.toggle(false, false);
+                }
+            });
+        }
+    });
 
     // the store maybe unpopulated, so we have to get a bit out of sync
     var fn = function(me) {
@@ -196,6 +272,7 @@ var getHostInfoPanel = function(store) {
             hostgroupBox,
             contactgroupBox ,
             contactBox,
+            additiveInheritanceBox,
             parentBox,
             {
                 xtype: 'tristatebutton',
