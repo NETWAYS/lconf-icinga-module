@@ -36,7 +36,7 @@ class LConf_Backend_LDAPObjectsSuccessView extends IcingaLConfBaseView
                 $filterModel = $ctx->getModel("LDAPFilter","LConf",array($filter[0],$filter[1]));
                 $filtergr->addFilter($filterModel);
             }
-            
+
             foreach($client->searchEntries($filtergr,null,array(isset($field["Attr"]) ? $field["Attr"] : null)) as $entry) {
                 if(is_int($entry))
                     continue;
