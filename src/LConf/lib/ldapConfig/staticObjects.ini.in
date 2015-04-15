@@ -174,3 +174,7 @@ Serviceescalation = "@ldap_prefix@ServiceEscalation|cn;description;@ldap_prefix@
 Servicegroup = "@ldap_prefix@Servicegroup|cn;description;@ldap_prefix@Alias;@ldap_prefix@Members;@ldap_prefix@ServicegroupMembers"
 StructuralObject = "@ldap_prefix@StructuralObject|ou;description;@ldap_prefix@Address;@ldap_prefix@Host.*;@ldap_prefix@Service.*;@ldap_prefix@Parent"
 Timeperiod = "@ldap_prefix@Timeperiod|cn;description;@ldap_prefix@Alias;@ldap_prefix@TimeperiodValue"
+
+; exclude attributes from the category
+[EXCLUDES]
+StructuralObject = "@ldap_prefix@Contact.*;@ldap_prefix@Email;@ldap_prefix@Address"
