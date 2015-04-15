@@ -110,29 +110,25 @@ var getServiceInfoPanel = function(store) {
                     return;
                 }
 
-                var values = button.box.getValue().split(",");
+                var values = button.box.getValue();
 
-                for (var i in values) {
-                    var value = Ext.util.Format.trim(values[i]);
-
-                    if (value.charAt(0) != "+" && value.length > 0 && button.pressed == true) {
-                        values[i] = "+" + value;
-                    }
-
-                    if (value.charAt(0) == "+" && value.length > 0 && button.pressed == false) {
-                        values[i] = value.substring(1);
-                    }
+                if (values.charAt(0) != "+" && values.length > 0 && button.pressed == true) {
+                    values = "+" + values;
                 }
 
-                var valuesString = values.join(",");
+                if (values.charAt(0) == "+" && values.length > 0 && button.pressed == false) {
+                    values = values.substring(1);
+                }
 
-                button.box.setValue(valuesString);
-                store.setProperty(button.box.lconfProperty, valuesString);
+                button.box.setValue(values);
+                store.setProperty(button.box.lconfProperty, values);
             },
             render: function() {
                 this.items.each(function(button) {
                     if ( /\+/i.test(button.box.getValue()) ) {
                         button.toggle(true, true);
+                    } else {
+                        button.toggle(false, false);
                     }
                 });
             }
