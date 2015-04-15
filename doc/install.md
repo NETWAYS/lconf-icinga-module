@@ -66,6 +66,8 @@ in the Icinga Web GUI.
 
 # Release Checklist
 
+Update doc/CHANGELOG
+
 Update `doc/AUTHORS` and `.mailmap` file
 
     git log --use-mailmap | grep ^Author: | cut -f2- -d' ' | sort | uniq > doc/AUTHORS
@@ -73,7 +75,18 @@ Update `doc/AUTHORS` and `.mailmap` file
 Update version
 
     vim etc/make/version.m4
+    vim lconf-icinga-web.spec
     autoconf
+
+Commit the release
+
+    git commit -v -m "Release <VERSION>"
+
+Add a git tag
+
+MF:
+
+    git tag -u D14A1F16 -m "Version <VERSION>" v<VERSION>
 
 Create tarball
 

@@ -37,7 +37,7 @@
 
 Name:           lconf-icinga-web
 Summary:        Icinga Web Module for LConf
-Version:        1.4.1
+Version:        1.5.0
 Release:        1%{?dist}%{?custom}
 Url:            https://www.netways.org/projects/lconf-for-icinga
 License:        GPL v2 or later
@@ -62,8 +62,8 @@ BuildRequires:  %{phpbuildname} >= 5.2.3
 BuildRequires:  %{phpbuildname}-ldap
 Requires:  	%{phpname} >= 5.2.3
 Requires:       %{phpname}-ldap
-Requires:       LConf >= 1.3.0
-Requires:       icinga-web >= 1.7.0
+Requires:       LConf >= 1.5.0
+Requires:       icinga-web >= 1.11.0
 
 
 %description
