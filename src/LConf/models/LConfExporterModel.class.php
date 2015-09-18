@@ -155,7 +155,7 @@ class LConf_LConfExporterModel extends IcingaLConfBaseModel
         $output = utf8_encode($exportCmd->getOutput());
         $matches = array();
         $result = array();
-	preg_match_all("/[\t ]*?Checked[\t ]*?(?P<number>\d+)[\t ]*?(?P<category>[ \w\(\)]+)\./",$output,$matches);
+	preg_match_all("/[\t ]*?Instantiated[\t ]*?(?P<number>\d+)[\t ]*?(?P<category>[ \w\(\)]+)\./",$output,$matches);
         for($i=0;$i<count($matches["number"]);$i++) {
             $result[] = array(
                 "type" => trim($matches["category"][$i]),
