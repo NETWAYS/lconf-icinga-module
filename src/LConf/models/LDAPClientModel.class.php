@@ -150,9 +150,9 @@ class LConf_LDAPClientModel extends IcingaLConfBaseModel {
 
         $connConf = $this->getConnectionModel();
         $this->helper = AgaviContext::getInstance()->getModel("LDAPHelper","LConf");
-        $ldaps = $connConf->isLDAPS() ? 'ldaps://' : '';
+        $protocol = $connConf->isLDAPS() ? 'ldaps://' : 'ldap://';
 
-        $connection = ldap_connect($ldaps.$connConf->getHost().":".$connConf->getPort());
+        $connection = ldap_connect($protocol.$connConf->getHost().":".$connConf->getPort());
         if(!is_resource($connection))
             throw new AgaviException("Could not connect to ".$connConf->getConnectionName());
 
